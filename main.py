@@ -1,7 +1,7 @@
 import flet as ft
 import os
-
-def main(page: ft.Page):
+import asyncio
+async def main(page: ft.Page):
     page.title = "Botón WhatsApp Flotante"
     page.bgcolor = ft.Colors.WHITE
     page.padding = 0
@@ -9,8 +9,8 @@ def main(page: ft.Page):
 
     # Número de WhatsApp y mensaje
     numero_whatsapp = "56912345678"
-    mensaje = "Hola, estoy interesado en tus productos"
-    mensaje_encoded = mensaje.replace("Hola, deseo recibir mas informacion... ", "%20")
+    mensaje = "Hola, deseo recibir mas informacion de los servicios que ofrecen"
+    mensaje_encoded = mensaje.replace(" ", "%20")
     url_whatsapp = f"https://wa.me/{+56937539304}?text={mensaje_encoded}"
 
     # URL del logo (formato PNG o SVG público)
@@ -25,21 +25,38 @@ def main(page: ft.Page):
         tooltip="Contáctanos por WhatsApp",
     )
 
+    texto_whatsapp = ft.Text(
+    "Whatsapp",
+    size=18,
+    weight=ft.FontWeight.BOLD,
+    color=ft.Colors.BLACK87,
+    selectable=False,
+    style=ft.TextThemeStyle.BODY_MEDIUM,
+    # Puedes ajustar el padding o margen si quieres separación
+)
     # Contenedor con estilo y efecto hover
     boton_contenedor = ft.Container(
-        content=imagen_logo,
-        alignment=ft.alignment.center,
-        width=65,
-        height=65,
-        border_radius=100,
-        bgcolor=ft.Colors.WHITE,
-        shadow=ft.BoxShadow(
-            spread_radius=1,
-            blur_radius=8,
-            color=ft.Colors.BLACK26,
-            offset=ft.Offset(2, 2),
-            blur_style=ft.ShadowBlurStyle.NORMAL,
-        ),
+           content=ft.Row(
+        [
+            imagen_logo,
+            texto_whatsapp
+        ],
+        alignment=ft.MainAxisAlignment.CENTER,
+        vertical_alignment=ft.CrossAxisAlignment.CENTER,
+        spacing=8
+    ),
+    alignment=ft.alignment.center,
+    width=200,  # más ancho para que quepa el texto
+    height=65,
+    border_radius=100,
+    bgcolor=ft.Colors.WHITE,
+    shadow=ft.BoxShadow(
+        spread_radius=1,
+        blur_radius=8,
+        color=ft.Colors.BLACK26,
+        offset=ft.Offset(2, 2),
+        blur_style=ft.ShadowBlurStyle.NORMAL,
+    ),
         on_click=lambda _: page.launch_url(url_whatsapp),
         on_hover=lambda e: imagen_logo.scale.update(1.1 if e.data == "true" else 1.0),
         ink=True,
@@ -60,15 +77,90 @@ def main(page: ft.Page):
     # Agrega el botón como superposición
     page.overlay.append(boton_flotante)
 
-    # Ejemplo de contenido de la página
-    page.add(
-        ft.Column([
-            ft.Text("Página de ejemplo con botón flotante de WhatsApp", size=22),
-            ft.Text("Puedes contactarnos fácilmente desde cualquier dispositivo."),
+  # Título con sombra 3D simulada
+    texto_sombra = ft.Stack([
+        ft.Text(
+            "EvermountSolutions - Pest Defense",
+            size=26,
+            weight=ft.FontWeight.BOLD,
+            color=ft.Colors.BLACK45,
+            top=2,
+            left=2,
+        ),
+        ft.Text(
+            "EvermountSolutions - Pest Defense",
+            size=26,
+            weight=ft.FontWeight.BOLD,
+            color=ft.Colors.WHITE,
+        ),
+    ])
+
+    # Imágenes por grupo (3 por set)
+    sets_imagenes = [
+        [
+            "https://bearclaw.cl/wp-content/uploads/2020/08/procedimiento-de-control-de-plagas.jpg",
+            "https://www.multianau.com/wp-content/uploads/2023/11/img-MULTIANAU-BLOG-Claves-para-el-control-de-plagas-en-la-industria-alimentaria.jpg",
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRXeZ7ElGw51_JF6TZuylsCHQcXd-e_GyV7mA&s"
         ],
-        alignment=ft.MainAxisAlignment.CENTER,
-        horizontal_alignment=ft.CrossAxisAlignment.CENTER)
+        [
+            "https://cursosudgassesorar.com/wp-content/uploads/2022/02/Libros-de-Control-de-Plagas.jpg",
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTimFMgOc-bNR1xeYjxD__RbzP0LApis-ovRuggm-TM0CPZl6OBeSj8TCc3Ph1sYVIjhcg&usqp=CAU",
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRAF2blxqmgt_0N7htQAMCDfn8thMHzWPy0z9a7_tdSsSgxDzYD9GiinavAWy8CpM7Ndl0&usqp=CAU"
+        ]
+    ]
+
+    # Controles de las 3 imágenes visibles
+    imagenes_visibles = [
+        ft.Image(width=180, height=120, fit=ft.ImageFit.COVER, border_radius=8),
+        ft.Image(width=180, height=120, fit=ft.ImageFit.COVER, border_radius=8),
+        ft.Image(width=180, height=120, fit=ft.ImageFit.COVER, border_radius=8)
+    ]
+
+
+    fila_carrusel = ft.Row(
+        controls=imagenes_visibles,
+        spacing=10,
+        alignment=ft.MainAxisAlignment.CENTER
     )
+
+    async def rotar_sets():
+        index = 0
+        while True:
+            set_actual = sets_imagenes[index]
+            for i in range(3):
+                imagenes_visibles[i].src = set_actual[i]
+                imagenes_visibles[i].update()
+            await asyncio.sleep(3)
+            index = (index + 1) % len(sets_imagenes)
+
+   
+    asyncio.create_task(rotar_sets())
+    # Barra personalizada con fondo degradado
+    barra_superior = ft.Container(
+        height=90,
+        padding=ft.padding.symmetric(horizontal=20),
+        gradient=ft.LinearGradient(
+            begin=ft.alignment.center_left,
+            end=ft.alignment.center_right,
+            colors=["#0f2027", "#203a43", "#2c5364"],
+        ),
+        content=ft.Row([
+            texto_sombra,
+            ft.Container(expand=True),  # separador flexible
+            fila_carrusel
+        ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN, vertical_alignment=ft.CrossAxisAlignment.CENTER),
+    )
+
+    # Contenido principal
+    contenido = ft.Column([
+        ft.Text("Bienvenido a EvermountSolutions", size=22),
+        ft.Text("Control de plagas profesional. Haz clic en el botón para contactarnos."),
+    ],
+        alignment=ft.MainAxisAlignment.CENTER,
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER
+    )
+
+    page.add(barra_superior, contenido)
 
 # Ejecutar en navegador
 ft.app(target=main, view=ft.WEB_BROWSER, port=int(os.environ.get("PORT", 8080)))
