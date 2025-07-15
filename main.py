@@ -111,28 +111,16 @@ async def main(page: ft.Page):
 
     # Controles de las 3 imágenes visibles
     imagenes_visibles = [
-        ft.Image(width=150, height=100, fit=ft.ImageFit.COVER, border_radius=8),
-        ft.Image(width=150, height=100, fit=ft.ImageFit.COVER, border_radius=8),
-        ft.Image(width=150, height=100, fit=ft.ImageFit.COVER, border_radius=8),
+    ft.Image(width=110, height=70, fit=ft.ImageFit.COVER, border_radius=8),
+    ft.Image(width=110, height=70, fit=ft.ImageFit.COVER, border_radius=8),
+    ft.Image(width=110, height=70, fit=ft.ImageFit.COVER, border_radius=8),
     ]
-
     fila_carrusel = ft.Row(
-        controls=imagenes_visibles,
-        spacing=10,
-        alignment=ft.MainAxisAlignment.START,
-        scroll="auto",  # visible solo cuando sea necesario
-        wrap=False,  # <--- evita que las imágenes bajen en lugar de hacer scroll
-        expand=False
-    )
-
-    carrusel_section = ft.Container(
-        content=ft.Column([
-            fila_carrusel
-        ]),
-        padding=ft.padding.symmetric(horizontal=10, vertical=10),
-        alignment=ft.alignment.center_left,
-        expand=True  # <--- Importante
-    )
+    controls=imagenes_visibles,
+    scroll="always",  # fuerza scroll visible para que se note
+    spacing=10,
+    alignment=ft.MainAxisAlignment.START
+)
 
     async def rotar_sets():
         index = 0
@@ -172,6 +160,7 @@ async def main(page: ft.Page):
     contenido = ft.Column([
         ft.Text("Bienvenido a EvermountSolutions", size=22),
         ft.Text("Control de plagas profesional. Haz clic en el botón para contactarnos."),
+        fila_carrusel 
     ],
         alignment=ft.MainAxisAlignment.CENTER,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER
@@ -211,7 +200,7 @@ async def main(page: ft.Page):
     page.on_window_event = lambda e: ajustar_tamanos() if e.data == "shown" else None
 
     # Agregar todo a la página
-    page.add(barra_superior, contenido,carrusel_section)
+    page.add(barra_superior, contenido)
 
 # Ejecutar en navegador
 ft.app(target=main, view=ft.WEB_BROWSER, port=int(os.environ.get("PORT", 8080)))
