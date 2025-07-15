@@ -8,10 +8,10 @@ async def main(page: ft.Page):
     page.window_resizable = True
 
     # Número de WhatsApp y mensaje
-    numero_whatsapp = "56912345678"
+    numero_whatsapp = "+56937539304"
     mensaje = "Hola, deseo recibir mas informacion de los servicios que ofrecen"
     mensaje_encoded = mensaje.replace(" ", "%20")
-    url_whatsapp = f"https://wa.me/{+56937539304}?text={mensaje_encoded}"
+    url_whatsapp = f"https://wa.me/{numero_whatsapp}?text={mensaje_encoded}"
 
     # URL del logo (formato PNG o SVG público)
     logo_url = "https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
@@ -149,14 +149,20 @@ async def main(page: ft.Page):
     )    
 
     barra_superior = ft.Container(
-        padding=ft.padding.symmetric(horizontal=10, vertical=10),
+        height=100,
+        padding=ft.padding.symmetric(horizontal=10),
         gradient=ft.LinearGradient(
             begin=ft.alignment.center_left,
             end=ft.alignment.center_right,
             colors=["#0f2027", "#203a43", "#2c5364"],
         ),
-        content=barra_contenido,
-        height=200
+        content=ft.Row(
+            controls=[
+                ft.Container(content=texto_sombra, expand=True, alignment=ft.alignment.center_left),
+            ],
+            alignment=ft.MainAxisAlignment.START,
+            vertical_alignment=ft.CrossAxisAlignment.CENTER,
+        )
     )
 
 
@@ -168,7 +174,13 @@ async def main(page: ft.Page):
         alignment=ft.MainAxisAlignment.CENTER,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER
     )
- # 🟦 FUNCIÓN RESPONSIVE: ajustar tamaños de texto e imágenes según el ancho
+        # Sección del carrusel debajo del contenido principal
+    carrusel_section = ft.Container(
+        padding=ft.padding.symmetric(horizontal=10, vertical=20),
+        content=fila_carrusel,
+        alignment=ft.alignment.center
+    )
+
     async def ajustar_tamanos(e=None):
         ancho = page.window_width
 
@@ -195,35 +207,15 @@ async def main(page: ft.Page):
                 img.width = 180
                 img.height = 120
 
-        # Cambiar entre Column (vertical) y Row (horizontal)
-        if ancho < 600:
-            barra_contenido.controls = [
-                ft.Container(content=texto_sombra, alignment=ft.alignment.center),
-                ft.Container(content=fila_carrusel, alignment=ft.alignment.center),
-            ]
-            barra_superior.height = 220
-        else:
-            barra_contenido.controls = [
-                ft.Row(
-                    controls=[
-                        ft.Container(content=texto_sombra, expand=True, alignment=ft.alignment.center_left),
-                        ft.Container(content=fila_carrusel, alignment=ft.alignment.center_right)
-                    ],
-                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-                    vertical_alignment=ft.CrossAxisAlignment.CENTER
-                )
-            ]
-            barra_superior.height = 120
-
         page.update()
 
 
     # Llamar al inicio y cuando se cambie el tamaño
     page.on_resize = ajustar_tamanos
-    ajustar_tamanos()
+    page.on_window_event = lambda e: ajustar_tamanos() if e.data == "shown" else None
 
     # Agregar todo a la página
-    page.add(barra_superior, contenido)
+    page.add(barra_superior, contenido,carrusel_section)
 
 # Ejecutar en navegador
 ft.app(target=main, view=ft.WEB_BROWSER, port=int(os.environ.get("PORT", 8080)))
