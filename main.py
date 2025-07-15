@@ -101,10 +101,16 @@ async def main(page: ft.Page):
     )
 ])
 
-    logo_empresa = ft.Image(
-    src="https://i.postimg.cc/85B97MwH/nat.jpg",  # Reemplázalo por tu logo
-    fit=ft.ImageFit.CONTAIN,
-    expand=True  # esto es CLAVE para que use todo el alto del contenedor
+    logo_empresa = ft.Container(
+    content=ft.Image(
+        src="https://i.postimg.cc/85B97MwH/nat.jpg",  # reemplaza con tu logo
+        fit=ft.ImageFit.CONTAIN,
+        expand=True
+    ),
+    border_radius=50,  # 🔁 puedes ajustar este valor para más o menos redondez
+    bgcolor=ft.Colors.WHITE,  # opcional, si quieres que el fondo contraste
+    padding=4,  # opcional, para que no se pegue a los bordes
+    expand=True  # importante: esto permite que herede el alto de la barra
     )
 
 
