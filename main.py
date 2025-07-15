@@ -120,8 +120,11 @@ async def main(page: ft.Page):
     fila_carrusel = ft.Row(
         controls=imagenes_visibles,
         spacing=10,
-        alignment=ft.MainAxisAlignment.CENTER
+        alignment=ft.MainAxisAlignment.START,
+        scroll="auto",
+        # no definir width aquí
     )
+
 
     async def rotar_sets():
         index = 0
@@ -137,16 +140,7 @@ async def main(page: ft.Page):
     asyncio.create_task(rotar_sets())
     # Barra personalizada con fondo degradado
         # Barra personalizada responsive con fondo degradado
-        # Barra superior responsive (una sola línea siempre)
 
-    barra_contenido = ft.Column(
-        controls=[
-            ft.Container(content=texto_sombra, alignment=ft.alignment.center),
-            ft.Container(content=fila_carrusel, alignment=ft.alignment.center),
-        ],
-        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-        spacing=10,
-    )    
 
     barra_superior = ft.Container(
         height=100,
@@ -207,7 +201,12 @@ async def main(page: ft.Page):
                 img.width = 180
                 img.height = 120
 
+        # Actualiza el ancho del carrusel para móvil y escritorio
+        fila_carrusel.width = min(ancho * 0.95, 800)
+        fila_carrusel.update()
+
         page.update()
+
 
 
     # Llamar al inicio y cuando se cambie el tamaño
