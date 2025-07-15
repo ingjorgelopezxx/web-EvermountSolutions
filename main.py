@@ -138,6 +138,16 @@ async def main(page: ft.Page):
     # Barra personalizada con fondo degradado
         # Barra personalizada responsive con fondo degradado
         # Barra superior responsive (una sola línea siempre)
+
+    barra_contenido = ft.Column(
+        controls=[
+            ft.Container(content=texto_sombra, alignment=ft.alignment.center),
+            ft.Container(content=fila_carrusel, alignment=ft.alignment.center),
+        ],
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+        spacing=10,
+    )    
+
     barra_superior = ft.Container(
         padding=ft.padding.symmetric(horizontal=10, vertical=10),
         gradient=ft.LinearGradient(
@@ -145,22 +155,8 @@ async def main(page: ft.Page):
             end=ft.alignment.center_right,
             colors=["#0f2027", "#203a43", "#2c5364"],
         ),
-        content=ft.Row(
-            controls=[
-                ft.Container(
-                    content=texto_sombra,
-                    expand=True,
-                    alignment=ft.alignment.center_left
-                ),
-                ft.Container(
-                    content=fila_carrusel,
-                    alignment=ft.alignment.center_right
-                )
-            ],
-            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-            vertical_alignment=ft.CrossAxisAlignment.CENTER
-        ),
-        height=120
+        content=barra_contenido,
+        height=200
     )
 
 
@@ -190,14 +186,34 @@ async def main(page: ft.Page):
         # Imágenes del carrusel
         for img in imagenes_visibles:
             if ancho < 500:
-                img.width = 90
-                img.height = 60
+                img.width = 100
+                img.height = 70
             elif ancho < 800:
-                img.width = 120
-                img.height = 80
+                img.width = 140
+                img.height = 90
             else:
                 img.width = 180
                 img.height = 120
+
+        # Cambiar entre Column (vertical) y Row (horizontal)
+        if ancho < 600:
+            barra_contenido.controls = [
+                ft.Container(content=texto_sombra, alignment=ft.alignment.center),
+                ft.Container(content=fila_carrusel, alignment=ft.alignment.center),
+            ]
+            barra_superior.height = 220
+        else:
+            barra_contenido.controls = [
+                ft.Row(
+                    controls=[
+                        ft.Container(content=texto_sombra, expand=True, alignment=ft.alignment.center_left),
+                        ft.Container(content=fila_carrusel, alignment=ft.alignment.center_right)
+                    ],
+                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                    vertical_alignment=ft.CrossAxisAlignment.CENTER
+                )
+            ]
+            barra_superior.height = 120
 
         page.update()
 
