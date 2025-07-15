@@ -117,12 +117,12 @@ async def main(page: ft.Page):
     ]
 
 
-    fila_carrusel = ft.Row(
+    carrusel_scrollable = ft.Row(
         controls=imagenes_visibles,
         spacing=10,
         alignment=ft.MainAxisAlignment.START,
-        scroll="auto",
-        # no definir width aquí
+        scroll="auto",  # ¡Scroll horizontal habilitado aquí!
+        expand=True
     )
 
 
@@ -169,16 +169,11 @@ async def main(page: ft.Page):
         horizontal_alignment=ft.CrossAxisAlignment.CENTER
     )
         # Sección del carrusel debajo del contenido principal
-    carrusel_section = ft.Container(
-        padding=ft.padding.symmetric(horizontal=10, vertical=20),
-        content=fila_carrusel,
-        alignment=ft.alignment.center
-    )
 
     async def ajustar_tamanos(e=None):
         ancho = page.window_width
 
-        # Texto principal
+        # Ajustar tamaño de texto
         if ancho < 500:
             texto_sombra.controls[0].size = 16
             texto_sombra.controls[1].size = 16
@@ -189,23 +184,20 @@ async def main(page: ft.Page):
             texto_sombra.controls[0].size = 26
             texto_sombra.controls[1].size = 26
 
-        # Imágenes del carrusel
+        # Ajustar tamaño de imágenes del carrusel
         for img in imagenes_visibles:
             if ancho < 500:
-                img.width = 100
-                img.height = 70
+                img.width = 110
+                img.height = 80
             elif ancho < 800:
                 img.width = 140
-                img.height = 90
+                img.height = 100
             else:
                 img.width = 180
                 img.height = 120
 
-        # Actualiza el ancho del carrusel para móvil y escritorio
-        fila_carrusel.width = min(ancho * 0.95, 800)
-        fila_carrusel.update()
-
         page.update()
+
 
 
 
@@ -214,7 +206,7 @@ async def main(page: ft.Page):
     page.on_window_event = lambda e: ajustar_tamanos() if e.data == "shown" else None
 
     # Agregar todo a la página
-    page.add(barra_superior, contenido,carrusel_section)
+    page.add(barra_superior, contenido,carrusel_scrollable)
 
 # Ejecutar en navegador
 ft.app(target=main, view=ft.WEB_BROWSER, port=int(os.environ.get("PORT", 8080)))
