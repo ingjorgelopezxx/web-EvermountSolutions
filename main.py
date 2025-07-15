@@ -98,12 +98,12 @@ async def main(page: ft.Page):
     # Imágenes por grupo (3 por set)
     sets_imagenes = [
         [
-            "https://bearclaw.cl/wp-content/uploads/2020/08/procedimiento-de-control-de-plagas.jpg",
+            "https://irp.cdn-website.com/fe74ab3f/dms3rep/multi/3-c76791a1.jpg",
             "https://www.multianau.com/wp-content/uploads/2023/11/img-MULTIANAU-BLOG-Claves-para-el-control-de-plagas-en-la-industria-alimentaria.jpg",
             "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRXeZ7ElGw51_JF6TZuylsCHQcXd-e_GyV7mA&s"
         ],
         [
-            "https://cursosudgassesorar.com/wp-content/uploads/2022/02/Libros-de-Control-de-Plagas.jpg",
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQxriBp7gAvC3DeO0ZsaDqinL-7dZCJ_ulUmx_B3ad-QOo911PD0nwmsyZFBF3dK_bTzsw&usqp=CAU",
             "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTimFMgOc-bNR1xeYjxD__RbzP0LApis-ovRuggm-TM0CPZl6OBeSj8TCc3Ph1sYVIjhcg&usqp=CAU",
             "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRAF2blxqmgt_0N7htQAMCDfn8thMHzWPy0z9a7_tdSsSgxDzYD9GiinavAWy8CpM7Ndl0&usqp=CAU"
         ]
