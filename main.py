@@ -137,31 +137,32 @@ async def main(page: ft.Page):
     asyncio.create_task(rotar_sets())
     # Barra personalizada con fondo degradado
         # Barra personalizada responsive con fondo degradado
+        # Barra superior responsive (una sola línea siempre)
     barra_superior = ft.Container(
-        height=120,
         padding=ft.padding.symmetric(horizontal=10, vertical=10),
         gradient=ft.LinearGradient(
             begin=ft.alignment.center_left,
             end=ft.alignment.center_right,
             colors=["#0f2027", "#203a43", "#2c5364"],
         ),
-        content=ft.ResponsiveRow(
-            columns=12,
+        content=ft.Row(
             controls=[
                 ft.Container(
                     content=texto_sombra,
-                    col={"sm": 12, "md": 6, "xl": 6},  # Ocupa 12 columnas en móviles, 6 en pantallas grandes
-                    alignment=ft.alignment.center_left,
+                    expand=True,
+                    alignment=ft.alignment.center_left
                 ),
                 ft.Container(
                     content=fila_carrusel,
-                    col={"sm": 12, "md": 6, "xl": 6},
-                    alignment=ft.alignment.center_right,
-                    padding=ft.padding.only(top=10),
+                    alignment=ft.alignment.center_right
                 )
             ],
+            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+            vertical_alignment=ft.CrossAxisAlignment.CENTER
         ),
+        height=120
     )
+
 
     # Contenido principal
     contenido = ft.Column([
@@ -177,11 +178,11 @@ async def main(page: ft.Page):
 
         # Texto principal
         if ancho < 500:
-            texto_sombra.controls[0].size = 18
-            texto_sombra.controls[1].size = 18
+            texto_sombra.controls[0].size = 16
+            texto_sombra.controls[1].size = 16
         elif ancho < 800:
-            texto_sombra.controls[0].size = 22
-            texto_sombra.controls[1].size = 22
+            texto_sombra.controls[0].size = 20
+            texto_sombra.controls[1].size = 20
         else:
             texto_sombra.controls[0].size = 26
             texto_sombra.controls[1].size = 26
@@ -189,16 +190,17 @@ async def main(page: ft.Page):
         # Imágenes del carrusel
         for img in imagenes_visibles:
             if ancho < 500:
+                img.width = 90
+                img.height = 60
+            elif ancho < 800:
                 img.width = 120
                 img.height = 80
-            elif ancho < 800:
-                img.width = 150
-                img.height = 100
             else:
                 img.width = 180
                 img.height = 120
 
         page.update()
+
 
     # Llamar al inicio y cuando se cambie el tamaño
     page.on_resize = ajustar_tamanos
