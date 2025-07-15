@@ -78,28 +78,15 @@ async def main(page: ft.Page):
     page.overlay.append(boton_flotante)
 
   # Título con sombra 3D simulada
-    texto_empresa = ft.Stack([
-    ft.Text(
-        "EvermountSolutions - Pest Defense",
-        size=26,
-        weight=ft.FontWeight.BOLD,
-        color=ft.Colors.BLACK45,
-        top=1,
-        left=1,
-        no_wrap=True,
-        overflow=ft.TextOverflow.CLIP,
-        max_lines=1
-    ),
-    ft.Text(
-        "EvermountSolutions - Pest Defense",
-        size=26,
-        weight=ft.FontWeight.BOLD,
-        color=ft.Colors.WHITE,
-        no_wrap=True,
-        overflow=ft.TextOverflow.CLIP,
-        max_lines=1
-    )
-    ])
+    texto_empresa = ft.Text(
+    "EvermountSolutions - Pest Defense",
+    size=26,
+    weight=ft.FontWeight.BOLD,
+    color=ft.Colors.WHITE,
+    no_wrap=True,
+    overflow=ft.TextOverflow.CLIP,
+    max_lines=1
+)
 
 
     # Imágenes por grupo (3 por set)
@@ -146,21 +133,21 @@ async def main(page: ft.Page):
 
 
     barra_superior = ft.Container(
-        height=100,
-        padding=ft.padding.symmetric(horizontal=10),
-        gradient=ft.LinearGradient(
-            begin=ft.alignment.center_left,
-            end=ft.alignment.center_right,
-            colors=["#0f2027", "#203a43", "#2c5364"],
-        ),
-        content=ft.Row(
-            controls=[
-                ft.Container(content=texto_empresa, expand=True, alignment=ft.alignment.center_left),
-            ],
-            alignment=ft.MainAxisAlignment.START,
-            vertical_alignment=ft.CrossAxisAlignment.CENTER,
-        )
+    height=100,
+    padding=ft.padding.symmetric(horizontal=10),
+    gradient=ft.LinearGradient(
+        begin=ft.alignment.center_left,
+        end=ft.alignment.center_right,
+        colors=["#0f2027", "#203a43", "#2c5364"],
+    ),
+    content=ft.Row(
+        controls=[
+            ft.Container(content=texto_empresa, expand=True, alignment=ft.alignment.center_left),
+        ],
+        alignment=ft.MainAxisAlignment.START,
+        vertical_alignment=ft.CrossAxisAlignment.CENTER,
     )
+)
 
 
 
@@ -178,23 +165,15 @@ async def main(page: ft.Page):
     async def ajustar_tamanos(e=None):
         ancho = page.window_width
 
-        # Tamaño de texto
         if ancho < 400:
-            texto_empresa.controls[0].size = 10
-            texto_empresa.controls[1].size = 10
+            texto_empresa.size = 14
         elif ancho < 500:
-            texto_empresa.controls[0].size = 12
-            texto_empresa.controls[1].size = 12
+            texto_empresa.size = 16
         elif ancho < 700:
-            texto_empresa.controls[0].size = 14
-            texto_empresa.controls[1].size = 14
+            texto_empresa.size = 20
         else:
-            texto_empresa.controls[0].size = 20
-            texto_empresa.controls[1].size = 20
+            texto_empresa.size = 26
 
-
-
-        # Ajuste dinámico del tamaño de las imágenes
         for img in imagenes_visibles:
             if ancho < 500:
                 img.width = 100
@@ -206,6 +185,7 @@ async def main(page: ft.Page):
                 img.width = 180
                 img.height = 120
 
+        texto_empresa.update()
         page.update()
 
     # Llamar al inicio y cuando se cambie el tamaño
