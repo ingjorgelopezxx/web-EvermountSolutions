@@ -111,20 +111,25 @@ async def main(page: ft.Page):
 
     # Controles de las 3 imágenes visibles
     imagenes_visibles = [
-        ft.Image(width=180, height=120, fit=ft.ImageFit.COVER, border_radius=8),
-        ft.Image(width=180, height=120, fit=ft.ImageFit.COVER, border_radius=8),
-        ft.Image(width=180, height=120, fit=ft.ImageFit.COVER, border_radius=8)
+        ft.Image(width=150, height=100, fit=ft.ImageFit.COVER, border_radius=8),
+        ft.Image(width=150, height=100, fit=ft.ImageFit.COVER, border_radius=8),
+        ft.Image(width=150, height=100, fit=ft.ImageFit.COVER, border_radius=8),
     ]
 
-
-    carrusel_scrollable = ft.Row(
+    fila_carrusel = ft.Row(
         controls=imagenes_visibles,
         spacing=10,
         alignment=ft.MainAxisAlignment.START,
-        scroll="auto",  # ¡Scroll horizontal habilitado aquí!
-        expand=True
+        scroll="always",  # fuerza scroll visible
+        expand=True  # ocupa todo el ancho posible
     )
 
+    carrusel_section = ft.Container(
+        content=fila_carrusel,
+        padding=ft.padding.symmetric(horizontal=10, vertical=10),
+        alignment=ft.alignment.center_left,
+        expand=False
+    )
 
     async def rotar_sets():
         index = 0
@@ -173,7 +178,7 @@ async def main(page: ft.Page):
     async def ajustar_tamanos(e=None):
         ancho = page.window_width
 
-        # Ajustar tamaño de texto
+        # Tamaño de texto
         if ancho < 500:
             texto_sombra.controls[0].size = 16
             texto_sombra.controls[1].size = 16
@@ -184,29 +189,26 @@ async def main(page: ft.Page):
             texto_sombra.controls[0].size = 26
             texto_sombra.controls[1].size = 26
 
-        # Ajustar tamaño de imágenes del carrusel
+        # Ajuste dinámico del tamaño de las imágenes
         for img in imagenes_visibles:
             if ancho < 500:
-                img.width = 110
-                img.height = 80
+                img.width = 100
+                img.height = 70
             elif ancho < 800:
-                img.width = 140
-                img.height = 100
+                img.width = 130
+                img.height = 90
             else:
                 img.width = 180
                 img.height = 120
 
         page.update()
 
-
-
-
     # Llamar al inicio y cuando se cambie el tamaño
     page.on_resize = ajustar_tamanos
     page.on_window_event = lambda e: ajustar_tamanos() if e.data == "shown" else None
 
     # Agregar todo a la página
-    page.add(barra_superior, contenido,carrusel_scrollable)
+    page.add(barra_superior, contenido,carrusel_section)
 
 # Ejecutar en navegador
 ft.app(target=main, view=ft.WEB_BROWSER, port=int(os.environ.get("PORT", 8080)))
