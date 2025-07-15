@@ -78,15 +78,29 @@ async def main(page: ft.Page):
     page.overlay.append(boton_flotante)
 
   # Título con sombra 3D simulada
-    texto_empresa = ft.Text(
-    "EvermountSolutions - Pest Defense",
-    size=26,
-    weight=ft.FontWeight.BOLD,
-    color=ft.Colors.WHITE,
-    no_wrap=True,
-    overflow=ft.TextOverflow.CLIP,
-    max_lines=1
-)
+    texto_empresa = ft.Stack([
+    ft.Text(
+        "EvermountSolutions - Pest Defense",
+        size=26,  # valor inicial que cambiaremos luego
+        weight=ft.FontWeight.BOLD,
+        color=ft.Colors.BLACK45,
+        no_wrap=True,
+        overflow=ft.TextOverflow.CLIP,
+        max_lines=1,
+        top=1,
+        left=1
+    ),
+    ft.Text(
+        "EvermountSolutions - Pest Defense",
+        size=26,
+        weight=ft.FontWeight.BOLD,
+        color=ft.Colors.WHITE,
+        no_wrap=True,
+        overflow=ft.TextOverflow.CLIP,
+        max_lines=1,
+    )
+])
+
 
 
     # Imágenes por grupo (3 por set)
@@ -125,15 +139,12 @@ async def main(page: ft.Page):
                 imagenes_visibles[i].update()
             await asyncio.sleep(3)
             index = (index + 1) % len(sets_imagenes)
-
-   
-    asyncio.create_task(rotar_sets())
+    
     # Barra personalizada con fondo degradado
         # Barra personalizada responsive con fondo degradado
 
-
     barra_superior = ft.Container(
-    height=100,
+    height=90,
     padding=ft.padding.symmetric(horizontal=10),
     gradient=ft.LinearGradient(
         begin=ft.alignment.center_left,
@@ -147,9 +158,7 @@ async def main(page: ft.Page):
         alignment=ft.MainAxisAlignment.START,
         vertical_alignment=ft.CrossAxisAlignment.CENTER,
     )
-)
-
-
+    )
 
     # Contenido principal
     contenido = ft.Column([
@@ -162,18 +171,17 @@ async def main(page: ft.Page):
     )
         # Sección del carrusel debajo del contenido principal
 
-    async def ajustar_tamanos(e=None):
-        ancho = page.window_width
-
-        if ancho < 400:
-            texto_empresa.size = 14
-        elif ancho < 500:
-            texto_empresa.size = 16
-        elif ancho < 700:
-            texto_empresa.size = 20
+    def ajustar_tamanos(e=None):
+        ancho = page.width
+        if ancho < 450:
+            texto_empresa.controls[0].size = 14
+            texto_empresa.controls[1].size = 14
+        elif ancho < 600:
+            texto_empresa.controls[0].size = 18
+            texto_empresa.controls[1].size = 18
         else:
-            texto_empresa.size = 26
-
+            texto_empresa.controls[0].size = 26
+            texto_empresa.controls[1].size = 26
         for img in imagenes_visibles:
             if ancho < 500:
                 img.width = 100
@@ -194,7 +202,8 @@ async def main(page: ft.Page):
 
     # Agregar todo a la página
     page.add(barra_superior, contenido)
-
+    asyncio.create_task(rotar_sets())
+    ajustar_tamanos()
 # Ejecutar en navegador
 ft.app(target=main, view=ft.WEB_BROWSER, port=int(os.environ.get("PORT", 8080)))
 
