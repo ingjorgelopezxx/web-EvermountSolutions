@@ -78,22 +78,29 @@ async def main(page: ft.Page):
     page.overlay.append(boton_flotante)
 
   # Título con sombra 3D simulada
-    texto_sombra = ft.Stack([
-        ft.Text(
-            "EvermountSolutions - Pest Defense",
-            size=26,
-            weight=ft.FontWeight.BOLD,
-            color=ft.Colors.BLACK45,
-            top=2,
-            left=2,
-        ),
-        ft.Text(
-            "EvermountSolutions - Pest Defense",
-            size=26,
-            weight=ft.FontWeight.BOLD,
-            color=ft.Colors.WHITE,
-        ),
+    texto_empresa = ft.Stack([
+    ft.Text(
+        "EvermountSolutions - Pest Defense",
+        size=26,
+        weight=ft.FontWeight.BOLD,
+        color=ft.Colors.BLACK45,
+        top=1,
+        left=1,
+        no_wrap=True,
+        overflow=ft.TextOverflow.CLIP,
+        max_lines=1
+    ),
+    ft.Text(
+        "EvermountSolutions - Pest Defense",
+        size=26,
+        weight=ft.FontWeight.BOLD,
+        color=ft.Colors.WHITE,
+        no_wrap=True,
+        overflow=ft.TextOverflow.CLIP,
+        max_lines=1
+    )
     ])
+
 
     # Imágenes por grupo (3 por set)
     sets_imagenes = [
@@ -148,12 +155,13 @@ async def main(page: ft.Page):
         ),
         content=ft.Row(
             controls=[
-                ft.Container(content=texto_sombra, expand=True, alignment=ft.alignment.center_left),
+                ft.Container(content=texto_empresa, expand=True, alignment=ft.alignment.center_left),
             ],
             alignment=ft.MainAxisAlignment.START,
             vertical_alignment=ft.CrossAxisAlignment.CENTER,
         )
     )
+
 
 
     # Contenido principal
@@ -171,15 +179,20 @@ async def main(page: ft.Page):
         ancho = page.window_width
 
         # Tamaño de texto
-        if ancho < 500:
-            texto_sombra.controls[0].size = 16
-            texto_sombra.controls[1].size = 16
-        elif ancho < 800:
-            texto_sombra.controls[0].size = 20
-            texto_sombra.controls[1].size = 20
+        if ancho < 400:
+            texto_empresa.controls[0].size = 14
+            texto_empresa.controls[1].size = 14
+        elif ancho < 500:
+            texto_empresa.controls[0].size = 16
+            texto_empresa.controls[1].size = 16
+        elif ancho < 700:
+            texto_empresa.controls[0].size = 20
+            texto_empresa.controls[1].size = 20
         else:
-            texto_sombra.controls[0].size = 26
-            texto_sombra.controls[1].size = 26
+            texto_empresa.controls[0].size = 26
+            texto_empresa.controls[1].size = 26
+
+
 
         # Ajuste dinámico del tamaño de las imágenes
         for img in imagenes_visibles:
