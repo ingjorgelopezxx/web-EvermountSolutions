@@ -166,7 +166,7 @@ async def main(page: ft.Page):
 
     # Contenido principal
     contenido = ft.Column([
-        ft.Text("Bienvenido a EvermountSolutions", size=22),
+        ft.Text("Bienvenido a EvermountSolutions"),
         ft.Text("Control de plagas profesional. Haz clic en el botón para contactarnos."),
         fila_carrusel 
     ],
@@ -180,17 +180,17 @@ async def main(page: ft.Page):
 
         # Tamaño de texto
         if ancho < 400:
+            texto_empresa.controls[0].size = 10
+            texto_empresa.controls[1].size = 10
+        elif ancho < 500:
+            texto_empresa.controls[0].size = 12
+            texto_empresa.controls[1].size = 12
+        elif ancho < 700:
             texto_empresa.controls[0].size = 14
             texto_empresa.controls[1].size = 14
-        elif ancho < 500:
-            texto_empresa.controls[0].size = 16
-            texto_empresa.controls[1].size = 16
-        elif ancho < 700:
+        else:
             texto_empresa.controls[0].size = 20
             texto_empresa.controls[1].size = 20
-        else:
-            texto_empresa.controls[0].size = 26
-            texto_empresa.controls[1].size = 26
 
 
 
