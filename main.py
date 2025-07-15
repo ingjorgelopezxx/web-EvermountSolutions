@@ -120,15 +120,18 @@ async def main(page: ft.Page):
         controls=imagenes_visibles,
         spacing=10,
         alignment=ft.MainAxisAlignment.START,
-        scroll="always",  # fuerza scroll visible
-        expand=True  # ocupa todo el ancho posible
+        scroll="auto",  # visible solo cuando sea necesario
+        wrap=False,  # <--- evita que las imágenes bajen en lugar de hacer scroll
+        expand=False
     )
 
     carrusel_section = ft.Container(
-        content=fila_carrusel,
+        content=ft.Column([
+            fila_carrusel
+        ]),
         padding=ft.padding.symmetric(horizontal=10, vertical=10),
         alignment=ft.alignment.center_left,
-        expand=False
+        expand=True  # <--- Importante
     )
 
     async def rotar_sets():
