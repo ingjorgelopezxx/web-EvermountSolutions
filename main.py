@@ -102,10 +102,9 @@ async def main(page: ft.Page):
 ])
 
     logo_empresa = ft.Image(
-    src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg",  # Reemplázalo por tu logo
-    width=60,
-    height=60,
-    fit=ft.ImageFit.CONTAIN
+    src="https://i.postimg.cc/85B97MwH/nat.jpg",  # Reemplázalo por tu logo
+    fit=ft.ImageFit.CONTAIN,
+    expand=True  # esto es CLAVE para que use todo el alto del contenedor
     )
 
 
@@ -160,7 +159,7 @@ async def main(page: ft.Page):
     content=ft.Row(
         controls=[
             ft.Container(content=texto_empresa, expand=True, alignment=ft.alignment.center_left),
-            ft.Container(content=logo_empresa, alignment=ft.alignment.center_right),
+            ft.Container(content=logo_empresa, alignment=ft.alignment.center_right,width=60,expand=True),
         ],
         alignment=ft.MainAxisAlignment.START,
         vertical_alignment=ft.CrossAxisAlignment.CENTER,
@@ -199,16 +198,13 @@ async def main(page: ft.Page):
             else:
                 img.width = 180
                 img.height = 120
-                
+
         if ancho < 450:
-            logo_empresa.width = 36
-            logo_empresa.height = 36
+            logo_empresa.height =50
         elif ancho < 700:
-            logo_empresa.width = 48
-            logo_empresa.height = 48
-        else:
-            logo_empresa.width = 60
             logo_empresa.height = 60
+        else:
+            logo_empresa.height = 70
 
         logo_empresa.update()
         texto_empresa.update()
