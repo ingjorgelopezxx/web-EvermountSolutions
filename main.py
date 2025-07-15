@@ -46,7 +46,7 @@ async def main(page: ft.Page):
         spacing=8
     ),
     alignment=ft.alignment.center,
-    width=200,  # más ancho para que quepa el texto
+    width=170,  # más ancho para que quepa el texto
     height=65,
     border_radius=100,
     bgcolor=ft.Colors.WHITE,
@@ -101,6 +101,12 @@ async def main(page: ft.Page):
     )
 ])
 
+    logo_empresa = ft.Image(
+    src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg",  # Reemplázalo por tu logo
+    width=60,
+    height=60,
+    fit=ft.ImageFit.CONTAIN
+    )
 
 
     # Imágenes por grupo (3 por set)
@@ -144,8 +150,8 @@ async def main(page: ft.Page):
         # Barra personalizada responsive con fondo degradado
 
     barra_superior = ft.Container(
-    height=90,
-    padding=ft.padding.symmetric(horizontal=10),
+    height=None,  # ✅ altura automática según contenido
+    padding=ft.padding.symmetric(horizontal=10, vertical=8),
     gradient=ft.LinearGradient(
         begin=ft.alignment.center_left,
         end=ft.alignment.center_right,
@@ -154,6 +160,7 @@ async def main(page: ft.Page):
     content=ft.Row(
         controls=[
             ft.Container(content=texto_empresa, expand=True, alignment=ft.alignment.center_left),
+            ft.Container(content=logo_empresa, alignment=ft.alignment.center_right),
         ],
         alignment=ft.MainAxisAlignment.START,
         vertical_alignment=ft.CrossAxisAlignment.CENTER,
@@ -192,7 +199,18 @@ async def main(page: ft.Page):
             else:
                 img.width = 180
                 img.height = 120
+                
+        if ancho < 450:
+            logo_empresa.width = 36
+            logo_empresa.height = 36
+        elif ancho < 700:
+            logo_empresa.width = 48
+            logo_empresa.height = 48
+        else:
+            logo_empresa.width = 60
+            logo_empresa.height = 60
 
+        logo_empresa.update()
         texto_empresa.update()
         page.update()
 
