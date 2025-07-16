@@ -105,12 +105,8 @@ async def main(page: ft.Page):
     content=ft.Image(
         src="https://i.postimg.cc/85B97MwH/nat.jpg",  # reemplaza con tu logo
         fit=ft.ImageFit.CONTAIN,
-        expand=True
     ),
-    border_radius=50,  # 🔁 puedes ajustar este valor para más o menos redondez
     bgcolor=ft.Colors.WHITE,  # opcional, si quieres que el fondo contraste
-    padding=4,  # opcional, para que no se pegue a los bordes
-    expand=True  # importante: esto permite que herede el alto de la barra
     )
 
 
@@ -154,23 +150,33 @@ async def main(page: ft.Page):
     # Barra personalizada con fondo degradado
         # Barra personalizada responsive con fondo degradado
 
-    barra_superior = ft.Container(
-    height=None,  # ✅ altura automática según contenido
-    padding=ft.padding.symmetric(horizontal=10, vertical=8),
-    gradient=ft.LinearGradient(
-        begin=ft.alignment.center_left,
-        end=ft.alignment.center_right,
-        colors=["#0f2027", "#203a43", "#2c5364"],
-    ),
-    content=ft.Row(
+        # Barra personalizada dividida en dos: izquierda gradiente, derecha blanca
+    barra_superior = ft.Row(
+        height=None,
+        # todo el alto se ajusta al contenido
         controls=[
-            ft.Container(content=texto_empresa, expand=True, alignment=ft.alignment.center_left),
-            ft.Container(content=logo_empresa, alignment=ft.alignment.center_right,width=60,expand=True),
+            # Lado izquierdo: título con gradiente de fondo
+            ft.Container(
+                content=texto_empresa,
+                expand=True,
+                alignment=ft.alignment.center_left,
+                padding=ft.padding.symmetric(horizontal=10, vertical=8),
+                gradient=ft.LinearGradient(
+                    begin=ft.alignment.center_left,
+                    end=ft.alignment.center_right,
+                    colors=["#0f2027", "#203a43", "#2c5364"],
+                ),
+            ),
+            # Lado derecho: logo con fondo blanco
+            ft.Container(
+                content=logo_empresa,
+                alignment=ft.alignment.center,
+                bgcolor=ft.Colors.WHITE,     # aquí ponemos fondo blanco
+            ),
         ],
-        alignment=ft.MainAxisAlignment.START,
         vertical_alignment=ft.CrossAxisAlignment.CENTER,
     )
-    )
+
 
     # Contenido principal
     contenido = ft.Column([
@@ -192,8 +198,8 @@ async def main(page: ft.Page):
             texto_empresa.controls[0].size = 18
             texto_empresa.controls[1].size = 18
         else:
-            texto_empresa.controls[0].size = 26
-            texto_empresa.controls[1].size = 26
+            texto_empresa.controls[0].size = 30
+            texto_empresa.controls[1].size = 30
         for img in imagenes_visibles:
             if ancho < 500:
                 img.width = 100
@@ -205,13 +211,15 @@ async def main(page: ft.Page):
                 img.width = 180
                 img.height = 120
 
+        texto_size = texto_empresa.controls[0].size
+        logo_side = texto_size + 8
         if ancho < 450:
-            logo_empresa.height =50
+            logo_empresa.height = logo_side
         elif ancho < 700:
-            logo_empresa.height = 60
+            logo_empresa.height = logo_side
         else:
-            logo_empresa.height = 70
-
+            logo_empresa.height = logo_side
+        
         logo_empresa.update()
         texto_empresa.update()
         page.update()
