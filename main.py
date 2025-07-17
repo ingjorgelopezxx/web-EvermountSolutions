@@ -248,7 +248,16 @@ async def main(page: ft.Page):
             ], spacing=10, horizontal_alignment=ft.CrossAxisAlignment.CENTER),
         )
     )
+    #  Esta parte es la que añade el on_connect para reiniciar TODO al recargar:
+    def on_connect(e):
+        intro_modal.visible = True
+        dropdown.visible = False
+        for i, img in enumerate(imagenes_visibles):
+            img.src = sets_imagenes[0][i]
+            img.update()
+        page.update()
 
+    page.on_connect = on_connect
     # --- Montaje final + overlays ---
     page.add(
         ft.Column([
