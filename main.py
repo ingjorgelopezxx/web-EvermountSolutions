@@ -24,12 +24,13 @@ async def main(page: ft.Page):
 
     texto_whatsapp = ft.Text("Whatsapp", size=18, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK87)
     boton_whatsapp = ft.Container(
-        content=ft.Row([imagen_logo, texto_whatsapp], alignment=ft.MainAxisAlignment.CENTER, spacing=8),
+        content=ft.Row([imagen_logo, texto_whatsapp], alignment=ft.MainAxisAlignment.CENTER, spacing=4),
         width=170, height=65, border_radius=100, bgcolor=ft.Colors.WHITE,
         shadow=ft.BoxShadow(1,8,ft.Colors.BLACK26,offset=ft.Offset(2,2)),
         on_click=lambda _: page.launch_url(url_whatsapp),
         on_hover=animar_logo,
         ink=True,
+        margin=ft.margin.only(right=16, bottom=16),  # <-- aquí
     )
 
     # --- Botón Empresa y Dropdown ---
@@ -43,10 +44,6 @@ async def main(page: ft.Page):
         imagen_empresa.scale = 1.1 if e.data == "true" else 1.0
         imagen_empresa.update()
 
-    texto_Empresa = ft.Column([
-        ft.Text("Evermount", size=14, weight=ft.FontWeight.BOLD, no_wrap=True),
-        ft.Text("Solution", size=14, weight=ft.FontWeight.BOLD, no_wrap=True),
-    ], spacing=0)
 
     # Items del menú
     def show_info(opt):
@@ -100,11 +97,17 @@ async def main(page: ft.Page):
         page.update()
 
     boton_empresa = ft.Container(
-        content=ft.Row([imagen_empresa, texto_Empresa],
-                       alignment=ft.MainAxisAlignment.CENTER, spacing=4),
-        height=50, padding=ft.padding.symmetric(horizontal=10),
-        border_radius=100, bgcolor=ft.Colors.WHITE,
-        shadow=ft.BoxShadow(1,8,ft.Colors.BLACK26,offset=ft.Offset(2,2)),
+        content=imagen_empresa,
+        width=50,
+        height=50,
+        border_radius=25,             # radio = mitad del ancho/alto
+        bgcolor=ft.Colors.WHITE,
+        shadow=ft.BoxShadow(
+            spread_radius=1,
+            blur_radius=8,
+            color=ft.Colors.BLACK26,
+            offset=ft.Offset(2, 2)
+        ),
         on_hover=animar_empresa,
         on_click=toggle_menu,
         ink=True,
