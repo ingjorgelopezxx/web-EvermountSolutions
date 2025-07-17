@@ -19,33 +19,32 @@ async def main(page: ft.Page):
         scale=1.0, animate_scale=200, tooltip="Contáctanos por WhatsApp"
     )
     def animar_logo(e):
-        imagen_logo.scale = 1.1 if e.data == "true" else 1.0
+        imagen_logo.scale = 1.1 if e.data=="true" else 1.0
         imagen_logo.update()
-
     texto_whatsapp = ft.Text("Whatsapp", size=18, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK87)
     boton_whatsapp = ft.Container(
-        content=ft.Row([imagen_logo, texto_whatsapp], alignment=ft.MainAxisAlignment.CENTER, spacing=4),
-        width=170, height=65, border_radius=100, bgcolor=ft.Colors.WHITE,
-        shadow=ft.BoxShadow(1,8,ft.Colors.BLACK26,offset=ft.Offset(2,2)),
+        content=ft.Row([imagen_logo, texto_whatsapp],
+                       alignment=ft.MainAxisAlignment.CENTER, spacing=4),
+        width=170, height=65,
+        padding=ft.padding.symmetric(horizontal=12, vertical=8),
+        border_radius=100, bgcolor=ft.Colors.WHITE,
+        shadow=ft.BoxShadow(1,8,ft.Colors.BLACK26, offset=ft.Offset(2,2)),
         on_click=lambda _: page.launch_url(url_whatsapp),
         on_hover=animar_logo,
         ink=True,
-        margin=ft.margin.only(right=16, bottom=16),  # <-- aquí
+        margin=ft.margin.only(right=16, bottom=16),  # separa de los bordes
     )
 
-    # --- Botón Empresa y Dropdown ---
+    # --- Botón Empresa + Dropdown ---
     logo_empresa_url = "https://i.postimg.cc/SKgGrpQ8/logo-512x512.png"
     imagen_empresa = ft.Image(
-        src=logo_empresa_url, width=60, height=60,
-        fit=ft.ImageFit.CONTAIN, scale=1.0, animate_scale=200,
-        tooltip="Menú Empresa"
+        src=logo_empresa_url, width=60, height=60, fit=ft.ImageFit.CONTAIN,
+        scale=1.0, animate_scale=200, tooltip="Menú Empresa"
     )
     def animar_empresa(e):
-        imagen_empresa.scale = 1.1 if e.data == "true" else 1.0
+        imagen_empresa.scale = 1.1 if e.data=="true" else 1.0
         imagen_empresa.update()
 
-
-    # Items del menú
     def show_info(opt):
         dlg = ft.AlertDialog(
             title=ft.Text(opt),
@@ -56,42 +55,50 @@ async def main(page: ft.Page):
         dlg.open = True
         page.update()
 
+    # === Aquí agregamos iconos a cada item ===
+    menu_data = [
+        ("Contactos", ft.Icons.CONTACT_PHONE),
+        ("Ubicación",  ft.Icons.PLACE),
+        ("Misión",     ft.Icons.FLAG),
+        ("Visión",     ft.Icons.VISIBILITY),
+    ]
     menu_items = []
-    for opt in ["Opción 1", "Opción 2", "Opción 3", "Opción 4"]:
+    for text, icon in menu_data:
         item = ft.Container(
-            content=ft.Text(opt),
+            content=ft.Row(
+                [
+                    ft.Icon(icon, size=20, color=ft.Colors.BLACK54),
+                    ft.Text(text, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK87),
+                ],
+                spacing=8,
+                vertical_alignment=ft.CrossAxisAlignment.CENTER,
+            ),
             padding=ft.padding.symmetric(vertical=6, horizontal=12),
             bgcolor=ft.Colors.WHITE,
             border_radius=4,
-            on_click=lambda e, o=opt: show_info(o),
+            on_click=lambda e, t=text: show_info(t),
             ink=True,
         )
-        # hover manual
         item.on_hover = (lambda c: lambda e: (
             setattr(c, "bgcolor", ft.Colors.BLACK12 if e.data=="true" else ft.Colors.WHITE),
             c.update()
         ))(item)
         menu_items.append(item)
 
-    # Este es el Column que agrupa las opciones
     menu_column = ft.Column(controls=menu_items, spacing=0)
-
-    # Este es el wrapper que vamos a mostrar/ocultar
     dropdown = ft.Container(
         content=ft.Container(
             content=menu_column,
             bgcolor=ft.Colors.WHITE,
             border_radius=6,
-            shadow=ft.BoxShadow(1,4,ft.Colors.BLACK26,offset=ft.Offset(0,2)),
+            shadow=ft.BoxShadow(1,4,ft.Colors.BLACK26, offset=ft.Offset(0,2)),
             width=150,
-            height=130
-            
+            height=150
         ),
         visible=False,
         alignment=ft.alignment.top_right,
-        margin=ft.margin.only(top=70, right=10),  # justo debajo de la barra
+        margin=ft.margin.only(top=70, right=10),
     )
-
     def toggle_menu(e):
         dropdown.visible = not dropdown.visible
         page.update()
@@ -113,7 +120,7 @@ async def main(page: ft.Page):
         ink=True,
     )
 
-    # --- Barra superior con botón Empresa dentro ---
+    # --- Barra superior con botón Empresa ---
     texto_titulo = ft.Stack([
         ft.Text("EvermountSolutions – Pest Defense",
                 size=26, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK45, top=1, left=1),
@@ -153,57 +160,109 @@ async def main(page: ft.Page):
         fila_carrusel
     ], expand=True, alignment=ft.MainAxisAlignment.CENTER, horizontal_alignment=ft.CrossAxisAlignment.CENTER)
 
-    # --- Responsive ---
+    # --- Responsive: texto + ancho automático para WhatsApp ---
     def ajustar_tamanos(e=None):
         a = page.width
-
-        # --- Título ---
-        s = 14 if a < 450 else 18 if a < 600 else 26
+        # título
+        s = 14 if a<450 else 18 if a<600 else 26
         texto_titulo.controls[0].size = s
         texto_titulo.controls[1].size = s
         texto_titulo.update()
-
-        # --- Botón WhatsApp responsive ---
+        # WhatsApp
         if a < 400:
-            # Móvil muy estrecho: texto pequeño, ancho automático
             texto_whatsapp.size = 12
             boton_whatsapp.width = None
             boton_whatsapp.padding = ft.padding.symmetric(horizontal=8, vertical=8)
         elif a < 600:
-            # Tablet / móvil medio: texto algo más pequeño, ancho reducido
             texto_whatsapp.size = 14
             boton_whatsapp.width = 140
             boton_whatsapp.padding = ft.padding.symmetric(horizontal=10, vertical=8)
         else:
-            # Escritorio: valores originales
             texto_whatsapp.size = 18
             boton_whatsapp.width = 170
             boton_whatsapp.padding = ft.padding.symmetric(horizontal=16, vertical=8)
-
         texto_whatsapp.update()
         boton_whatsapp.update()
-
         page.update()
-
 
     page.on_resize = ajustar_tamanos
     page.on_window_event = lambda e: ajustar_tamanos() if e.data=="shown" else None
 
-    # --- Montaje final con Stack para el dropdown ---
-    page.add(
-        ft.Stack(
-            controls=[
-                ft.Column([
-                    barra_superior,
-                    contenido,
-                    ft.Row([boton_whatsapp], alignment=ft.MainAxisAlignment.END),
-                ], expand=True),
-                dropdown  # flota sobre todo sin alterar la barra
-            ],
-            expand=True
+    # --- Modal de bienvenida ---
+    def close_intro(e):
+        intro_modal.visible = False
+        page.update()
+
+    # Contenedor circular para el logo
+    logo_circular = ft.Container(
+        content=ft.Image(src=logo_empresa_url, fit=ft.ImageFit.COVER),
+        width=80,
+        height=80,
+        border_radius=40,  # radio = mitad de ancho/alto
+        clip_behavior=ft.ClipBehavior.ANTI_ALIAS,  # asegura que recorte la imagen
+        bgcolor=ft.Colors.WHITE,
+        alignment=ft.alignment.center
+    )
+
+    intro_modal = ft.Container(
+        expand=True,
+        bgcolor=ft.Colors.BLACK54,  # fondo semitransparente
+        alignment=ft.alignment.center,
+        content=ft.Container(
+            width=350,
+            height=400,
+            bgcolor=ft.Colors.WHITE,
+            border_radius=10,
+            padding=20,
+            content=ft.Column([
+                # Botón de cierre (X)
+                ft.Row([
+                    ft.Text("", expand=True),  # empuja la X a la derecha
+                    ft.IconButton(
+                        icon=ft.Icons.CLOSE,
+                        on_click=close_intro,
+                        icon_color=ft.Colors.BLACK
+                    )
+                ], spacing=0),
+                # Logo en la parte superior
+                logo_circular,
+                # Título en negro y negrita
+                ft.Text(
+                    "¡Bienvenido a EvermountSolutions!",
+                    size=20,
+                    weight=ft.FontWeight.BOLD,
+                    color=ft.Colors.BLACK
+                ),
+                ft.Text(
+                    "Aquí encontrarás todo lo referente al control de plagas profesional "
+                    "navega por la página y usa los botones para contactarte.",
+                    color=ft.Colors.BLACK
+                ),
+                # Descripción en negro y negrita
+                ft.Text(
+                    "Si deseas obtener mas información referente a la empresa "
+                    "has clic sobre el boton ubicado en la esquina superior derecha.",
+                    weight=ft.FontWeight.BOLD,
+                    color=ft.Colors.BLUE_900
+                )
+            ], spacing=10, horizontal_alignment=ft.CrossAxisAlignment.CENTER),
         )
     )
 
+    # --- Montaje final + overlays ---
+    page.add(
+        ft.Column([
+            barra_superior,
+            contenido,
+            ft.Row([boton_whatsapp], alignment=ft.MainAxisAlignment.END),
+        ], expand=True)
+    )
+    # overlay: dropdown y modal inicial
+    page.overlay.clear()
+    page.overlay.append(dropdown)
+    page.overlay.append(intro_modal)
+
+    # Inicia carrusel y primer resize
     asyncio.create_task(rotar_sets())
     ajustar_tamanos()
 
