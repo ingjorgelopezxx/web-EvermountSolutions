@@ -153,13 +153,35 @@ async def main(page: ft.Page):
     # --- Responsive ---
     def ajustar_tamanos(e=None):
         a = page.width
-        s = 14 if a<450 else 18 if a<600 else 26
-        texto_titulo.controls[0].size = s; texto_titulo.controls[1].size = s; texto_titulo.update()
-        if a<500: boton_whatsapp.width,boton_whatsapp.height = 130,45
-        elif a<800: boton_whatsapp.width,boton_whatsapp.height = 145,50
-        else: boton_whatsapp.width,boton_whatsapp.height = 170,65
+
+        # --- Título ---
+        s = 14 if a < 450 else 18 if a < 600 else 26
+        texto_titulo.controls[0].size = s
+        texto_titulo.controls[1].size = s
+        texto_titulo.update()
+
+        # --- Botón WhatsApp responsive ---
+        if a < 400:
+            # Móvil muy estrecho: texto pequeño, ancho automático
+            texto_whatsapp.size = 12
+            boton_whatsapp.width = None
+            boton_whatsapp.padding = ft.padding.symmetric(horizontal=8, vertical=8)
+        elif a < 600:
+            # Tablet / móvil medio: texto algo más pequeño, ancho reducido
+            texto_whatsapp.size = 14
+            boton_whatsapp.width = 140
+            boton_whatsapp.padding = ft.padding.symmetric(horizontal=10, vertical=8)
+        else:
+            # Escritorio: valores originales
+            texto_whatsapp.size = 18
+            boton_whatsapp.width = 170
+            boton_whatsapp.padding = ft.padding.symmetric(horizontal=16, vertical=8)
+
+        texto_whatsapp.update()
         boton_whatsapp.update()
+
         page.update()
+
 
     page.on_resize = ajustar_tamanos
     page.on_window_event = lambda e: ajustar_tamanos() if e.data=="shown" else None
