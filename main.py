@@ -255,7 +255,7 @@ async def main(page: ft.Page):
             barra_superior,
             contenido,
             ft.Row([boton_whatsapp], alignment=ft.MainAxisAlignment.END),
-        ], expand=True)
+        ], expand=True,  horizontal_alignment=ft.CrossAxisAlignment.CENTER )
     )
     # overlay: dropdown y modal inicial
     page.overlay.clear()
