@@ -14,7 +14,7 @@ async def main(page: ft.Page):
     # --- Tercer botón: Facebook ---
     url_facebook = "https://facebook.com/evermountsolutions"
     imagen_facebook = ft.Image(
-        src="https://upload.wikimedia.org/wikipedia/commons/1/1b/Facebook_icon.svg",
+        src="https://upload.wikimedia.org/wikipedia/commons/b/b9/2023_Facebook_icon.svg",
         width=60, height=60, fit=ft.ImageFit.CONTAIN,
         scale=1.0, animate_scale=200, tooltip="Síguenos en Facebook"
     )
@@ -74,9 +74,9 @@ async def main(page: ft.Page):
     )
 
     # --- Botón Empresa + Dropdown ---
-    logo_empresa_url = "https://i.postimg.cc/SKgGrpQ8/logo-512x512.png"
+    logo_empresa_url = "https://i.postimg.cc/rFxRRS5D/logo-72x72.png"
     imagen_empresa = ft.Image(
-        src=logo_empresa_url, width=60, height=60, fit=ft.ImageFit.CONTAIN,
+        src=logo_empresa_url, width=50, height=50, fit=ft.ImageFit.CONTAIN,
         scale=1.0, animate_scale=200, tooltip="Menú Empresa"
     )
     def animar_empresa(e):
