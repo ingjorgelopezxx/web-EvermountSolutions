@@ -194,7 +194,7 @@ async def main(page: ft.Page):
 
     async def animacion_alternada():
      while True:
-        for img in [imagen_logo, imagen_izquierda, imagen_facebook]:
+        for img in [imagen_logo, imagen_izquierda, imagen_facebook,imagen_empresa]:
             img.scale = 1.2
             img.update()
             await asyncio.sleep(0.4)
