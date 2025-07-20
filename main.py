@@ -11,6 +11,44 @@ async def main(page: ft.Page):
     # --- WhatsApp ---
     numero_whatsapp = "+56937539304"
     url_whatsapp = f"https://wa.me/{numero_whatsapp}?text=Hola"
+    # --- Tercer botón: Facebook ---
+    url_facebook = "https://facebook.com/evermountsolutions"
+    imagen_facebook = ft.Image(
+        src="https://upload.wikimedia.org/wikipedia/commons/1/1b/Facebook_icon.svg",
+        width=60, height=60, fit=ft.ImageFit.CONTAIN,
+        scale=1.0, animate_scale=200, tooltip="Síguenos en Facebook"
+    )
+    boton_facebook = ft.Container(
+        content=imagen_facebook,
+        width=60,
+        height=60,
+        border_radius=30,
+        bgcolor=None,  # sin fondo
+        shadow=None,   # sin sombra
+        on_click=lambda _: page.launch_url(url_facebook),
+        ink=False,     # sin efecto de tinta
+        margin=ft.margin.only(left=16, bottom=16),
+    )
+    
+    # --- Segundo botón (ejemplo: Instagram) ---
+    url_izquierdo = "https://instagram.com/evermountsolutions"  # Puedes cambiarlo
+    imagen_izquierda = ft.Image(
+        src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg",
+        width=60, height=60, fit=ft.ImageFit.CONTAIN,
+        scale=1.0, animate_scale=200, tooltip="Síguenos en Instagram"
+    )
+    
+    boton_izquierdo = ft.Container(
+        content=imagen_izquierda,
+        width=60,
+        height=60,
+        border_radius=30,
+        bgcolor=ft.Colors.WHITE,
+        shadow=ft.BoxShadow(1, 8, ft.Colors.BLACK26, offset=ft.Offset(2, 2)),
+        on_click=lambda _: page.launch_url(url_izquierdo),
+        ink=True,
+        margin=ft.margin.only(bottom=16),
+    )
 
     # -- Botón WhatsApp --
     imagen_logo = ft.Image(
@@ -21,18 +59,18 @@ async def main(page: ft.Page):
     def animar_logo(e):
         imagen_logo.scale = 1.1 if e.data=="true" else 1.0
         imagen_logo.update()
-    texto_whatsapp = ft.Text("Whatsapp", size=18, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK87)
+   
     boton_whatsapp = ft.Container(
-        content=ft.Row([imagen_logo, texto_whatsapp],
-                       alignment=ft.MainAxisAlignment.CENTER, spacing=4),
-        width=170, height=65,
-        padding=ft.padding.symmetric(horizontal=12, vertical=8),
-        border_radius=100, bgcolor=ft.Colors.WHITE,
-        shadow=ft.BoxShadow(1,8,ft.Colors.BLACK26, offset=ft.Offset(2,2)),
+        content=imagen_logo,
+        width=60,
+        height=60,
+        border_radius=30,
+        bgcolor=ft.Colors.WHITE,
+        shadow=ft.BoxShadow(1, 8, ft.Colors.BLACK26, offset=ft.Offset(2, 2)),
         on_click=lambda _: page.launch_url(url_whatsapp),
         on_hover=animar_logo,
         ink=True,
-        margin=ft.margin.only(right=16, bottom=16),  # separa de los bordes
+        margin=ft.margin.only(right=16, bottom=16),
     )
 
     # --- Botón Empresa + Dropdown ---
@@ -154,6 +192,16 @@ async def main(page: ft.Page):
                 img.src = sets_imagenes[idx][i]; img.update()
             await asyncio.sleep(3); idx = (idx+1) % len(sets_imagenes)
 
+    async def animacion_alternada():
+     while True:
+        for img in [imagen_logo, imagen_izquierda, imagen_facebook]:
+            img.scale = 1.2
+            img.update()
+            await asyncio.sleep(0.4)
+            img.scale = 1.0
+            img.update()
+            await asyncio.sleep(0.4)
+
     contenido = ft.Column([
         ft.Text("Bienvenido a EvermountSolutions"),
         ft.Text("Control de plagas profesional. Haz clic en los botones."),
@@ -168,21 +216,6 @@ async def main(page: ft.Page):
         texto_titulo.controls[0].size = s
         texto_titulo.controls[1].size = s
         texto_titulo.update()
-        # WhatsApp
-        if a < 400:
-            texto_whatsapp.size = 12
-            boton_whatsapp.width = None
-            boton_whatsapp.padding = ft.padding.symmetric(horizontal=8, vertical=8)
-        elif a < 600:
-            texto_whatsapp.size = 14
-            boton_whatsapp.width = 140
-            boton_whatsapp.padding = ft.padding.symmetric(horizontal=10, vertical=8)
-        else:
-            texto_whatsapp.size = 18
-            boton_whatsapp.width = 170
-            boton_whatsapp.padding = ft.padding.symmetric(horizontal=16, vertical=8)
-        texto_whatsapp.update()
-        boton_whatsapp.update()
         page.update()
 
     page.on_resize = ajustar_tamanos
@@ -263,7 +296,12 @@ async def main(page: ft.Page):
         ft.Column([
             barra_superior,
             contenido,
-            ft.Row([boton_whatsapp], alignment=ft.MainAxisAlignment.END),
+            ft.Row(
+            [boton_facebook, boton_izquierdo, boton_whatsapp],
+            alignment=ft.MainAxisAlignment.END,
+            vertical_alignment=ft.CrossAxisAlignment.END,
+            spacing=10,
+            ),
         ], expand=True,  horizontal_alignment=ft.CrossAxisAlignment.CENTER )
     )
     # overlay: dropdown y modal inicial
@@ -274,5 +312,5 @@ async def main(page: ft.Page):
     # Inicia carrusel y primer resize
     asyncio.create_task(rotar_sets())
     ajustar_tamanos()
-
+    asyncio.create_task(animacion_alternada())
 ft.app(target=main, view=ft.WEB_BROWSER, port=int(os.environ.get("PORT", 8080)))
