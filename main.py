@@ -34,7 +34,7 @@ async def main(page: ft.Page):
     url_izquierdo = "https://instagram.com/evermountsolutions"  # Puedes cambiarlo
     imagen_izquierda = ft.Image(
         src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg",
-        width=60, height=60, fit=ft.ImageFit.CONTAIN,
+        fit=ft.ImageFit.CONTAIN,
         scale=1.0, animate_scale=200, tooltip="Síguenos en Instagram"
     )
     
@@ -53,7 +53,7 @@ async def main(page: ft.Page):
     # -- Botón WhatsApp --
     imagen_logo = ft.Image(
         src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg",
-        width=60, height=60, fit=ft.ImageFit.CONTAIN,
+        fit=ft.ImageFit.COVER,
         scale=1.0, animate_scale=200, tooltip="Contáctanos por WhatsApp"
     )
     def animar_logo(e):
@@ -75,8 +75,9 @@ async def main(page: ft.Page):
 
     # --- Botón Empresa + Dropdown ---
     logo_empresa_url = "https://i.postimg.cc/rFxRRS5D/logo-72x72.png"
+    logo_empresa_ulr_mensaje = "https://i.postimg.cc/8PvSgg5x/logo-mobile-dark.png"
     imagen_empresa = ft.Image(
-        src=logo_empresa_url, width=50, height=50, fit=ft.ImageFit.CONTAIN,
+        src=logo_empresa_url, fit=ft.ImageFit.CONTAIN,
         scale=1.0, animate_scale=200, tooltip="Menú Empresa"
     )
     def animar_empresa(e):
@@ -139,24 +140,50 @@ async def main(page: ft.Page):
     )
     def toggle_menu(e):
         dropdown.visible = not dropdown.visible
+        cerrar_menu_overlay.visible = dropdown.visible
         page.update()
+    cerrar_menu_overlay = ft.Container(
+        expand=True,
+        bgcolor=ft.Colors.TRANSPARENT,
+        visible=False,
+        on_click=lambda e: (
+            setattr(dropdown, "visible", False),
+            setattr(cerrar_menu_overlay, "visible", False),
+            page.update()
+        )
+    )
 
+        
     boton_empresa = ft.Container(
+    content=ft.Container(
         content=imagen_empresa,
         width=50,
         height=50,
-        border_radius=25,             # radio = mitad del ancho/alto
-        bgcolor=ft.Colors.WHITE,
+        border_radius=25,
+        bgcolor=ft.LinearGradient(
+            begin=ft.alignment.top_left,
+            end=ft.alignment.bottom_right,
+            colors=["#ffffff", "#dcdcdc"]
+        ),
         shadow=ft.BoxShadow(
-            spread_radius=1,
-            blur_radius=8,
-            color=ft.Colors.BLACK26,
-            offset=ft.Offset(2, 2)
+            spread_radius=2,
+            blur_radius=10,
+            color=ft.Colors.BLACK38,
+            offset=ft.Offset(3, 3)
         ),
         on_hover=animar_empresa,
         on_click=toggle_menu,
         ink=True,
+        alignment=ft.alignment.center
+    ),
+    width=64,
+    height=64,
+    bgcolor=ft.Colors.BLACK12,  # Fondo circular más visible
+    border_radius=32,
+    padding=7,  # Espaciado interno
     )
+
+
 
     # --- Barra superior con botón Empresa ---
     texto_titulo = ft.Stack([
@@ -227,15 +254,16 @@ async def main(page: ft.Page):
         page.update()
 
     # Contenedor circular para el logo
+    # Contenedor circular para el logo (ajustado a arriba)
     logo_circular = ft.Container(
-        content=ft.Image(src=logo_empresa_url, fit=ft.ImageFit.COVER),
-        width=80,
-        height=80,
-        border_radius=40,  # radio = mitad de ancho/alto
-        clip_behavior=ft.ClipBehavior.ANTI_ALIAS,  # asegura que recorte la imagen
+        content=ft.Image(src=logo_empresa_ulr_mensaje, fit=ft.ImageFit.COVER),
+        width=256,
+        height=128,
+        clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
         bgcolor=ft.Colors.WHITE,
-        alignment=ft.alignment.center
+        alignment=ft.alignment.top_center,   # ⬅️ Esto lo alinea arriba
     )
+
 
     intro_modal = ft.Container(
         expand=True,
@@ -243,7 +271,7 @@ async def main(page: ft.Page):
         alignment=ft.alignment.center,
         content=ft.Container(
             width=350,
-            height=400,
+            height=430,
             bgcolor=ft.Colors.WHITE,
             border_radius=10,
             padding=20,
@@ -256,12 +284,12 @@ async def main(page: ft.Page):
                         on_click=close_intro,
                         icon_color=ft.Colors.BLACK
                     )
-                ], spacing=0),
+                ]),
                 # Logo en la parte superior
                 logo_circular,
                 # Título en negro y negrita
                 ft.Text(
-                    "¡Bienvenido a EvermountSolutions!",
+                    "¡Bienvenidos!",
                     size=20,
                     weight=ft.FontWeight.BOLD,
                     color=ft.Colors.BLACK
@@ -278,7 +306,7 @@ async def main(page: ft.Page):
                     weight=ft.FontWeight.BOLD,
                     color=ft.Colors.BLUE_900
                 )
-            ], spacing=10, horizontal_alignment=ft.CrossAxisAlignment.CENTER),
+            ], horizontal_alignment=ft.CrossAxisAlignment.CENTER),
         )
     )
     #  Esta parte es la que añade el on_connect para reiniciar TODO al recargar:
@@ -306,8 +334,7 @@ async def main(page: ft.Page):
     )
     # overlay: dropdown y modal inicial
     page.overlay.clear()
-    page.overlay.append(dropdown)
-    page.overlay.append(intro_modal)
+    page.overlay.extend([dropdown, cerrar_menu_overlay, intro_modal])
 
     # Inicia carrusel y primer resize
     asyncio.create_task(rotar_sets())
