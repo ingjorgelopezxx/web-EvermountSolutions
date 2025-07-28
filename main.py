@@ -231,7 +231,13 @@ async def main(page: ft.Page):
                 ft.Text("dirección de empresa", size=20, weight=ft.FontWeight.BOLD, color=ft.Colors.BLUE_900)
             )
         contenido.update()
-
+        cerrar_menu()
+    
+    # Funcion para cerrar menu del Boton Empresa
+    def cerrar_menu():
+        dropdown.visible = False
+        page.update()
+        
     # Funcion para cerrar el menu del boton empresa cuando el cursor no este encima 
     def cerrar_menu_hover(e):
     # Si el mouse sale del menú, se cierra
