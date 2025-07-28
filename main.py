@@ -318,12 +318,24 @@ async def main(page: ft.Page):
             Botones_agregar,
         ], expand=True, horizontal_alignment=ft.CrossAxisAlignment.CENTER)
     )
-    
+    # --- Responsive: texto + ancho automático para WhatsApp ---
+    def ajustar_tamanos(e=None):
+        a = page.width
+        # título
+        s = 14 if a<450 else 18 if a<600 else 26
+        texto_titulo.controls[0].size = s
+        texto_titulo.controls[1].size = s
+        texto_titulo.update()
+        page.update()
+
+    page.on_resize = ajustar_tamanos
+    page.on_window_event = lambda e: ajustar_tamanos() if e.data=="shown" else None
+
     # Overlay oculto para cerrar el menu al hacer clic fuera de el
     page.overlay.extend([dropdown, intro_modal])
     page.update()
     asyncio.create_task(rotar_sets())
     asyncio.create_task(animacion_alternada())
-    
+    ajustar_tamanos()
    
 ft.app(target=main, view=ft.WEB_BROWSER, port=int(os.environ.get("PORT", 8080)))
