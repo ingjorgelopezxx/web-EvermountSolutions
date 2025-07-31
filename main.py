@@ -225,7 +225,7 @@ async def main(page: ft.Page):
         # --- Contenidos para el carrusel/presentación ---
     slides = [
         {
-            "titulo": "Bienvenidos a Evermount Solutions - Pest Defense",
+            "titulo": "Bienvenidos!",
             "contenido": [
                 "Somos una empresa familiar dedicada con pasión al control y manejo integral de plagas. Fundada por dos hermanos, nuestra misión es proteger hogares, empresas y comunidades con soluciones efectivas, responsables y personalizadas.",
                 "Confía en nosotros para mantener tus espacios seguros, limpios y libres de plagas, con tecnología avanzada y atención profesional.",
@@ -246,8 +246,10 @@ async def main(page: ft.Page):
 
     def mostrar_slide(idx):
         contenido.controls.clear()
-            # Calcula ancho máximo para el card según el tamaño de la ventana
-        ancho_card = min(max(page.width * 0.95, 300), 480)  # min 300px, max 480px
+        # Ajusta el ancho del card para móviles
+        ancho_card = min(int(page.width * 0.8), 380)  # máximo 80% del ancho o 380px
+        if page.width < 350:
+            ancho_card = int(page.width * 0.98)  # casi todo el ancho para móviles muy angostos
 
         # Tamaño de texto adaptable (opcional)
         size_titulo = 22 if page.width < 400 else 26
@@ -257,7 +259,7 @@ async def main(page: ft.Page):
             padding=20,
             bgcolor=ft.Colors.WHITE,
             border_radius=16,
-            border=ft.border.all(2, ft.Colors.BLUE_200),
+            border=ft.border.all(2, ft.Colors.BLACK),
             content=ft.Column([
                 # TÍTULO con fondo degradado tipo barra superior
                 ft.Container(
@@ -278,7 +280,8 @@ async def main(page: ft.Page):
                     alignment=ft.alignment.center,
                     margin=ft.margin.only(bottom=8)
                 ),
-                *[ft.Text(parrafo, size=size_parrafo, color=ft.Colors.BLACK, text_align=ft.TextAlign.JUSTIFY) for parrafo in slides[idx]["contenido"]]
+                ft.Column([*[ft.Text("     " + parrafo, size=size_parrafo, color=ft.Colors.BLACK, text_align=ft.TextAlign.LEFT) for parrafo in slides[idx]["contenido"]]], 
+                            alignment=ft.MainAxisAlignment.CENTER, spacing=16)
             ], alignment=ft.MainAxisAlignment.CENTER, spacing=16),
             alignment=ft.alignment.center
         )
@@ -305,12 +308,17 @@ async def main(page: ft.Page):
                 )
             )
         contenido.controls.append(
-            ft.Row(
+        ft.Container(
+            content=ft.Row(
                 row_controls,
                 alignment=ft.MainAxisAlignment.CENTER,
-                vertical_alignment=ft.CrossAxisAlignment.CENTER
-            )
+                vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                expand=False  # el Row toma solo el espacio necesario
+            ),
+            expand=False,
+            alignment=ft.alignment.center  # <-- centra vertical y horizontal
         )
+    )
         contenido.update()
 
     def navegar_slide(nuevo_idx):
