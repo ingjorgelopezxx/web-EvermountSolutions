@@ -10,6 +10,8 @@ async def main(page: ft.Page):
 
     # Variable para activar o desactivar carrusel de imagen
     carrusel_activo = True
+    slide_actual = 0  # Variable para llevar el control del slide
+    
     # Imagen del Logo de Bienvenida
     imagen_logo = ft.Container(
         content=ft.Image(src="https://i.postimg.cc/8PvSgg5x/logo-mobile-dark.png", fit=ft.ImageFit.COVER),
@@ -230,7 +232,7 @@ async def main(page: ft.Page):
 
         # Función para reemplazar el contenido
         # --- Contenidos para el carrusel/presentación ---
-    slides = [
+    slides_quienes = [
         {
             "titulo": "Bienvenidos!",
             "contenido": [
@@ -249,10 +251,30 @@ async def main(page: ft.Page):
         # Puedes agregar más slides aquí si lo deseas
     ]
 
-    slide_actual = 0  # Variable para llevar el control del slide
+    slides_historia = [
+        {
+            "titulo": "Historia",
+            "contenido": [
+                "Una historia de compromiso y trabajo en equipo",
+                "Evermount Solutions nació de la visión de dos hermanos con una meta común: brindar un servicio de excelencia en el control de plagas, con ética, responsabilidad ambiental y atención cercana.",
+                "Contamos con formación técnica, experiencia en terreno y una vocación clara por el servicio. Nuestra empresa combina el profesionalismo de una gran compañía con la calidez de una atención personalizada.",
+            ]
+        },
+        {
+            "titulo": "¿Qué nos diferencia?",
+            "contenido": [
+                "• Somos una empresa certificada y en constante actualización.",
+                "• Cada cliente es tratado como si fuera parte de nuestra familia.",
+                "• Actuamos con transparencia, eficacia y puntualidad.",
+            ]
+        }
+    ]
 
+    
+    slides = slides_quienes  # por defecto, o como prefieras
     def mostrar_slide(idx):
         global carrusel_activo
+        global slides
         carrusel_activo = False
         contenido.controls.clear()
         # Ancho responsive para el card
@@ -375,7 +397,7 @@ async def main(page: ft.Page):
     # --- Modifica show_info ---
     def show_info(opt):
         global carrusel_activo
-        global slide_actual
+        global slide_actual,slides
         dropdown.visible = False
         page.update()
         contenido.controls.clear()
@@ -390,9 +412,16 @@ async def main(page: ft.Page):
             contenido.update()
         elif opt == "Quiénes Somos":
             carrusel_activo = False  
+            slides = slides_quienes
             slide_actual = 0
-            mostrar_slide(slide_actual)
-
+            mostrar_slide(0)
+        
+        elif opt == "Historia":
+            carrusel_activo = False
+            slides = slides_historia
+            slide_actual = 0
+            mostrar_slide(0)
+            
         elif opt == "Ubicación":
             contenido.controls.append(
                 ft.Text("dirección de empresa", size=20, weight=ft.FontWeight.BOLD, color=ft.Colors.BLUE_900)
@@ -413,6 +442,7 @@ async def main(page: ft.Page):
     menu_data = [
         ("Inicio",     ft.Icons.HOME),   
         ("Quiénes Somos", ft.Icons.PEOPLE), 
+        ("Historia", ft.Icons.HISTORY), 
         ("Contactos", ft.Icons.CONTACT_PHONE),
         ("Ubicación",  ft.Icons.PLACE),
         ("Misión",     ft.Icons.FLAG),
@@ -442,7 +472,7 @@ async def main(page: ft.Page):
             border_radius=6,
             shadow=ft.BoxShadow(1,4,ft.Colors.BLACK26, offset=ft.Offset(0,2)),
             width=150,
-            height=250,
+            height=200,
             on_hover= cerrar_menu_hover
         ),
         visible=False,
@@ -473,7 +503,7 @@ async def main(page: ft.Page):
 
     zona_redes = ft.Container(
         content=Botones_agregar,
-        bgcolor="#f5f6fa",
+        bgcolor="rgba(255,255,255,0.90)",
         alignment=ft.alignment.center
     )
 
@@ -496,13 +526,29 @@ async def main(page: ft.Page):
         texto_titulo.update()
         page.update()
 
-    # Funcion para que se recargue la pagina al actualizar en el explorador
     def on_connect(e):
+        # Mostrar modal de bienvenida
         intro_modal.visible = True
+
+        # Cerrar menú si está abierto
         dropdown.visible = False
+
+        # Mostrar contenido inicial (texto y carrusel)
+        global carrusel_activo
+        carrusel_activo = True
+        contenido.controls.clear()
+        contenido.controls.extend([
+            ft.Text("Bienvenido a EvermountSolutions", size=22, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
+            ft.Text("Control de plagas profesional. Haz clic en los botones.", color=ft.Colors.BLACK),
+            fila_carrusel,  # <- Agrega fila_carrusel primero
+        ])
+        contenido.update()  # <-- MUY IMPORTANTE: actualiza el contenido aquí
+
+        # Ahora SÍ puedes actualizar las imágenes porque ya están en pantalla
         for i, img in enumerate(imagenes_visibles):
             img.src = sets_imagenes[0][i]
             img.update()
+
         page.update()
 
     page.on_connect = on_connect
