@@ -269,14 +269,16 @@ async def main(page: ft.Page):
         pan_start_x = [0]  # lista para mutabilidad
         # Función local para manejar el gesto
         def on_pan_start(e):
-            pan_start_x[0] = e.global_position.x
+            pan_start_x[0] = e.x  # NO e.global_position.x
+
         def on_pan_end(e):
-            dx = e.global_position.x - pan_start_x[0]
-            if abs(dx) > 50:  # Puedes ajustar la sensibilidad (px)
+            dx = e.x - pan_start_x[0]  # NO e.global_position.x
+            if abs(dx) > 50:
                 if dx < 0 and idx < len(slides) - 1:
-                    navegar_slide(idx+1)  # swipe izquierda -> siguiente
+                    navegar_slide(idx+1)
                 elif dx > 0 and idx > 0:
-                    navegar_slide(idx-1)  # swipe derecha -> anterior
+                    navegar_slide(idx-1)
+
 
         card = ft.Container(
             width=ancho_card,
