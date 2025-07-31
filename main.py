@@ -213,15 +213,15 @@ async def main(page: ft.Page):
     )
     # Contenido central mutable
     contenido = ft.Column(
-        [
-            ft.Text("Bienvenido a EvermountSolutions"),
+        [ft.Text("Bienvenido a EvermountSolutions"),
             ft.Text("Control de plagas profesional. Haz clic en los botones."),
-            fila_carrusel,
-        ],
+            fila_carrusel],
         expand=True,
         alignment=ft.MainAxisAlignment.CENTER,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
     )
+
+        
 
     # Función para reemplazar el contenido
     def show_info(opt):
@@ -237,7 +237,7 @@ async def main(page: ft.Page):
     def cerrar_menu():
         dropdown.visible = False
         page.update()
-        
+
     # Funcion para cerrar el menu del boton empresa cuando el cursor no este encima 
     def cerrar_menu_hover(e):
     # Si el mouse sale del menú, se cierra
@@ -306,15 +306,7 @@ async def main(page: ft.Page):
     )   
     Botones_agregar = ft.Row([boton_facebook,boton_instragram,boton_whatsapp],alignment=ft.MainAxisAlignment.END,vertical_alignment=ft.CrossAxisAlignment.END,spacing=10,)
 
-     # Funcion para que se recargue la pagina al actualizar en el explorador
-    def on_connect(e):
-        intro_modal.visible = True
-        dropdown.visible = False
-        for i, img in enumerate(imagenes_visibles):
-            img.src = sets_imagenes[0][i]
-            img.update()
-        page.update()
-    page.on_connect = on_connect
+ 
 
     # Montaje final
     page.add(
@@ -334,9 +326,18 @@ async def main(page: ft.Page):
         texto_titulo.update()
         page.update()
 
+    # Funcion para que se recargue la pagina al actualizar en el explorador
+    def on_connect(e):
+        intro_modal.visible = True
+        dropdown.visible = False
+        for i, img in enumerate(imagenes_visibles):
+            img.src = sets_imagenes[0][i]
+            img.update()
+        page.update()
+
+    page.on_connect = on_connect
     page.on_resize = ajustar_tamanos
     page.on_window_event = lambda e: ajustar_tamanos() if e.data=="shown" else None
-
     # Overlay oculto para cerrar el menu al hacer clic fuera de el
     page.overlay.extend([dropdown, intro_modal])
     page.update()
