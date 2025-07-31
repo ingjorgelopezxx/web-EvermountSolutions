@@ -7,6 +7,8 @@ async def main(page: ft.Page):
     page.bgcolor = ft.Colors.WHITE
     page.padding = 0
 
+    # Variable para activar o desactivar carrusel de imagen
+    carrusel_activo = True
     # Imagen del Logo de Bienvenida
     imagen_logo = ft.Container(
         content=ft.Image(src="https://i.postimg.cc/8PvSgg5x/logo-mobile-dark.png", fit=ft.ImageFit.COVER),
@@ -81,9 +83,15 @@ async def main(page: ft.Page):
     async def rotar_sets():
         idx = 0
         while True:
-            for i, img in enumerate(imagenes_visibles):
-                img.src = sets_imagenes[idx][i]; img.update()
-            await asyncio.sleep(3); idx = (idx+1) % len(sets_imagenes)
+            if carrusel_activo and fila_carrusel in contenido.controls:
+                for i, img in enumerate(imagenes_visibles):
+                    img.src = sets_imagenes[idx][i]
+                    img.update()
+                await asyncio.sleep(3)
+                idx = (idx + 1) % len(sets_imagenes)
+            else:
+                await asyncio.sleep(0.5)
+
 
     # Contactos Redes Sociales
     contacto_whatsapp = f"https://wa.me/{"+56937539304"}?text=Hola"
@@ -211,6 +219,7 @@ async def main(page: ft.Page):
         ink=False,     # sin efecto de tinta
         margin=ft.margin.only(left=16, bottom=16),
     )
+    
     # Contenido central mutable
     contenido = ft.Column(
         [ft.Text("Bienvenido a EvermountSolutions"),
@@ -245,23 +254,25 @@ async def main(page: ft.Page):
     slide_actual = 0  # Variable para llevar el control del slide
 
     def mostrar_slide(idx):
+        global carrusel_activo
+        carrusel_activo = False
         contenido.controls.clear()
-        # Ajusta el ancho del card para móviles
-        ancho_card = min(int(page.width * 0.8), 380)  # máximo 80% del ancho o 380px
+        # Ancho responsive para el card
+        ancho_card = min(int(page.width * 0.8), 380)
         if page.width < 350:
-            ancho_card = int(page.width * 0.98)  # casi todo el ancho para móviles muy angostos
+            ancho_card = int(page.width * 0.98)
 
-        # Tamaño de texto adaptable (opcional)
-        size_titulo = 22 if page.width < 400 else 26
-        size_parrafo = 15 if page.width < 400 else 16
+        size_titulo = 18 if page.width < 400 else 24
+        size_parrafo = 14 if page.width < 400 else 16
+
         card = ft.Container(
             width=ancho_card,
-            padding=20,
+            padding=ft.padding.symmetric(vertical=18, horizontal=8 if page.width < 400 else 18),
             bgcolor=ft.Colors.WHITE,
             border_radius=16,
             border=ft.border.all(2, ft.Colors.BLACK),
             content=ft.Column([
-                # TÍTULO con fondo degradado tipo barra superior
+                # Título destacado con fondo degradado
                 ft.Container(
                     content=ft.Text(
                         slides[idx]["titulo"],
@@ -275,25 +286,32 @@ async def main(page: ft.Page):
                         end=ft.alignment.center_right,
                         colors=["#0f2027", "#203a43", "#2c5364"],
                     ),
-                    padding=ft.padding.symmetric(vertical=8, horizontal=12),
+                    padding=ft.padding.symmetric(vertical=8, horizontal=10),
                     border_radius=8,
                     alignment=ft.alignment.center,
                     margin=ft.margin.only(bottom=8)
                 ),
-                ft.Column([*[ft.Text("     " + parrafo, size=size_parrafo, color=ft.Colors.BLACK, text_align=ft.TextAlign.LEFT) for parrafo in slides[idx]["contenido"]]], 
-                            alignment=ft.MainAxisAlignment.CENTER, spacing=16)
+                # Párrafos ordenados sin sangría, separados y limpios
+                *[
+                    ft.Text(
+                        parrafo,
+                        size=size_parrafo,
+                        color=ft.Colors.BLACK,
+                        text_align=ft.TextAlign.LEFT,
+                    )
+                    for parrafo in slides[idx]["contenido"]
+                ]
             ], alignment=ft.MainAxisAlignment.CENTER, spacing=16),
             alignment=ft.alignment.center
         )
 
-        # Armado de las flechas SOLO si corresponde
         row_controls = []
         if idx > 0:
             row_controls.append(
                 ft.IconButton(
-                    icon=ft.Icons.ARROW_LEFT, 
-                    icon_color=ft.Colors.BLUE_700, 
-                    icon_size=30, 
+                    icon=ft.Icons.ARROW_LEFT,
+                    icon_color=ft.Colors.BLUE_700,
+                    icon_size=30,
                     on_click=lambda e: navegar_slide(idx-1)
                 )
             )
@@ -301,25 +319,27 @@ async def main(page: ft.Page):
         if idx < len(slides)-1:
             row_controls.append(
                 ft.IconButton(
-                    icon=ft.Icons.ARROW_RIGHT, 
-                    icon_color=ft.Colors.BLUE_700, 
-                    icon_size=30, 
+                    icon=ft.Icons.ARROW_RIGHT,
+                    icon_color=ft.Colors.BLUE_700,
+                    icon_size=30,
                     on_click=lambda e: navegar_slide(idx+1)
                 )
             )
+
         contenido.controls.append(
-        ft.Container(
-            content=ft.Row(
-                row_controls,
-                alignment=ft.MainAxisAlignment.CENTER,
-                vertical_alignment=ft.CrossAxisAlignment.CENTER,
-                expand=False  # el Row toma solo el espacio necesario
-            ),
-            expand=False,
-            alignment=ft.alignment.center  # <-- centra vertical y horizontal
+            ft.Container(
+                content=ft.Row(
+                    row_controls,
+                    alignment=ft.MainAxisAlignment.CENTER,
+                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                    expand=False
+                ),
+                expand=False,
+                alignment=ft.alignment.center
+            )
         )
-    )
         contenido.update()
+
 
     def navegar_slide(nuevo_idx):
         global slide_actual
@@ -328,19 +348,31 @@ async def main(page: ft.Page):
 
     # --- Modifica show_info ---
     def show_info(opt):
-        contenido.controls.clear()
+        global carrusel_activo
         global slide_actual
+        dropdown.visible = False
+        page.update()
+        contenido.controls.clear()
         if opt == "Inicio":
+            carrusel_activo = True
+            contenido.controls.clear()
+            contenido.controls.extend([
+                ft.Text("Bienvenido a EvermountSolutions", size=22, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
+                ft.Text("Control de plagas profesional. Haz clic en los botones.", color=ft.Colors.BLACK),
+                fila_carrusel,
+            ])
+            contenido.update()
+        elif opt == "Quiénes Somos":
+            carrusel_activo = False  
             slide_actual = 0
             mostrar_slide(slide_actual)
+
         elif opt == "Ubicación":
             contenido.controls.append(
                 ft.Text("dirección de empresa", size=20, weight=ft.FontWeight.BOLD, color=ft.Colors.BLUE_900)
             )
             contenido.update()
         # ...otros elif para las demás opciones...
-        else:
-            contenido.update()
 
     # Funcion para cerrar el menu del boton empresa cuando el cursor no este encima 
     def cerrar_menu_hover(e):
@@ -354,6 +386,7 @@ async def main(page: ft.Page):
     # Menú de empresa
     menu_data = [
         ("Inicio",     ft.Icons.HOME),   
+        ("Quiénes Somos", ft.Icons.PEOPLE), 
         ("Contactos", ft.Icons.CONTACT_PHONE),
         ("Ubicación",  ft.Icons.PLACE),
         ("Misión",     ft.Icons.FLAG),
@@ -383,7 +416,7 @@ async def main(page: ft.Page):
             border_radius=6,
             shadow=ft.BoxShadow(1,4,ft.Colors.BLACK26, offset=ft.Offset(0,2)),
             width=150,
-            height=150,
+            height=250,
             on_hover= cerrar_menu_hover
         ),
         visible=False,
