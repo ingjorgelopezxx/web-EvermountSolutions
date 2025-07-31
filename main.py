@@ -246,8 +246,14 @@ async def main(page: ft.Page):
 
     def mostrar_slide(idx):
         contenido.controls.clear()
+            # Calcula ancho máximo para el card según el tamaño de la ventana
+        ancho_card = min(max(page.width * 0.95, 300), 480)  # min 300px, max 480px
+
+        # Tamaño de texto adaptable (opcional)
+        size_titulo = 22 if page.width < 400 else 26
+        size_parrafo = 15 if page.width < 400 else 16
         card = ft.Container(
-            width=420,
+            width=ancho_card,
             padding=20,
             bgcolor=ft.Colors.WHITE,
             border_radius=16,
@@ -257,7 +263,7 @@ async def main(page: ft.Page):
                 ft.Container(
                     content=ft.Text(
                         slides[idx]["titulo"],
-                        size=24,
+                        size=size_titulo,
                         weight=ft.FontWeight.BOLD,
                         color=ft.Colors.WHITE,
                         text_align=ft.TextAlign.CENTER,
@@ -272,7 +278,7 @@ async def main(page: ft.Page):
                     alignment=ft.alignment.center,
                     margin=ft.margin.only(bottom=8)
                 ),
-                *[ft.Text(parrafo, size=16, color=ft.Colors.BLACK, text_align=ft.TextAlign.JUSTIFY) for parrafo in slides[idx]["contenido"]]
+                *[ft.Text(parrafo, size=size_parrafo, color=ft.Colors.BLACK, text_align=ft.TextAlign.JUSTIFY) for parrafo in slides[idx]["contenido"]]
             ], alignment=ft.MainAxisAlignment.CENTER, spacing=16),
             alignment=ft.alignment.center
         )
@@ -327,12 +333,6 @@ async def main(page: ft.Page):
         # ...otros elif para las demás opciones...
         else:
             contenido.update()
-
-    
-    # Funcion para cerrar menu del Boton Empresa
-    def cerrar_menu():
-        dropdown.visible = False
-        page.update()
 
     # Funcion para cerrar el menu del boton empresa cuando el cursor no este encima 
     def cerrar_menu_hover(e):
