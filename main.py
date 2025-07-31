@@ -221,17 +221,113 @@ async def main(page: ft.Page):
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
     )
 
-        
+        # Función para reemplazar el contenido
+        # --- Contenidos para el carrusel/presentación ---
+    slides = [
+        {
+            "titulo": "Bienvenidos a Evermount Solutions - Pest Defense",
+            "contenido": [
+                "Somos una empresa familiar dedicada con pasión al control y manejo integral de plagas. Fundada por dos hermanos, nuestra misión es proteger hogares, empresas y comunidades con soluciones efectivas, responsables y personalizadas.",
+                "Confía en nosotros para mantener tus espacios seguros, limpios y libres de plagas, con tecnología avanzada y atención profesional.",
+                "🛡️ Confianza familiar, protección garantizada."
+            ]
+        },
+        {
+            "titulo": "Nuestra Filosofía",
+            "contenido": [
+                "La ética, el profesionalismo y la innovación son pilares de nuestro trabajo.",
+                "Cuidamos el medio ambiente y la salud de nuestros clientes."
+            ]
+        },
+        # Puedes agregar más slides aquí si lo deseas
+    ]
 
-    # Función para reemplazar el contenido
+    slide_actual = 0  # Variable para llevar el control del slide
+
+    def mostrar_slide(idx):
+        contenido.controls.clear()
+        card = ft.Container(
+            width=420,
+            padding=20,
+            bgcolor=ft.Colors.WHITE,
+            border_radius=16,
+            border=ft.border.all(2, ft.Colors.BLUE_200),
+            content=ft.Column([
+                # TÍTULO con fondo degradado tipo barra superior
+                ft.Container(
+                    content=ft.Text(
+                        slides[idx]["titulo"],
+                        size=24,
+                        weight=ft.FontWeight.BOLD,
+                        color=ft.Colors.WHITE,
+                        text_align=ft.TextAlign.CENTER,
+                    ),
+                    gradient=ft.LinearGradient(
+                        begin=ft.alignment.center_left,
+                        end=ft.alignment.center_right,
+                        colors=["#0f2027", "#203a43", "#2c5364"],
+                    ),
+                    padding=ft.padding.symmetric(vertical=8, horizontal=12),
+                    border_radius=8,
+                    alignment=ft.alignment.center,
+                    margin=ft.margin.only(bottom=8)
+                ),
+                *[ft.Text(parrafo, size=16, color=ft.Colors.BLACK, text_align=ft.TextAlign.JUSTIFY) for parrafo in slides[idx]["contenido"]]
+            ], alignment=ft.MainAxisAlignment.CENTER, spacing=16),
+            alignment=ft.alignment.center
+        )
+
+        # Armado de las flechas SOLO si corresponde
+        row_controls = []
+        if idx > 0:
+            row_controls.append(
+                ft.IconButton(
+                    icon=ft.Icons.ARROW_LEFT, 
+                    icon_color=ft.Colors.BLUE_700, 
+                    icon_size=30, 
+                    on_click=lambda e: navegar_slide(idx-1)
+                )
+            )
+        row_controls.append(card)
+        if idx < len(slides)-1:
+            row_controls.append(
+                ft.IconButton(
+                    icon=ft.Icons.ARROW_RIGHT, 
+                    icon_color=ft.Colors.BLUE_700, 
+                    icon_size=30, 
+                    on_click=lambda e: navegar_slide(idx+1)
+                )
+            )
+        contenido.controls.append(
+            ft.Row(
+                row_controls,
+                alignment=ft.MainAxisAlignment.CENTER,
+                vertical_alignment=ft.CrossAxisAlignment.CENTER
+            )
+        )
+        contenido.update()
+
+    def navegar_slide(nuevo_idx):
+        global slide_actual
+        slide_actual = nuevo_idx
+        mostrar_slide(slide_actual)
+
+    # --- Modifica show_info ---
     def show_info(opt):
         contenido.controls.clear()
-        if opt == "Ubicación":
+        global slide_actual
+        if opt == "Inicio":
+            slide_actual = 0
+            mostrar_slide(slide_actual)
+        elif opt == "Ubicación":
             contenido.controls.append(
                 ft.Text("dirección de empresa", size=20, weight=ft.FontWeight.BOLD, color=ft.Colors.BLUE_900)
             )
-        contenido.update()
-        cerrar_menu()
+            contenido.update()
+        # ...otros elif para las demás opciones...
+        else:
+            contenido.update()
+
     
     # Funcion para cerrar menu del Boton Empresa
     def cerrar_menu():
@@ -247,7 +343,9 @@ async def main(page: ft.Page):
 
 
     # Menú de empresa
+    # Menú de empresa
     menu_data = [
+        ("Inicio",     ft.Icons.HOME),   
         ("Contactos", ft.Icons.CONTACT_PHONE),
         ("Ubicación",  ft.Icons.PLACE),
         ("Misión",     ft.Icons.FLAG),
