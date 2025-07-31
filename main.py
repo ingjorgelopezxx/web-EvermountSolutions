@@ -472,7 +472,7 @@ async def main(page: ft.Page):
             border_radius=6,
             shadow=ft.BoxShadow(1,4,ft.Colors.BLACK26, offset=ft.Offset(0,2)),
             width=150,
-            height=200,
+            height=230,
             on_hover= cerrar_menu_hover
         ),
         visible=False,
