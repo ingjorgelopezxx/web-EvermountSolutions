@@ -192,7 +192,6 @@ async def main(page: ft.Page):
         on_click=lambda _: page.launch_url(contacto_whatsapp),
         on_hover=animar_boton_whatsapp,
         ink=True,
-        margin=ft.margin.only(right=16, bottom=16),
     )
 
     boton_instragram = ft.Container(
@@ -205,7 +204,6 @@ async def main(page: ft.Page):
         on_click=lambda _: page.launch_url(contacto_instagram),
         on_hover=animar_boton_instagram,
         ink=True,
-        margin=ft.margin.only(bottom=16),
     )
 
     boton_facebook = ft.Container(
@@ -218,7 +216,6 @@ async def main(page: ft.Page):
         on_click=lambda _: page.launch_url(contacto_facebook),
         on_hover=animar_boton_facebook,
         ink=False,     # sin efecto de tinta
-        margin=ft.margin.only(left=16, bottom=16),
     )
     
     # Contenido central mutable
@@ -472,16 +469,21 @@ async def main(page: ft.Page):
             boton_empresa
         ], vertical_alignment=ft.CrossAxisAlignment.CENTER)
     )   
-    Botones_agregar = ft.Row([boton_facebook,boton_instragram,boton_whatsapp],alignment=ft.MainAxisAlignment.END,vertical_alignment=ft.CrossAxisAlignment.END,spacing=10,)
+    Botones_agregar = ft.Row([boton_facebook,boton_instragram,boton_whatsapp],alignment=ft.MainAxisAlignment.END,vertical_alignment=ft.CrossAxisAlignment.END)
 
- 
+    zona_redes = ft.Container(
+        content=Botones_agregar,
+        bgcolor="#f5f6fa",
+        alignment=ft.alignment.center
+    )
+
 
     # Montaje final
     page.add(
         ft.Column([
             barra_superior,
             contenido,
-            Botones_agregar,
+            zona_redes,
         ], expand=True, horizontal_alignment=ft.CrossAxisAlignment.CENTER)
     )
     # --- Responsive: texto + ancho automático para WhatsApp ---
