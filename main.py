@@ -1,3 +1,4 @@
+import json
 import flet as ft
 import asyncio
 import os
@@ -265,19 +266,24 @@ async def main(page: ft.Page):
         size_titulo = 18 if page.width < 400 else 24
         size_parrafo = 14 if page.width < 400 else 16
 
-         # Variable para almacenar el desplazamiento inicial (estado local a la función)
-        pan_start_x = [0]  # lista para mutabilidad
-        # Función local para manejar el gesto
+            # Usamos una lista para mutabilidad del valor inicial
+        # Guarda el acumulado de movimiento horizontal
+        pan_dx = [0]
+
         def on_pan_start(e):
-            pan_start_x[0] = e.x  # NO e.global_position.x
+            pan_dx[0] = 0  # Resetea en cada inicio
+
+        def on_pan_update(e):
+            pan_dx[0] += e.delta_x  # Acumula desplazamiento horizontal
 
         def on_pan_end(e):
-            dx = e.x - pan_start_x[0]  # NO e.global_position.x
-            if abs(dx) > 50:
-                if dx < 0 and idx < len(slides) - 1:
-                    navegar_slide(idx+1)
-                elif dx > 0 and idx > 0:
-                    navegar_slide(idx-1)
+            # Cambia de slide si el desplazamiento es suficiente
+            if pan_dx[0] < -50 and idx < len(slides) - 1:
+                navegar_slide(idx + 1)
+            elif pan_dx[0] > 50 and idx > 0:
+                navegar_slide(idx - 1)
+            pan_dx[0] = 0
+
 
 
         card = ft.Container(
@@ -323,8 +329,10 @@ async def main(page: ft.Page):
         gesture_card = ft.GestureDetector(
             content=card,
             on_pan_start=on_pan_start,
+            on_pan_update=on_pan_update,
             on_pan_end=on_pan_end
         )
+
 
         row_controls = []
         if idx > 0:
