@@ -265,6 +265,19 @@ async def main(page: ft.Page):
         size_titulo = 18 if page.width < 400 else 24
         size_parrafo = 14 if page.width < 400 else 16
 
+         # Variable para almacenar el desplazamiento inicial (estado local a la función)
+        pan_start_x = [0]  # lista para mutabilidad
+        # Función local para manejar el gesto
+        def on_pan_start(e):
+            pan_start_x[0] = e.global_position.x
+        def on_pan_end(e):
+            dx = e.global_position.x - pan_start_x[0]
+            if abs(dx) > 50:  # Puedes ajustar la sensibilidad (px)
+                if dx < 0 and idx < len(slides) - 1:
+                    navegar_slide(idx+1)  # swipe izquierda -> siguiente
+                elif dx > 0 and idx > 0:
+                    navegar_slide(idx-1)  # swipe derecha -> anterior
+
         card = ft.Container(
             width=ancho_card,
             padding=ft.padding.symmetric(vertical=18, horizontal=8 if page.width < 400 else 18),
@@ -304,6 +317,12 @@ async def main(page: ft.Page):
             ], alignment=ft.MainAxisAlignment.CENTER, spacing=16),
             alignment=ft.alignment.center
         )
+        # -- Aquí envolvemos el card con el detector de gestos
+        gesture_card = ft.GestureDetector(
+            content=card,
+            on_pan_start=on_pan_start,
+            on_pan_end=on_pan_end
+        )
 
         row_controls = []
         if idx > 0:
@@ -315,7 +334,7 @@ async def main(page: ft.Page):
                     on_click=lambda e: navegar_slide(idx-1)
                 )
             )
-        row_controls.append(card)
+        row_controls.append(gesture_card)
         if idx < len(slides)-1:
             row_controls.append(
                 ft.IconButton(
