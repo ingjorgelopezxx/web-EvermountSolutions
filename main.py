@@ -426,6 +426,7 @@ async def main(page: ft.Page):
         if opt == "Inicio":
             carrusel_activo = True
             contenido.controls.clear()
+            animacion_empresa_task[0] = page.run_task(animar_empresa_ciclo)
             contenido.controls.extend([
                 ft.Text("Bienvenido a EvermountSolutions", size=22, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
                 ft.Text("Control de plagas profesional. Haz clic en los botones.", color=ft.Colors.BLACK),
@@ -434,17 +435,20 @@ async def main(page: ft.Page):
             contenido.update()
         elif opt == "Quiénes Somos":
             carrusel_activo = False  
+            animacion_empresa_task[0] = page.run_task(animar_empresa_ciclo)
             slides = slides_quienes
             slide_actual = 0
             mostrar_slide(0)
         
         elif opt == "Historia":
             carrusel_activo = False
+            animacion_empresa_task[0] = page.run_task(animar_empresa_ciclo)
             slides = slides_historia
             slide_actual = 0
             mostrar_slide(0)
             
         elif opt == "Ubicación":
+            animacion_empresa_task[0] = page.run_task(animar_empresa_ciclo)
             contenido.controls.append(
                 ft.Text("dirección de empresa", size=20, weight=ft.FontWeight.BOLD, color=ft.Colors.BLUE_900)
             )
