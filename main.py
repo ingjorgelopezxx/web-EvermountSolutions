@@ -11,6 +11,7 @@ async def main(page: ft.Page):
     # Variable para activar o desactivar carrusel de imagen
     carrusel_activo = True
     slide_actual = 0  # Variable para llevar el control del slide
+    animacion_empresa_task = [None]  # Usamos lista para mutabilidad
     
     # Imagen del Logo de Bienvenida
     imagen_logo = ft.Container(
@@ -127,7 +128,7 @@ async def main(page: ft.Page):
     # Funcion para alternar animacion de botones
     async def animacion_alternada():
      while True:
-        for img in [imagen_boton_empresa, imagen_boton_whatsapp, imagen_boton_instagram,imagen_boton_facebook]:
+        for img in [imagen_boton_whatsapp, imagen_boton_instagram,imagen_boton_facebook]:
             img.scale = 1.2
             img.update()
             await asyncio.sleep(0.4)
@@ -135,10 +136,18 @@ async def main(page: ft.Page):
             img.update()
             await asyncio.sleep(0.4)
 
+    async def animar_empresa_ciclo():
+        while True:
+            container_boton_empresa.scale = 1.18
+            container_boton_empresa.update()
+            await asyncio.sleep(0.7)
+            container_boton_empresa.scale = 1.0
+            container_boton_empresa.update()
+            await asyncio.sleep(0.7)
+
+
+
     # Funcion animacion Botones
-    def animar_boton_empresa(e):
-        imagen_boton_empresa.scale = 1.1 if e.data=="true" else 1.0
-        imagen_boton_empresa.update()   
     def animar_boton_whatsapp(e):
         imagen_boton_whatsapp.scale = 1.1 if e.data=="true" else 1.0
         imagen_boton_whatsapp.update()   
@@ -152,37 +161,50 @@ async def main(page: ft.Page):
     # Menu de Boton Empresa
     def toggle_menu(e):
         dropdown.visible = not dropdown.visible
+        if dropdown.visible:
+            # Detiene la animación si está corriendo
+            if animacion_empresa_task[0] is not None:
+                animacion_empresa_task[0].cancel()
+                animacion_empresa_task[0] = None
+        else:
+            # Relanza la animación solo si no existe
+            if animacion_empresa_task[0] is None:
+                animacion_empresa_task[0] = page.run_task(animar_empresa_ciclo)
+
         page.update()
 
+
     # Boton de Empresa en Barra Superior
-    boton_empresa = ft.Container(
-    content=ft.Container(
-        content=imagen_boton_empresa,
-        width=50,
-        height=50,
-        border_radius=25,
-        bgcolor=ft.LinearGradient(
-            begin=ft.alignment.top_left,
-            end=ft.alignment.bottom_right,
-            colors=["#ffffff", "#dcdcdc"]
+    container_boton_empresa = ft.Container(
+        content=ft.Container(
+            content=imagen_boton_empresa,
+            width=50,
+            height=50,
+            border_radius=25,
+            bgcolor=ft.LinearGradient(
+                begin=ft.alignment.top_left,
+                end=ft.alignment.bottom_right,
+                colors=["#ffffff", "#dcdcdc"]
+            ),
+            shadow=ft.BoxShadow(
+                spread_radius=2,
+                blur_radius=10,
+                color=ft.Colors.BLACK38,
+                offset=ft.Offset(3, 3)
+            ),
+            on_click=toggle_menu,
+            ink=True,
+            alignment=ft.alignment.center
         ),
-        shadow=ft.BoxShadow(
-            spread_radius=2,
-            blur_radius=10,
-            color=ft.Colors.BLACK38,
-            offset=ft.Offset(3, 3)
-        ),
-        on_hover=animar_boton_empresa,
-        on_click=toggle_menu,
-        ink=True,
-        alignment=ft.alignment.center
-    ),
-    width=64,
-    height=64,
-    bgcolor=ft.Colors.BLACK12,  # Fondo circular más visible
-    border_radius=32,
-    padding=7,  # Espaciado interno
+        width=64,
+        height=64,
+        bgcolor=ft.Colors.BLACK12,  # Fondo circular más visible
+        border_radius=32,
+        padding=7,  # Espaciado interno
+        scale=1.0,             # <--- Necesario para animar
+        animate_scale=200,     # <--- Necesario para animar
     )
+
 
     boton_whatsapp = ft.Container(
         content=imagen_boton_whatsapp,
@@ -434,6 +456,7 @@ async def main(page: ft.Page):
     # Si el mouse sale del menú, se cierra
         if e.data == "false" :
             dropdown.visible = False
+            animacion_empresa_task[0] = page.run_task(animar_empresa_ciclo)
             page.update()
 
 
@@ -496,7 +519,7 @@ async def main(page: ft.Page):
         ),
         content=ft.Row([
             ft.Container(content=texto_titulo, expand=True, alignment=ft.alignment.center_left),
-            boton_empresa
+            container_boton_empresa
         ], vertical_alignment=ft.CrossAxisAlignment.CENTER)
     )   
     Botones_agregar = ft.Row([boton_facebook,boton_instragram,boton_whatsapp],alignment=ft.MainAxisAlignment.END,vertical_alignment=ft.CrossAxisAlignment.END)
@@ -559,6 +582,7 @@ async def main(page: ft.Page):
     page.update()
     asyncio.create_task(rotar_sets())
     asyncio.create_task(animacion_alternada())
+    animacion_empresa_task[0] = page.run_task(animar_empresa_ciclo)
     ajustar_tamanos()
    
 ft.app(target=main, view=ft.WEB_BROWSER, port=int(os.environ.get("PORT", 8080)))
