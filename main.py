@@ -422,8 +422,17 @@ async def main(page: ft.Page):
         # Ancho automatico para los diferentes tamaños de pantalla, responsive para el card y el texto interno
         ancho_card = min(int(page.width * 0.8), 380)
         max_alto_card = int(page.height * 0.92)  # 92% del alto de la ventana, ajusta si quieres
-        if page.width < 350:
-            ancho_card = int(page.width * 0.98)
+        if page.width < 600:  # Celular
+            margen_redes = 120  # px (ajusta si quieres más espacio)
+            max_card_height = int(page.height * 0.68)  # Usa 65-75% para dejar buen espacio abajo
+            if page.height - margen_redes < max_card_height:
+                max_card_height = page.height - margen_redes
+        else:  # Tablet/PC
+            margen_redes = 160  # px, ajusta a tu gusto
+            max_card_height = int(page.height * 0.80)
+            if page.height - margen_redes < max_card_height:
+                max_card_height = page.height - margen_redes
+                
         size_titulo = 18 if page.width < 400 else 24
         size_parrafo = 14 if page.width < 400 else 16
 
@@ -501,7 +510,7 @@ async def main(page: ft.Page):
             alignment=ft.MainAxisAlignment.CENTER,
             spacing=16,
             scroll="auto",   # <----- ¡Esto activa el scroll!
-            height=min(int(page.height * 0.85), 540)  # Por ejemplo: máximo 85% de la ventana o 540px
+            height=max_card_height  # Por ejemplo: máximo 85% de la ventana o 540px
         )
 
         card = ft.Container(
