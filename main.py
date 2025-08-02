@@ -421,6 +421,7 @@ async def main(page: ft.Page):
             animacion_insectos_task[0] = None
         # Ancho automatico para los diferentes tamaños de pantalla, responsive para el card y el texto interno
         ancho_card = min(int(page.width * 0.8), 380)
+        alto_card = int(page.height * 0.8) if page.height > 0 else 500  # altura máxima del slide/card
         if page.width < 350:
             ancho_card = int(page.width * 0.98)
         size_titulo = 18 if page.width < 400 else 24
@@ -463,7 +464,7 @@ async def main(page: ft.Page):
                                 tooltip=it["nombre"],
                                 on_click=lambda e, id=it["id"]: mostrar_info_insecto(id),
                             ),
-                            ft.Text(it["nombre"], size=12, weight=ft.FontWeight.BOLD, text_align=ft.TextAlign.CENTER)
+                            ft.Text(it["nombre"], size=12, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK, text_align=ft.TextAlign.CENTER)
                         ], horizontal_alignment=ft.CrossAxisAlignment.CENTER)
                     )
                 controls_slide.append(
@@ -499,11 +500,13 @@ async def main(page: ft.Page):
             ],
             alignment=ft.MainAxisAlignment.CENTER,
             spacing=16,
-            scroll="auto"   # <----- ¡Esto activa el scroll!
+            scroll="auto",   # <----- ¡Esto activa el scroll!
+            expand=True
         )
 
         card = ft.Container(
             width=ancho_card,
+            height=alto_card,
             padding=ft.padding.symmetric(vertical=18, horizontal=8 if page.width < 400 else 18),
             bgcolor=ft.Colors.WHITE,
             border_radius=16,
