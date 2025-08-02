@@ -373,13 +373,7 @@ async def main(page: ft.Page):
         },
     }
     
-    imagenes_insectos = {
-    "cucarachas": "https://cdn-icons-png.flaticon.com/512/8005/8005026.png",    # Puedes usar el enlace de tu preferencia
-    "hormigas":   "https://static.vecteezy.com/system/resources/previews/015/211/725/non_2x/ant-icon-cartoon-style-vector.jpg",
-    "chinches":   "https://cdn-icons-png.flaticon.com/512/1850/1850155.png",
-    "pulgas":     "https://cdn-icons-png.flaticon.com/512/2295/2295144.png",
-    }
-
+    
     # Modal para el dialogo de insectos
     modal_insecto = ft.AlertDialog(
         modal=True,
@@ -414,25 +408,16 @@ async def main(page: ft.Page):
         carrusel_activo = False
         contenido.controls.clear()
         slide = slides[idx]
-
+        imagenes_animadas = []  # <-- aquí irán las img para animar
        # Detener animación de insectos si hay una previa
         if animacion_insectos_task[0]:
             animacion_insectos_task[0].cancel()
             animacion_insectos_task[0] = None
         # Ancho automatico para los diferentes tamaños de pantalla, responsive para el card y el texto interno
         ancho_card = min(int(page.width * 0.8), 380)
-        max_alto_card = int(page.height * 0.92)  # 92% del alto de la ventana, ajusta si quieres
-        if page.width < 600:  # Celular
-            margen_redes = 120  # px (ajusta si quieres más espacio)
-            max_card_height = int(page.height * 0.68)  # Usa 65-75% para dejar buen espacio abajo
-            if page.height - margen_redes < max_card_height:
-                max_card_height = page.height - margen_redes
-        else:  # Tablet/PC
-            margen_redes = 160  # px, ajusta a tu gusto
-            max_card_height = int(page.height * 0.80)
-            if page.height - margen_redes < max_card_height:
-                max_card_height = page.height - margen_redes
-                
+        if page.width < 350:
+            ancho_card = int(page.width * 0.98)
+                    
         size_titulo = 18 if page.width < 400 else 24
         size_parrafo = 14 if page.width < 400 else 16
 
@@ -450,69 +435,112 @@ async def main(page: ft.Page):
                 navegar_slide(idx - 1)
             pan_dx[0] = 0
 
-        controls_slide = []
-        imagenes_animadas = []  # <-- aquí irán las img para animar
         
-        for item in slide["contenido"]:
-            if isinstance(item, dict) and item.get("tipo") == "clickable_row":
-                fila_botones = []
-                for it in item["items"]:
-                    img = ft.Image(
-                        src=imagenes_insectos[it["id"]],
-                        width=42, height=42,
+        # --- Prepara la lista de controles del slide ---
+        contenido_slide = [
+            ft.Container(
+                content=ft.Text(
+                    slide["titulo"],
+                    size=size_titulo,
+                    weight=ft.FontWeight.BOLD,
+                    color=ft.Colors.WHITE,
+                    text_align=ft.TextAlign.CENTER,
+                ),
+                gradient=ft.LinearGradient(
+                    begin=ft.alignment.center_left,
+                    end=ft.alignment.center_right,
+                    colors=["#0f2027", "#203a43", "#2c5364"],
+                ),
+                padding=ft.padding.symmetric(vertical=8, horizontal=10),
+                border_radius=8,
+                alignment=ft.alignment.center,
+                margin=ft.margin.only(bottom=8),
+            ),
+        ]
+        imagenes_insectos = {
+        "cucarachas": "https://cdn-icons-png.flaticon.com/512/8005/8005026.png",    # Puedes usar el enlace de tu preferencia
+        "hormigas":   "https://static.vecteezy.com/system/resources/previews/015/211/725/non_2x/ant-icon-cartoon-style-vector.jpg",
+        "chinches":   "https://cdn-icons-png.flaticon.com/512/1850/1850155.png",
+        "pulgas":     "https://cdn-icons-png.flaticon.com/512/2295/2295144.png",
+        }
+
+        # Para almacenar las referencias de los contenedores animados
+        insectos_animados = [] 
+        # El resto de tu lógica para agregar los textos:
+        for parrafo in slide["contenido"]:
+            # Si es la fila especial de insectos:
+            if isinstance(parrafo, dict) and parrafo.get("tipo") == "clickable_row":
+                row_controles = []
+                for item in parrafo["items"]:
+                    img_insecto = ft.Image(
+                        src=imagenes_insectos[item["id"]],
+                        width=54, height=54,
+                        fit=ft.ImageFit.CONTAIN,
                         scale=1.0,
                         animate_scale=200,
+                        tooltip=item["nombre"]
                     )
-                    imagenes_animadas.append(img)
-                    fila_botones.append(
-                        ft.Column([
-                            ft.IconButton(
-                                icon=None,
-                                content=img,
-                                icon_size=44,
-                                tooltip=it["nombre"],
-                                on_click=lambda e, id=it["id"]: mostrar_info_insecto(id),
-                            ),
-                            ft.Text(it["nombre"], size=12, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK, text_align=ft.TextAlign.CENTER)
-                        ], horizontal_alignment=ft.CrossAxisAlignment.CENTER)
+                    imagenes_animadas.append(img_insecto)
+                    # Container para animación y clic
+                    cont = ft.Container(
+                        content=img_insecto,
+                        width=66, height=66,
+                        border_radius=33,
+                        bgcolor=ft.Colors.WHITE,
+                        shadow=ft.BoxShadow(1, 6, ft.Colors.BLACK26, offset=ft.Offset(2, 2)),
+                        alignment=ft.alignment.center,
+                        on_click=lambda e, id=item["id"]: mostrar_info_insecto(id),
+                        ink=True
                     )
-                controls_slide.append(
-                    ft.Row(fila_botones, alignment=ft.MainAxisAlignment.CENTER, spacing=18)
+                    insectos_animados.append(cont)
+                    row_controles.append(cont)
+                contenido_slide.append(
+                    ft.Row(row_controles, alignment=ft.MainAxisAlignment.CENTER, spacing=18)
                 )
             else:
-                controls_slide.append(
-                    ft.Text(item, size=size_parrafo, color=ft.Colors.BLACK, text_align=ft.TextAlign.LEFT)
+                contenido_slide.append(
+                    ft.Text(
+                        parrafo,
+                        size=size_parrafo,
+                        color=ft.Colors.BLACK,
+                        text_align=ft.TextAlign.LEFT,
+                    )
                 )
-        contenido_slide_column = ft.Column(
-            [
-                # Título destacado con fondo degradado
-                ft.Container(
-                    content=ft.Text(
-                        slides[idx]["titulo"],
-                        size=size_titulo,
-                        weight=ft.FontWeight.BOLD,
-                        color=ft.Colors.WHITE,
-                        text_align=ft.TextAlign.CENTER,
-                    ),
-                    gradient=ft.LinearGradient(
-                        begin=ft.alignment.center_left,
-                        end=ft.alignment.center_right,
-                        colors=["#0f2027", "#203a43", "#2c5364"],
-                    ),
-                    padding=ft.padding.symmetric(vertical=8, horizontal=10),
-                    border_radius=8,
-                    alignment=ft.alignment.center,
-                    margin=ft.margin.only(bottom=8)
-                ),
-                # ...Aquí el resto de párrafos y controles...
-                *controls_slide  # ← Aquí van los textos, imágenes, botones, etc.
-            ],
-            alignment=ft.MainAxisAlignment.CENTER,
-            spacing=16,
-            scroll="auto",   # <----- ¡Esto activa el scroll!
-            height=max_card_height  # Por ejemplo: máximo 85% de la ventana o 540px
-        )
+        
+         # --- Calcula el alto estimado del contenido (solo una referencia simple) ---
+        texto_total = sum([len(str(p)) for p in slide["contenido"]])
+        lineas_estimadas = texto_total // 55 + len(slide["contenido"])  # 55 chars por línea aprox
+        alto_estimado = 60 + lineas_estimadas * 24  # 60px header, 24px por línea
 
+        # Limites para el alto del card
+        if page.width < 600:
+            margen_redes = 120
+            max_card_height = int(page.height * 0.70)
+            if page.height - margen_redes < max_card_height:
+                max_card_height = page.height - margen_redes
+        else:
+            margen_redes = 160
+            max_card_height = int(page.height * 0.80)
+            if page.height - margen_redes < max_card_height:
+                max_card_height = page.height - margen_redes
+
+        # Si el alto estimado es MENOR que el máximo, NO pones height (card se ajusta solo)
+        # Si el alto estimado es MAYOR que el máximo, sí pones height y scroll
+        if alto_estimado < max_card_height:
+            contenido_slide_column = ft.Column(
+                controls=contenido_slide,
+                alignment=ft.MainAxisAlignment.START,
+                spacing=16,
+                scroll=None,  # No scroll, se adapta solo
+            )
+        else:
+            contenido_slide_column = ft.Column(
+                controls=contenido_slide,
+                alignment=ft.MainAxisAlignment.START,
+                spacing=16,
+                scroll="auto",
+                height=max_card_height,
+            )
         card = ft.Container(
             width=ancho_card,
             padding=ft.padding.symmetric(vertical=18, horizontal=8 if page.width < 400 else 18),
