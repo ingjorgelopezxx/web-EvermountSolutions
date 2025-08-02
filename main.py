@@ -474,7 +474,7 @@ async def main(page: ft.Page):
                 for item in parrafo["items"]:
                     img_insecto = ft.Image(
                         src=imagenes_insectos[item["id"]],
-                        width=54, height=54,
+                        width=34, height=34,
                         fit=ft.ImageFit.CONTAIN,
                         scale=1.0,
                         animate_scale=200,
@@ -484,7 +484,7 @@ async def main(page: ft.Page):
                     # Container para animación y clic
                     cont = ft.Container(
                         content=img_insecto,
-                        width=66, height=66,
+                        width=46, height=46,
                         border_radius=33,
                         bgcolor=ft.Colors.WHITE,
                         shadow=ft.BoxShadow(1, 6, ft.Colors.BLACK26, offset=ft.Offset(2, 2)),
@@ -493,7 +493,23 @@ async def main(page: ft.Page):
                         ink=True
                     )
                     insectos_animados.append(cont)
-                    row_controles.append(cont)
+                    # Ahora arma columna imagen + texto
+                    row_controles.append(
+                        ft.Column(
+                            [
+                                cont,
+                                ft.Text(
+                                    item["nombre"],
+                                    size=12,
+                                    weight=ft.FontWeight.BOLD,
+                                    color=ft.Colors.BLACK,
+                                    text_align=ft.TextAlign.CENTER,
+                                ),
+                            ],
+                            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                            spacing=4,
+                        )
+                    )
                 contenido_slide.append(
                     ft.Row(row_controles, alignment=ft.MainAxisAlignment.CENTER, spacing=18)
                 )
@@ -506,7 +522,6 @@ async def main(page: ft.Page):
                         text_align=ft.TextAlign.LEFT,
                     )
                 )
-        
          # --- Calcula el alto estimado del contenido (solo una referencia simple) ---
         texto_total = sum([len(str(p)) for p in slide["contenido"]])
         lineas_estimadas = texto_total // 55 + len(slide["contenido"])  # 55 chars por línea aprox
