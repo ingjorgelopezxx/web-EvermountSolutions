@@ -10,8 +10,12 @@ async def main(page: ft.Page):
 
     # Variable para activar o desactivar carrusel de imagen
     carrusel_activo = True
-    slide_actual = 0  # Variable para llevar el control del slide
-    animacion_empresa_task = [None]  # Usamos lista para mutabilidad
+
+    # Variable para llevar el control del slide (posiciones para deslizar)
+    slide_actual = 0  
+
+    # Usamos lista para mutabilidad, inicializamos la variable 
+    animacion_empresa_task = [None]  
     
     # Imagen del Logo de Bienvenida
     imagen_logo = ft.Container(
@@ -136,6 +140,7 @@ async def main(page: ft.Page):
             img.update()
             await asyncio.sleep(0.4)
 
+    # Funcion para animar todo el boton_empresa
     async def animar_empresa_ciclo():
         while True:
             container_boton_empresa.scale = 1.18
@@ -145,9 +150,7 @@ async def main(page: ft.Page):
             container_boton_empresa.update()
             await asyncio.sleep(0.7)
 
-
-
-    # Funcion animacion Botones
+    # Funcion animacion Botones redes sociales 
     def animar_boton_whatsapp(e):
         imagen_boton_whatsapp.scale = 1.1 if e.data=="true" else 1.0
         imagen_boton_whatsapp.update()   
@@ -201,11 +204,11 @@ async def main(page: ft.Page):
         bgcolor=ft.Colors.BLACK12,  # Fondo circular más visible
         border_radius=32,
         padding=7,  # Espaciado interno
-        scale=1.0,             # <--- Necesario para animar
-        animate_scale=200,     # <--- Necesario para animar
+        scale=1.0,            
+        animate_scale=200,     
     )
 
-
+    # Boton de Whatsapp 
     boton_whatsapp = ft.Container(
         content=imagen_boton_whatsapp,
         width=60,
@@ -218,6 +221,7 @@ async def main(page: ft.Page):
         ink=True,
     )
 
+    # Boton de Instagram
     boton_instragram = ft.Container(
         content=imagen_boton_instagram,
         width=60,
@@ -230,6 +234,7 @@ async def main(page: ft.Page):
         ink=True,
     )
 
+    # Boton de Facebook
     boton_facebook = ft.Container(
         content=imagen_boton_facebook,
         width=60,
@@ -252,8 +257,8 @@ async def main(page: ft.Page):
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
     )
 
-        # Función para reemplazar el contenido
-        # --- Contenidos para el carrusel/presentación ---
+    # Informacion que tendran los slides (pantallas para deslizar)
+    # slides Quienes Somos
     slides_quienes = [
         {
             "titulo": "Bienvenidos!",
@@ -270,9 +275,9 @@ async def main(page: ft.Page):
                 "Cuidamos el medio ambiente y la salud de nuestros clientes."
             ]
         },
-        # Puedes agregar más slides aquí si lo deseas
     ]
 
+    # slides Historia
     slides_historia = [
         {
             "titulo": "Historia",
@@ -292,31 +297,118 @@ async def main(page: ft.Page):
         }
     ]
 
+    slides_servicios = [
+    {
+        "titulo": "Soluciones eficaces para todo tipo de plagas",
+        "contenido": [
+            "En Evermount Solutions ofrecemos servicios integrales y adaptados a cada necesidad, tanto para clientes residenciales como comerciales e industriales.",
+            "• Control de insectos rastreros (cucarachas, hormigas, chinches, pulgas)",
+            "• Control de insectos voladores (moscas, zancudos, avispas)",
+            "• Control de roedores (ratones, ratas)",
+            "• Tratamiento de termitas",
+            "• Tratamiento de aves",
+            "• Desinfección y sanitización de ambientes",
+            "• Programas de control mensual y anual",
+            "🔬 Usamos productos certificados y amigables con el medio ambiente."
+        ]
+    },
+    {
+        "titulo": "🪳 Control de Insectos Rastreros",
+        "contenido": [
+            # Este elemento será un Row o una lista de botones/links
+            {
+                "tipo": "clickable_row",
+                "items": [
+                    {"nombre": "Cucarachas", "id": "cucarachas"},
+                    {"nombre": "Hormigas", "id": "hormigas"},
+                    {"nombre": "Chinches", "id": "chinches"},
+                    {"nombre": "Pulgas", "id": "pulgas"},
+                ]
+            },
+            "Los insectos rastreros no solo causan molestias, sino que también pueden contaminar alimentos y transmitir enfermedades. En Evermount Solutions, utilizamos métodos modernos y productos certificados para erradicar cucarachas, hormigas, chinches de cama y pulgas de forma segura y efectiva.",
+            "✅ Diagnóstico personalizado",
+            "✅ Tratamientos focalizados y residuales",
+            "✅ Técnicas no invasivas, seguras para personas y mascotas",
+            "📍Servicio disponible en casas, departamentos, empresas, bodegas y locales comerciales."
+        ]
+    },
+    # ...puedes agregar más slides aquí
+    ]
     
-    slides = slides_quienes  # por defecto, o como prefieras
+    #diccionario de insectos
+    info_insectos = {
+        "cucarachas": {
+            "titulo": "Cucarachas",
+            "descripcion": "Las cucarachas son una de las plagas más comunes. Se reproducen rápidamente y pueden transmitir enfermedades. Eliminamos todo tipo de cucarachas utilizando cebos, geles y productos seguros para personas y mascotas."
+        },
+        "hormigas": {
+            "titulo": "Hormigas",
+            "descripcion": "Las hormigas invaden hogares y comercios en busca de alimento. Realizamos diagnóstico y aplicación de productos focalizados para erradicarlas desde el nido."
+        },
+        "chinches": {
+            "titulo": "Chinches de cama",
+            "descripcion": "Las chinches se esconden en camas y muebles, causando picaduras y molestias. Utilizamos técnicas avanzadas de detección y tratamientos térmicos y químicos."
+        },
+        "pulgas": {
+            "titulo": "Pulgas",
+            "descripcion": "Las pulgas afectan a mascotas y personas, transmitiendo enfermedades y causando picazón. Aplicamos tratamientos en interiores y exteriores para su total erradicación."
+        },
+    }
+    
+    imagenes_insectos = {
+    "cucarachas": "https://cdn-icons-png.flaticon.com/512/8005/8005026.png",    # Puedes usar el enlace de tu preferencia
+    "hormigas":   "https://static.vecteezy.com/system/resources/previews/015/211/725/non_2x/ant-icon-cartoon-style-vector.jpg",
+    "chinches":   "https://cdn-icons-png.flaticon.com/512/1850/1850155.png",
+    "pulgas":     "https://cdn-icons-png.flaticon.com/512/2295/2295144.png",
+    }
+
+    # Modal para el dialogo de insectos
+    modal_insecto = ft.AlertDialog(
+        modal=True,
+        title=ft.Text(""),
+        content=ft.Text(""),
+        actions=[ft.TextButton("Cerrar", on_click=lambda e: cerrar_modal())]
+    )
+
+    # Funcion para cerrar modal de insectos
+    def cerrar_modal():
+        modal_insecto.open = False
+        page.update()
+
+
+    def mostrar_info_insecto(insecto_id):
+        data = info_insectos.get(insecto_id)
+        if data:
+            modal_insecto.title.value = data["titulo"]
+            modal_insecto.content.value = data["descripcion"]
+            modal_insecto.open = True
+            page.dialog = modal_insecto
+            page.update()
+
+
+    # Inicializamos la variable slides 
+    slides = slides_quienes 
+
+    # Funcion para mostrar los slides
     def mostrar_slide(idx):
         global carrusel_activo
         global slides
         carrusel_activo = False
         contenido.controls.clear()
-        # Ancho responsive para el card
+        slide = slides[idx]
+        # Ancho automatico para los diferentes tamaños de pantalla, responsive para el card y el texto interno
         ancho_card = min(int(page.width * 0.8), 380)
         if page.width < 350:
             ancho_card = int(page.width * 0.98)
-
         size_titulo = 18 if page.width < 400 else 24
         size_parrafo = 14 if page.width < 400 else 16
 
-            # Usamos una lista para mutabilidad del valor inicial
-        # Guarda el acumulado de movimiento horizontal
+        # variable pan_dx Guarda el acumulado de movimiento horizontal
         pan_dx = [0]
-
         def on_pan_start(e):
             pan_dx[0] = 0  # Resetea en cada inicio
-
         def on_pan_update(e):
             pan_dx[0] += e.delta_x  # Acumula desplazamiento horizontal
-
         def on_pan_end(e):
             # Cambia de slide si el desplazamiento es suficiente
             if pan_dx[0] < -50 and idx < len(slides) - 1:
@@ -325,6 +417,28 @@ async def main(page: ft.Page):
                 navegar_slide(idx - 1)
             pan_dx[0] = 0
 
+        controls_slide = []
+        for parrafo in slide["contenido"]:
+            if isinstance(parrafo, dict) and parrafo.get("tipo") == "clickable_row":
+                controls_slide.append(
+                    ft.Row([
+                        ft.Column([
+                            ft.IconButton(
+                                content=ft.Image(src=imagenes_insectos[item["id"]], width=42, height=42),
+                                tooltip=item["nombre"],
+                                icon_size=50,
+                                on_click=lambda e, id=item["id"]: mostrar_info_insecto(id)
+                            ),
+                            ft.Text(item["nombre"], size=12, weight=ft.FontWeight.BOLD,color=ft.Colors.BLACK, text_align=ft.TextAlign.CENTER)
+                        ], horizontal_alignment=ft.CrossAxisAlignment.CENTER)
+                        for item in parrafo["items"]
+                    ], alignment=ft.MainAxisAlignment.CENTER, spacing=18)
+
+                )
+            else:
+                controls_slide.append(
+                    ft.Text(parrafo, size=size_parrafo, color=ft.Colors.BLACK, text_align=ft.TextAlign.LEFT)
+                )
 
 
         card = ft.Container(
@@ -334,10 +448,9 @@ async def main(page: ft.Page):
             border_radius=16,
             border=ft.border.all(2, ft.Colors.BLACK),
             content=ft.Column([
-                # Título destacado con fondo degradado
                 ft.Container(
                     content=ft.Text(
-                        slides[idx]["titulo"],
+                        slide["titulo"],
                         size=size_titulo,
                         weight=ft.FontWeight.BOLD,
                         color=ft.Colors.WHITE,
@@ -353,16 +466,7 @@ async def main(page: ft.Page):
                     alignment=ft.alignment.center,
                     margin=ft.margin.only(bottom=8)
                 ),
-                # Párrafos ordenados sin sangría, separados y limpios
-                *[
-                    ft.Text(
-                        parrafo,
-                        size=size_parrafo,
-                        color=ft.Colors.BLACK,
-                        text_align=ft.TextAlign.LEFT,
-                    )
-                    for parrafo in slides[idx]["contenido"]
-                ]
+                *controls_slide
             ], alignment=ft.MainAxisAlignment.CENTER, spacing=16),
             alignment=ft.alignment.center
         )
@@ -374,7 +478,7 @@ async def main(page: ft.Page):
             on_pan_end=on_pan_end
         )
 
-
+        # Funciones de las flechas para desplazar las pantallas a izquierda o derecha 
         row_controls = []
         if idx > 0:
             row_controls.append(
@@ -396,6 +500,7 @@ async def main(page: ft.Page):
                 )
             )
 
+        # Contenedor de las flechas 
         contenido.controls.append(
             ft.Container(
                 content=ft.Row(
@@ -410,13 +515,13 @@ async def main(page: ft.Page):
         )
         contenido.update()
 
-
+    # Funcion para saber en que posicion esta el slide
     def navegar_slide(nuevo_idx):
         global slide_actual
         slide_actual = nuevo_idx
         mostrar_slide(slide_actual)
 
-    # --- Modifica show_info ---
+    # --- Modifica show_info (Funcion para saber que opcion del menu se selecciono) ---
     def show_info(opt):
         global carrusel_activo
         global slide_actual,slides
@@ -438,15 +543,18 @@ async def main(page: ft.Page):
             animacion_empresa_task[0] = page.run_task(animar_empresa_ciclo)
             slides = slides_quienes
             slide_actual = 0
-            mostrar_slide(0)
-        
+            mostrar_slide(slide_actual)
+        elif opt == "Servicios":
+            carrusel_activo = False
+            slides = slides_servicios
+            slide_actual = 0
+            mostrar_slide(slide_actual)
         elif opt == "Historia":
             carrusel_activo = False
             animacion_empresa_task[0] = page.run_task(animar_empresa_ciclo)
             slides = slides_historia
             slide_actual = 0
-            mostrar_slide(0)
-            
+            mostrar_slide(slide_actual)
         elif opt == "Ubicación":
             animacion_empresa_task[0] = page.run_task(animar_empresa_ciclo)
             contenido.controls.append(
@@ -463,11 +571,10 @@ async def main(page: ft.Page):
             animacion_empresa_task[0] = page.run_task(animar_empresa_ciclo)
             page.update()
 
-
-    # Menú de empresa
-    # Menú de empresa
+    # Menú del Boton_Empresa
     menu_data = [
-        ("Inicio",     ft.Icons.HOME),   
+        ("Inicio",     ft.Icons.HOME),
+        ("Servicios",  ft.Icons.CHECKLIST),   
         ("Quiénes Somos", ft.Icons.PEOPLE), 
         ("Historia", ft.Icons.HISTORY), 
         ("Contactos", ft.Icons.CONTACT_PHONE),
@@ -499,7 +606,7 @@ async def main(page: ft.Page):
             border_radius=6,
             shadow=ft.BoxShadow(1,4,ft.Colors.BLACK26, offset=ft.Offset(0,2)),
             width=150,
-            height=230,
+            height=260,
             on_hover= cerrar_menu_hover
         ),
         visible=False,
@@ -582,7 +689,7 @@ async def main(page: ft.Page):
     page.on_resize = ajustar_tamanos
     page.on_window_event = lambda e: ajustar_tamanos() if e.data=="shown" else None
     # Overlay oculto para cerrar el menu al hacer clic fuera de el
-    page.overlay.extend([dropdown, intro_modal])
+    page.overlay.extend([dropdown, intro_modal,modal_insecto])
     page.update()
     asyncio.create_task(rotar_sets())
     asyncio.create_task(animacion_alternada())
