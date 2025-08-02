@@ -69,8 +69,8 @@ async def main(page: ft.Page):
                 ),
                 # Descripción en negro y negrita
                 ft.Text(
-                    "Si deseas obtener mas información referente a la empresa "
-                    "has clic sobre el boton ubicado en la esquina superior derecha.",
+                    "Si deseas obtener más información referente a la empresa "
+                    "has clic sobre el botón ubicado en la esquina superior derecha.",
                     weight=ft.FontWeight.BOLD,
                     color=ft.Colors.BLUE_900
                 )
@@ -337,10 +337,10 @@ async def main(page: ft.Page):
             {
                 "tipo": "clickable_row",
                 "items": [
-                    {"nombre": "Cucarachas", "id": "cucarachas"},
-                    {"nombre": "Hormigas", "id": "hormigas"},
-                    {"nombre": "Chinches", "id": "chinches"},
-                    {"nombre": "Pulgas", "id": "pulgas"},
+                    {"nombre": "Cucaracha", "id": "cucarachas"},
+                    {"nombre": "Hormiga", "id": "hormigas"},
+                    {"nombre": "Chinche", "id": "chinches"},
+                    {"nombre": "Pulga", "id": "pulgas"},
                 ]
             },
             "Los insectos rastreros no solo causan molestias, sino que también pueden contaminar alimentos y transmitir enfermedades. En Evermount Solutions, utilizamos métodos modernos y productos certificados para erradicar cucarachas, hormigas, chinches de cama y pulgas de forma segura y efectiva.",
@@ -500,13 +500,11 @@ async def main(page: ft.Page):
             ],
             alignment=ft.MainAxisAlignment.CENTER,
             spacing=16,
-            scroll="auto",   # <----- ¡Esto activa el scroll!
-            expand=True
+            scroll="auto"   # <----- ¡Esto activa el scroll!
         )
 
         card = ft.Container(
             width=ancho_card,
-            height=alto_card,
             padding=ft.padding.symmetric(vertical=18, horizontal=8 if page.width < 400 else 18),
             bgcolor=ft.Colors.WHITE,
             border_radius=16,
