@@ -16,7 +16,8 @@ async def main(page: ft.Page):
 
     # Usamos lista para mutabilidad, inicializamos la variable 
     animacion_empresa_task = [None]  
-    
+    animacion_insectos_task = [None]
+
     # Imagen del Logo de Bienvenida
     imagen_logo = ft.Container(
         content=ft.Image(src="https://i.postimg.cc/8PvSgg5x/logo-mobile-dark.png", fit=ft.ImageFit.COVER),
@@ -149,6 +150,23 @@ async def main(page: ft.Page):
             container_boton_empresa.scale = 1.0
             container_boton_empresa.update()
             await asyncio.sleep(0.7)
+    
+    # Funcion para animar las imagenes de los insectos
+    async def animar_insectos_ciclo(imagenes):
+        try:
+            while True:
+                for img in imagenes:
+                    img.scale = 1.17
+                    img.update()
+                await asyncio.sleep(0.4)
+                for img in imagenes:
+                    img.scale = 1.0
+                    img.update()
+                await asyncio.sleep(0.4)
+        except Exception:
+            # Puede ser cancelada si se cambia de slide
+            pass
+
 
     # Funcion animacion Botones redes sociales 
     def animar_boton_whatsapp(e):
@@ -396,6 +414,11 @@ async def main(page: ft.Page):
         carrusel_activo = False
         contenido.controls.clear()
         slide = slides[idx]
+
+       # Detener animación de insectos si hay una previa
+        if animacion_insectos_task[0]:
+            animacion_insectos_task[0].cancel()
+            animacion_insectos_task[0] = None
         # Ancho automatico para los diferentes tamaños de pantalla, responsive para el card y el texto interno
         ancho_card = min(int(page.width * 0.8), 380)
         if page.width < 350:
@@ -418,39 +441,44 @@ async def main(page: ft.Page):
             pan_dx[0] = 0
 
         controls_slide = []
-        for parrafo in slide["contenido"]:
-            if isinstance(parrafo, dict) and parrafo.get("tipo") == "clickable_row":
-                controls_slide.append(
-                    ft.Row([
+        imagenes_animadas = []  # <-- aquí irán las img para animar
+        
+        for item in slide["contenido"]:
+            if isinstance(item, dict) and item.get("tipo") == "clickable_row":
+                fila_botones = []
+                for it in item["items"]:
+                    img = ft.Image(
+                        src=imagenes_insectos[it["id"]],
+                        width=42, height=42,
+                        scale=1.0,
+                        animate_scale=200,
+                    )
+                    imagenes_animadas.append(img)
+                    fila_botones.append(
                         ft.Column([
                             ft.IconButton(
-                                content=ft.Image(src=imagenes_insectos[item["id"]], width=42, height=42),
-                                tooltip=item["nombre"],
-                                icon_size=50,
-                                on_click=lambda e, id=item["id"]: mostrar_info_insecto(id)
+                                icon=None,
+                                content=img,
+                                icon_size=44,
+                                tooltip=it["nombre"],
+                                on_click=lambda e, id=it["id"]: mostrar_info_insecto(id),
                             ),
-                            ft.Text(item["nombre"], size=12, weight=ft.FontWeight.BOLD,color=ft.Colors.BLACK, text_align=ft.TextAlign.CENTER)
+                            ft.Text(it["nombre"], size=12, weight=ft.FontWeight.BOLD, text_align=ft.TextAlign.CENTER)
                         ], horizontal_alignment=ft.CrossAxisAlignment.CENTER)
-                        for item in parrafo["items"]
-                    ], alignment=ft.MainAxisAlignment.CENTER, spacing=18)
-
+                    )
+                controls_slide.append(
+                    ft.Row(fila_botones, alignment=ft.MainAxisAlignment.CENTER, spacing=18)
                 )
             else:
                 controls_slide.append(
-                    ft.Text(parrafo, size=size_parrafo, color=ft.Colors.BLACK, text_align=ft.TextAlign.LEFT)
+                    ft.Text(item, size=size_parrafo, color=ft.Colors.BLACK, text_align=ft.TextAlign.LEFT)
                 )
-
-
-        card = ft.Container(
-            width=ancho_card,
-            padding=ft.padding.symmetric(vertical=18, horizontal=8 if page.width < 400 else 18),
-            bgcolor=ft.Colors.WHITE,
-            border_radius=16,
-            border=ft.border.all(2, ft.Colors.BLACK),
-            content=ft.Column([
+        contenido_slide_column = ft.Column(
+            [
+                # Título destacado con fondo degradado
                 ft.Container(
                     content=ft.Text(
-                        slide["titulo"],
+                        slides[idx]["titulo"],
                         size=size_titulo,
                         weight=ft.FontWeight.BOLD,
                         color=ft.Colors.WHITE,
@@ -466,10 +494,25 @@ async def main(page: ft.Page):
                     alignment=ft.alignment.center,
                     margin=ft.margin.only(bottom=8)
                 ),
-                *controls_slide
-            ], alignment=ft.MainAxisAlignment.CENTER, spacing=16),
-            alignment=ft.alignment.center
+                # ...Aquí el resto de párrafos y controles...
+                *controls_slide  # ← Aquí van los textos, imágenes, botones, etc.
+            ],
+            alignment=ft.MainAxisAlignment.CENTER,
+            spacing=16,
+            scroll="auto"   # <----- ¡Esto activa el scroll!
         )
+
+        card = ft.Container(
+            width=ancho_card,
+            padding=ft.padding.symmetric(vertical=18, horizontal=8 if page.width < 400 else 18),
+            bgcolor=ft.Colors.WHITE,
+            border_radius=16,
+            border=ft.border.all(2, ft.Colors.BLACK),
+            content=contenido_slide_column,   # <-- AQUÍ
+            alignment=ft.alignment.center,
+            # No pongas expand=True aquí, así solo hace scroll el contenido interno
+        )
+
         # -- Aquí envolvemos el card con el detector de gestos
         gesture_card = ft.GestureDetector(
             content=card,
@@ -514,6 +557,8 @@ async def main(page: ft.Page):
             )
         )
         contenido.update()
+        if slides is slides_servicios and idx == 1:
+           animacion_insectos_task[0] = page.run_task(animar_insectos_ciclo, imagenes_animadas)
 
     # Funcion para saber en que posicion esta el slide
     def navegar_slide(nuevo_idx):
