@@ -594,6 +594,7 @@ async def main(page: ft.Page):
             mostrar_slide(slide_actual)
         elif opt == "Servicios":
             carrusel_activo = False
+            animacion_empresa_task[0] = page.run_task(animar_empresa_ciclo)
             slides = slides_servicios
             slide_actual = 0
             mostrar_slide(slide_actual)
@@ -736,12 +737,12 @@ async def main(page: ft.Page):
     page.on_connect = on_connect
     page.on_resize = ajustar_tamanos
     page.on_window_event = lambda e: ajustar_tamanos() if e.data=="shown" else None
+    animacion_empresa_task[0] = page.run_task(animar_empresa_ciclo)
     # Overlay oculto para cerrar el menu al hacer clic fuera de el
     page.overlay.extend([dropdown, intro_modal,modal_insecto])
     page.update()
     asyncio.create_task(rotar_sets())
     asyncio.create_task(animacion_alternada())
-    animacion_empresa_task[0] = page.run_task(animar_empresa_ciclo)
     ajustar_tamanos()
    
 ft.app(target=main, view=ft.WEB_BROWSER, port=int(os.environ.get("PORT", 8080)))
