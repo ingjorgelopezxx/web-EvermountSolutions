@@ -932,6 +932,9 @@ async def main(page: ft.Page):
         # Cerrar menú si está abierto
         dropdown.visible = False
 
+        # Cerrar modal de insecto si estaba abierto
+        modal_insecto.open = False   # <--- LÍNEA CLAVE
+        page.dialog = None           # <--- Opcional, asegura que no queda el modal "huérfano"
         # Mostrar contenido inicial (texto y carrusel)
         global carrusel_activo
         carrusel_activo = True
