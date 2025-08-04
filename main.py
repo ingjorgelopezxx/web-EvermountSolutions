@@ -564,14 +564,11 @@ async def main(page: ft.Page):
         if animacion_insectos_task[0]:
             animacion_insectos_task[0].cancel()
             animacion_insectos_task[0] = None
-        # Ancho automatico para los diferentes tamaños de pantalla, responsive para el card y el texto interno
-        if page.width < 480:
-            ancho_card = int(page.width * 0.74)    # 93% del ancho en móviles
-        elif page.width < 700:
-            ancho_card = int(page.width * 0.85)    # tablets chicas
-        else:
-            ancho_card = int(page.width * 0.90)  # desktop, menor % para más margen
-                    
+        flecha_ancho = 46  # píxeles reservados para cada flecha
+
+        # Calcula el ancho real de la card
+        ancho_card = min(int(page.width - flecha_ancho*2 - 12), 430 if page.width > 600 else 340)
+                            
         size_titulo = 18 if page.width < 400 else 24
         size_parrafo = 14 if page.width < 400 else 16
 
@@ -705,6 +702,7 @@ async def main(page: ft.Page):
                 height=max_card_height,
         )
 
+       
         card = ft.Container(
             width=ancho_card,
             padding=ft.padding.symmetric(vertical=18, horizontal=8 if page.width < 400 else 18),
@@ -746,17 +744,33 @@ async def main(page: ft.Page):
                 )
             )
 
-        # Contenedor de las flechas 
+        # Flecha Izquierda
+        arrow_left = ft.IconButton(
+            icon=ft.Icons.ARROW_LEFT,
+            icon_color=ft.Colors.BLUE_700,
+            icon_size=30,
+            on_click=lambda e: navegar_slide(idx-1)
+        ) if idx > 0 else ft.Container(width=flecha_ancho)
+
+        # Flecha Derecha
+        arrow_right = ft.IconButton(
+            icon=ft.Icons.ARROW_RIGHT,
+            icon_color=ft.Colors.BLUE_700,
+            icon_size=30,
+            on_click=lambda e: navegar_slide(idx+1)
+        ) if idx < len(slides)-1 else ft.Container(width=flecha_ancho)
+
+        # Fila final
         contenido.controls.append(
-            ft.Container(
-                content=ft.Row(
-                    row_controls,
-                    alignment=ft.MainAxisAlignment.CENTER,
-                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
-                    expand=False
-                ),
-                expand=False,
-                alignment=ft.alignment.center
+            ft.Row(
+                [
+                    ft.Container(arrow_left, alignment=ft.alignment.center, width=flecha_ancho),
+                    ft.Container(gesture_card, alignment=ft.alignment.center, expand=True),
+                    ft.Container(arrow_right, alignment=ft.alignment.center, width=flecha_ancho),
+                ],
+                alignment=ft.MainAxisAlignment.CENTER,
+                vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                expand=False
             )
         )
         contenido.update()
