@@ -421,7 +421,7 @@ async def main(page: ft.Page):
                 "tipo": "clickable_row",
                 "items": [
                     {"nombre": "Subterránea", "id": "termita_subterranea"},
-                    {"nombre": "Madera seca", "id": "termita_madera_seca"},
+                    {"nombre": "Madera", "id": "termita_madera_seca"},
                     {"nombre": "Otras", "id": "termita_otros"},
                 ]
             },
@@ -675,7 +675,7 @@ async def main(page: ft.Page):
                         )
                     )
                 contenido_slide.append(
-                    ft.Row(row_controles, alignment=ft.MainAxisAlignment.CENTER, spacing=18)
+                    ft.Row(row_controles, alignment=ft.MainAxisAlignment.CENTER, spacing=5)
                 )
             else:
                 contenido_slide.append(
