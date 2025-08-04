@@ -560,9 +560,9 @@ async def main(page: ft.Page):
             animacion_insectos_task[0] = None
         # Ancho automatico para los diferentes tamaños de pantalla, responsive para el card y el texto interno
         if page.width < 480:
-            ancho_card = int(page.width * 0.70)    # 93% del ancho en móviles
+            ancho_card = int(page.width * 0.75)    # 93% del ancho en móviles
         elif page.width < 700:
-            ancho_card = int(page.width * 0.80)    # tablets chicas
+            ancho_card = int(page.width * 0.85)    # tablets chicas
         else:
             ancho_card = int(page.width * 0.90)  # desktop, menor % para más margen
                     
@@ -684,21 +684,33 @@ async def main(page: ft.Page):
                     )
                 )
          # --- Calcula el alto estimado del contenido (solo una referencia simple) ---
-        texto_total = sum([len(str(p)) for p in slide["contenido"]])
-        lineas_estimadas = texto_total // 55 + len(slide["contenido"])  # 55 chars por línea aprox
-        alto_estimado = 60 + lineas_estimadas * 24  # 60px header, 24px por línea
+        def contar_lineas(texto):
+            # Cuenta saltos de línea explícitos
+            return texto.count("\n") + 1
+
+        total_lineas = 0
+        for p in slide["contenido"]:
+            if isinstance(p, dict) and p.get("tipo") == "clickable_row":
+                total_lineas += 2  # Una línea para la fila de botones, ajusta si quieres más/menos
+            else:
+                s = str(p)
+                # Divide por 50 (caracteres por línea aprox), pero también cuenta saltos de línea
+                total_lineas += max((len(s) // 50) + 1, contar_lineas(s))
+
+        alto_estimado = 60 + total_lineas * 24  # 60 header, 24px por línea
+
 
         # Limites para el alto del card
         if page.width < 600:
-            margen_redes = 120
-            max_card_height = int(page.height * 0.70)
-            if page.height - margen_redes < max_card_height:
-                max_card_height = page.height - margen_redes
+            margen_redes = 150
+            max_card_height = page.height - margen_redes
         else:
-            margen_redes = 160
-            max_card_height = int(page.height * 0.80)
-            if page.height - margen_redes < max_card_height:
-                max_card_height = page.height - margen_redes
+            margen_redes = 200
+            max_card_height = page.height - margen_redes
+
+        if max_card_height < 200:
+            max_card_height = 200
+
 
         # Si el alto estimado es MENOR que el máximo, NO pones height (card se ajusta solo)
         # Si el alto estimado es MAYOR que el máximo, sí pones height y scroll
