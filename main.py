@@ -415,7 +415,7 @@ async def main(page: ft.Page):
                 "tipo": "clickable_row",
                 "items": [
                     {"nombre": "Subterránea", "id": "termita_subterranea"},
-                    {"nombre": "Madera seca", "id": "termita_madera_seca"},
+                    {"nombre": "Madera", "id": "termita_madera_seca"},
                     {"nombre": "Otras", "id": "termita_otros"},
                 ]
             },
@@ -756,21 +756,24 @@ async def main(page: ft.Page):
             )
 
         # Contenedor de las flechas 
+        slide_row = ft.Row(
+            row_controls,
+            alignment=ft.MainAxisAlignment.CENTER,
+            vertical_alignment=ft.CrossAxisAlignment.CENTER,
+            expand=False,
+            tight=True,
+        )
+
         contenido.controls.append(
             ft.Container(
-                content=ft.Row(
-                    row_controls,
-                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN,  # ← para separar las flechas a los costados
-                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
-                    expand=False,
-                    tight=True,              # ← hace que los controles se ajusten al espacio disponible
-                ),
-                expand=False,
+                content=slide_row,
                 alignment=ft.alignment.center,
-                width=ancho_card,           # ← así limitas el ancho al tamaño de la card (no se sale del viewport)
-                padding=ft.padding.symmetric(horizontal=2)
+                width=ancho_card,
+                padding=ft.padding.symmetric(horizontal=0),
+                expand=False,
             )
         )
+
 
         contenido.update()
         # 🟢 -- Aquí va la magia: animar si corresponde --
