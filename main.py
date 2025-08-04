@@ -416,7 +416,7 @@ async def main(page: ft.Page):
                 "items": [
                     {"nombre": "Subterránea", "id": "termita_subterranea"},
                     {"nombre": "Madera seca", "id": "termita_madera_seca"},
-                    {"nombre": "Otras especies", "id": "termita_otros"},
+                    {"nombre": "Otras", "id": "termita_otros"},
                 ]
             },
             "Las termitas pueden causar daños estructurales graves en viviendas, empresas y construcciones de madera si no se detectan y tratan a tiempo. En Evermount Solutions - Pest Defense realizamos tratamientos especializados para eliminar termitas y proteger tus estructuras a largo plazo.",
@@ -436,7 +436,7 @@ async def main(page: ft.Page):
                 {"nombre": "Palomas", "id": "palomas"},
                 {"nombre": "Tórtolas", "id": "tortolas"},
                 {"nombre": "Gorriones", "id": "gorriones"},
-                {"nombre": "Otras especies", "id": "aves_otros"},
+                {"nombre": "Otras", "id": "aves_otros"},
             ]
         },
         "Las aves pueden convertirse en una plaga cuando anidan en techos, cornisas, galpones o equipos de ventilación, generando suciedad, malos olores y riesgos sanitarios. Nuestro servicio de control de aves está diseñado para alejar sin dañar, utilizando métodos seguros y autorizados.",
@@ -497,7 +497,7 @@ async def main(page: ft.Page):
             "descripcion": "Las termitas de madera seca infestan principalmente maderas secas y muebles. Son difíciles de detectar, pero con métodos de inyección y productos de última generación logramos su control eficaz sin afectar el entorno."
         },
         "termita_otros": {
-            "titulo": "Otras",
+            "titulo": "Otras especies de termitas",
             "descripcion": "Existen diversas especies de termitas que pueden atacar diferentes tipos de madera y estructuras. Realizamos diagnóstico y tratamiento personalizado para cada caso, asegurando la máxima protección de tu propiedad."
         },
         "palomas": {
@@ -513,7 +513,7 @@ async def main(page: ft.Page):
             "descripcion": "Los gorriones forman colonias numerosas y pueden causar daños en almacenes y centros de distribución. Nuestra solución es ética, evitando daños y facilitando el desplazamiento de las aves."
         },
         "aves_otros": {
-            "titulo": "Otras",
+            "titulo": "Otras especies de aves",
             "descripcion": "Controlamos también otras especies invasoras que puedan causar daños o problemas sanitarios, adaptando el sistema de control a cada situación para proteger la estructura y la salud de las personas."
         },
     }
@@ -760,14 +760,18 @@ async def main(page: ft.Page):
             ft.Container(
                 content=ft.Row(
                     row_controls,
-                    alignment=ft.MainAxisAlignment.CENTER,
+                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN,  # ← para separar las flechas a los costados
                     vertical_alignment=ft.CrossAxisAlignment.CENTER,
-                    expand=False
+                    expand=False,
+                    tight=True,              # ← hace que los controles se ajusten al espacio disponible
                 ),
                 expand=False,
-                alignment=ft.alignment.center
+                alignment=ft.alignment.center,
+                width=ancho_card,           # ← así limitas el ancho al tamaño de la card (no se sale del viewport)
+                padding=ft.padding.symmetric(horizontal=2)
             )
         )
+
         contenido.update()
         # 🟢 -- Aquí va la magia: animar si corresponde --
         if len(imagenes_animadas) > 0:
