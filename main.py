@@ -314,7 +314,29 @@ async def main(page: ft.Page):
             ]
         }
     ]
-
+    slide_programas_control = [
+    {
+        "titulo": "Control Periódico, Mensual y Anual",
+        "contenido": [
+            "Ofrecemos planes de mantenimiento diseñados para mantener tus espacios protegidos durante todo el año. Nos adaptamos a tus necesidades y tipo de actividad (residencial, comercial o industrial).",
+            "📆 Visitas programadas con seguimiento",
+            "📊 Informes técnicos y certificados de aplicación",
+            "🛡️ Control integral de plagas todo el año",
+            "🟢 Planes ideales para:",
+            "• Restaurantes\n• Supermercados\n• Bodegas\n• Centros educativos\n• Condominios\n• Empresas con auditorías sanitarias"
+        ]
+    },
+       {
+        "titulo": "🏠 Desinfección y Sanitización de Ambientes",
+        "contenido": [
+            "Protege la salud de tu familia, empleados y clientes con nuestros servicios de sanitización profesional. Eliminamos virus, bacterias, hongos y malos olores de forma segura, rápida y eficaz.",
+            "🧼 Aplicación con nebulizador ULV o termonebulización",
+            "🌱 Uso de productos certificados por ISP y amigables con el medio ambiente",
+            "💼 Ideal para hogares, oficinas, clínicas, escuelas y empresas",
+            "🚫 Previene contagios y garantiza ambientes más saludables."
+        ]
+    }
+    ]
     slides_servicios = [
     {
         "titulo": "Soluciones eficaces para todo tipo de plagas",
@@ -350,6 +372,81 @@ async def main(page: ft.Page):
             "📍Servicio disponible en casas, departamentos, empresas, bodegas y locales comerciales."
         ]
     },
+    
+    {
+        "titulo": "🦟 Control de Insectos Voladores",
+        "contenido": [
+            {
+                "tipo": "clickable_row",
+                "items": [
+                    {"nombre": "Moscas", "id": "moscas"},
+                    {"nombre": "Zancudos", "id": "zancudos"},
+                    {"nombre": "Avispas", "id": "avispas"},
+                ]
+            },
+            "Los insectos voladores son transmisores de enfermedades y afectan la comodidad en espacios interiores y exteriores. Contamos con soluciones efectivas para controlar moscas, zancudos (mosquitos), avispas y otros insectos voladores, adaptadas a cada tipo de ambiente.",
+            "💨 Aplicación con equipos nebulizadores",
+            "🌿 Productos biodegradables y de bajo impacto ambiental",
+            "🕒 Tratamientos preventivos y de emergencia",
+            "Ideal para: casas, patios, restaurantes, empresas de alimentos, jardines y centros de eventos.",
+        ]
+    },
+    {
+        "titulo": "🐀 Control de Roedores",
+        "contenido": [
+            {
+                "tipo": "clickable_row",
+                "items": [
+                    {"nombre": "Ratón", "id": "raton"},
+                    {"nombre": "Rata", "id": "rata"},
+                ]
+            },
+            "Los roedores son una de las plagas más peligrosas por los daños estructurales que causan y las enfermedades que transmiten. Nuestro servicio de desratización incluye diagnóstico, control activo y sellado de accesos.",
+            "🔍 Inspección detallada para detectar nidos y rutas",
+            "🧠 Estrategias inteligentes: cebos, trampas, estaciones seguras",
+            "🚪 Recomendaciones de cierre y sellado estructural",
+            "💡 Mantenemos tu propiedad libre de roedores con mínima interrupción."
+        ]
+    },
+    {
+        "titulo": "🐜 Tratamiento de Termitas",
+        "contenido": [
+            {
+                "tipo": "clickable_row",
+                "items": [
+                    {"nombre": "Subterránea", "id": "termita_subterranea"},
+                    {"nombre": "Madera seca", "id": "termita_madera_seca"},
+                    {"nombre": "Otras especies", "id": "termita_otros"},
+                ]
+            },
+            "Las termitas pueden causar daños estructurales graves en viviendas, empresas y construcciones de madera si no se detectan y tratan a tiempo. En Evermount Solutions - Pest Defense realizamos tratamientos especializados para eliminar termitas y proteger tus estructuras a largo plazo.",
+            "🔍 Diagnóstico técnico con detección de actividad y daños",
+            "🏠 Tratamientos localizados e integrales (perimetrales y estructurales)",
+            "🧪 Uso de termiticidas de última generación aprobados por ISP",
+            "🔄 Programas de monitoreo post-tratamiento",
+            "💡 Ideal para casas, cabañas, construcciones nuevas, bodegas, colegios y centros comerciales."
+        ]
+    },
+    {
+    "titulo": "🕊️ Control de Aves Urbanas",
+    "contenido": [
+        {
+            "tipo": "clickable_row",
+            "items": [
+                {"nombre": "Palomas", "id": "palomas"},
+                {"nombre": "Tórtolas", "id": "tortolas"},
+                {"nombre": "Gorriones", "id": "gorriones"},
+                {"nombre": "Otras especies", "id": "aves_otros"},
+            ]
+        },
+        "Las aves pueden convertirse en una plaga cuando anidan en techos, cornisas, galpones o equipos de ventilación, generando suciedad, malos olores y riesgos sanitarios. Nuestro servicio de control de aves está diseñado para alejar sin dañar, utilizando métodos seguros y autorizados.",
+        "⚙️ Instalación de sistemas anti-posamiento (pinchos, redes, tensores, gel repelente)",
+        "🚫 Prevención de anidación y acumulación de excrementos",
+        "📋 Inspección técnica y asesoría personalizada",
+        "🌿 Soluciones éticas y respetuosas con la fauna",
+        "🛠️ Recomendado para: industrias, iglesias, colegios, techos de viviendas, galpones, restaurantes y edificios públicos."
+    ]
+    },
     # ...puedes agregar más slides aquí
     ]
     
@@ -370,6 +467,54 @@ async def main(page: ft.Page):
         "pulgas": {
             "titulo": "Pulgas",
             "descripcion": "Las pulgas afectan a mascotas y personas, transmitiendo enfermedades y causando picazón. Aplicamos tratamientos en interiores y exteriores para su total erradicación."
+        },
+        "moscas": {
+        "titulo": "Moscas",
+        "descripcion": "Las moscas son portadoras de bacterias y virus. Utilizamos trampas, cebos y nebulización para su control en ambientes residenciales y comerciales."
+        },
+        "zancudos": {
+            "titulo": "Zancudos (mosquitos)",
+            "descripcion": "Los zancudos pueden transmitir enfermedades como dengue y zika. Realizamos tratamientos preventivos y de choque en zonas de riesgo, patios y jardines."
+        },
+        "avispas": {
+            "titulo": "Avispas",
+            "descripcion": "Las avispas pueden ser peligrosas por sus picaduras. Localizamos y retiramos nidos de manera segura, usando métodos no invasivos y productos específicos."
+        },
+        "raton": {
+        "titulo": "Ratón",
+        "descripcion": "Los ratones suelen invadir viviendas y negocios buscando alimento y refugio. Suelen causar daños en cables, muebles y contaminar alimentos. Utilizamos trampas, cebos y barreras físicas para erradicarlos de forma segura."
+        },
+        "rata": {
+            "titulo": "Rata",
+            "descripcion": "Las ratas pueden causar daños severos en la estructura e instalaciones, además de ser portadoras de enfermedades graves. Aplicamos estrategias inteligentes y seguras para su control y eliminamos rutas de ingreso."
+        },
+        "termita_subterranea": {
+        "titulo": "Termita subterránea",
+        "descripcion": "Las termitas subterráneas construyen nidos bajo tierra y acceden a las estructuras a través de túneles. Se alimentan de madera y pueden causar daños graves en poco tiempo. Utilizamos tratamientos de barrera y cebos específicos para su erradicación."
+        },
+        "termita_madera_seca": {
+            "titulo": "Termita de madera seca",
+            "descripcion": "Las termitas de madera seca infestan principalmente maderas secas y muebles. Son difíciles de detectar, pero con métodos de inyección y productos de última generación logramos su control eficaz sin afectar el entorno."
+        },
+        "termita_otros": {
+            "titulo": "Otras especies de termitas",
+            "descripcion": "Existen diversas especies de termitas que pueden atacar diferentes tipos de madera y estructuras. Realizamos diagnóstico y tratamiento personalizado para cada caso, asegurando la máxima protección de tu propiedad."
+        },
+        "palomas": {
+        "titulo": "Palomas",
+        "descripcion": "Las palomas pueden anidar en techos y cornisas, ensuciando con excremento y transmitiendo enfermedades. Instalamos sistemas anti-posamiento y realizamos limpieza y prevención para evitar su retorno."
+        },
+        "tortolas": {
+            "titulo": "Tórtolas",
+            "descripcion": "Las tórtolas se adaptan bien a ambientes urbanos, causando molestias y suciedad. Usamos barreras físicas y métodos amigables para disuadir su anidación en lugares críticos."
+        },
+        "gorriones": {
+            "titulo": "Gorriones",
+            "descripcion": "Los gorriones forman colonias numerosas y pueden causar daños en almacenes y centros de distribución. Nuestra solución es ética, evitando daños y facilitando el desplazamiento de las aves."
+        },
+        "aves_otros": {
+            "titulo": "Otras especies de aves",
+            "descripcion": "Controlamos también otras especies invasoras que puedan causar daños o problemas sanitarios, adaptando el sistema de control a cada situación para proteger la estructura y la salud de las personas."
         },
     }
     
@@ -458,11 +603,24 @@ async def main(page: ft.Page):
             ),
         ]
         imagenes_insectos = {
-        "cucarachas": "https://cdn-icons-png.flaticon.com/512/8005/8005026.png",    # Puedes usar el enlace de tu preferencia
-        "hormigas":   "https://static.vecteezy.com/system/resources/previews/015/211/725/non_2x/ant-icon-cartoon-style-vector.jpg",
-        "chinches":   "https://cdn-icons-png.flaticon.com/512/1850/1850155.png",
-        "pulgas":     "https://cdn-icons-png.flaticon.com/512/2295/2295144.png",
+            "cucarachas": "https://cdn-icons-png.flaticon.com/512/8005/8005026.png",    # Puedes usar el enlace de tu preferencia
+            "hormigas":   "https://static.vecteezy.com/system/resources/previews/015/211/725/non_2x/ant-icon-cartoon-style-vector.jpg",
+            "chinches":   "https://cdn-icons-png.flaticon.com/512/1850/1850155.png",
+            "pulgas":     "https://cdn-icons-png.flaticon.com/512/2295/2295144.png",
+            "moscas": "https://cdn-icons-png.flaticon.com/512/1357/1357476.png",
+            "zancudos": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR29MlAGMA1uNdMVEQtGxDEuh_gLjc_vf1H4w&s",
+            "avispas": "https://static.vecteezy.com/system/resources/previews/014/285/415/non_2x/agression-wasp-icon-outline-style-vector.jpg",
+            "raton": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_KKIyhsZpTWOzWNYwJLRLKheBjk4EAPefqw&s",
+            "rata": "https://static.vecteezy.com/system/resources/previews/014/986/360/non_2x/rat-icon-cartoon-style-vector.jpg",
+            "termita_subterranea": "https://cdn-icons-png.freepik.com/512/4982/4982504.png",
+            "termita_madera_seca": "https://thumbs.dreamstime.com/b/icono-vectorial-de-color-plano-%C3%BAnico-la-madera-los-insectos-termite-157353067.jpg",
+            "termita_otros": "https://i.postimg.cc/85r8Fs7m/trt.png",
+            "palomas": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTM-8j_vQCe1wXK-otbgAAlnYQIynlY9rampQ&s",
+            "tortolas": "https://png.pngtree.com/png-vector/20230315/ourmid/pngtree-vector-turtledove-png-image_6650452.png",
+            "gorriones": "https://st3.depositphotos.com/4233957/34474/v/450/depositphotos_344748232-stock-illustration-sparrow-small-city-bird-illustration.jpg",
+            "aves_otros": "https://i.postimg.cc/KYBwFww0/aves-urbanas.png",
         }
+
 
         # Para almacenar las referencias de los contenedores animados
         insectos_animados = [] 
@@ -611,9 +769,9 @@ async def main(page: ft.Page):
             )
         )
         contenido.update()
-        if slides is slides_servicios and idx == 1:
-           animacion_insectos_task[0] = page.run_task(animar_insectos_ciclo, imagenes_animadas)
-
+        # 🟢 -- Aquí va la magia: animar si corresponde --
+        if len(imagenes_animadas) > 0:
+            animacion_insectos_task[0] = page.run_task(animar_insectos_ciclo, imagenes_animadas)
     # Funcion para saber en que posicion esta el slide
     def navegar_slide(nuevo_idx):
         global slide_actual
@@ -649,6 +807,12 @@ async def main(page: ft.Page):
             slides = slides_servicios
             slide_actual = 0
             mostrar_slide(slide_actual)
+        elif opt == "Programas":
+            carrusel_activo = False
+            animacion_empresa_task[0] = page.run_task(animar_empresa_ciclo)
+            slides = slide_programas_control   # <--- USA EL SLIDE NUEVO AQUÍ
+            slide_actual = 0
+            mostrar_slide(slide_actual)
         elif opt == "Historia":
             carrusel_activo = False
             animacion_empresa_task[0] = page.run_task(animar_empresa_ciclo)
@@ -674,7 +838,8 @@ async def main(page: ft.Page):
     # Menú del Boton_Empresa
     menu_data = [
         ("Inicio",     ft.Icons.HOME),
-        ("Servicios",  ft.Icons.CHECKLIST),   
+        ("Servicios",  ft.Icons.CHECKLIST),  
+        ("Programas", ft.Icons.DATE_RANGE), 
         ("Quiénes Somos", ft.Icons.PEOPLE), 
         ("Historia", ft.Icons.HISTORY), 
         ("Contactos", ft.Icons.CONTACT_PHONE),
@@ -706,7 +871,7 @@ async def main(page: ft.Page):
             border_radius=6,
             shadow=ft.BoxShadow(1,4,ft.Colors.BLACK26, offset=ft.Offset(0,2)),
             width=150,
-            height=260,
+            height=290,
             on_hover= cerrar_menu_hover
         ),
         visible=False,
