@@ -497,7 +497,7 @@ async def main(page: ft.Page):
             "descripcion": "Las termitas de madera seca infestan principalmente maderas secas y muebles. Son difíciles de detectar, pero con métodos de inyección y productos de última generación logramos su control eficaz sin afectar el entorno."
         },
         "termita_otros": {
-            "titulo": "Otras especies de termitas",
+            "titulo": "Otras",
             "descripcion": "Existen diversas especies de termitas que pueden atacar diferentes tipos de madera y estructuras. Realizamos diagnóstico y tratamiento personalizado para cada caso, asegurando la máxima protección de tu propiedad."
         },
         "palomas": {
@@ -513,7 +513,7 @@ async def main(page: ft.Page):
             "descripcion": "Los gorriones forman colonias numerosas y pueden causar daños en almacenes y centros de distribución. Nuestra solución es ética, evitando daños y facilitando el desplazamiento de las aves."
         },
         "aves_otros": {
-            "titulo": "Otras especies de aves",
+            "titulo": "Otras",
             "descripcion": "Controlamos también otras especies invasoras que puedan causar daños o problemas sanitarios, adaptando el sistema de control a cada situación para proteger la estructura y la salud de las personas."
         },
     }
