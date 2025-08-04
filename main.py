@@ -560,14 +560,11 @@ async def main(page: ft.Page):
             animacion_insectos_task[0] = None
         # Ancho automatico para los diferentes tamaños de pantalla, responsive para el card y el texto interno
         if page.width < 480:
-            ancho_card = int(page.width * 0.93)    # 93% del ancho en móviles
+            ancho_card = int(page.width * 0.70)    # 93% del ancho en móviles
         elif page.width < 700:
             ancho_card = int(page.width * 0.80)    # tablets chicas
         else:
-            ancho_card = min(int(page.width * 0.65), 380)  # desktop, menor % para más margen
-
-        if page.width < 350:
-            ancho_card = int(page.width * 0.98)
+            ancho_card = int(page.width * 0.90)  # desktop, menor % para más margen
                     
         size_titulo = 18 if page.width < 400 else 24
         size_parrafo = 14 if page.width < 400 else 16
