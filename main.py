@@ -700,16 +700,17 @@ async def main(page: ft.Page):
         alto_estimado = 60 + total_lineas * 24  # 60 header, 24px por línea
 
 
-        # Limites para el alto del card
+         # ----- CÁLCULO DEL ALTO MÁXIMO SEGURO -----
         if page.width < 600:
-            margen_redes = 150
+            margen_redes = 140  # deja buen margen para redes en móvil
             max_card_height = page.height - margen_redes
+            if max_card_height < 220:
+                max_card_height = 220
         else:
             margen_redes = 200
             max_card_height = page.height - margen_redes
-
-        if max_card_height < 200:
-            max_card_height = 200
+            if max_card_height < 350:
+                max_card_height = 350
 
 
         # Si el alto estimado es MENOR que el máximo, NO pones height (card se ajusta solo)
