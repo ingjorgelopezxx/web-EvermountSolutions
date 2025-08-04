@@ -323,7 +323,13 @@ async def main(page: ft.Page):
             "📊 Informes técnicos y certificados de aplicación",
             "🛡️ Control integral de plagas todo el año",
             "🟢 Planes ideales para:",
-            "• Restaurantes\n• Supermercados\n• Bodegas\n• Centros educativos\n• Condominios\n• Empresas con auditorías sanitarias"
+            "• Restaurantes",
+            "• Supermercados",
+            "• Bodegas",
+            "• Centros educativos",
+            "• Condominios",
+            "• Empresas con auditorías sanitarias"
+
         ]
     },
        {
@@ -405,7 +411,7 @@ async def main(page: ft.Page):
             "🔍 Inspección detallada para detectar nidos y rutas",
             "🧠 Estrategias inteligentes: cebos, trampas, estaciones seguras",
             "🚪 Recomendaciones de cierre y sellado estructural",
-            "💡 Mantenemos tu propiedad libre de roedores con mínima interrupción."
+            "💡 Mantenemos tu propiedad libre de roedores con mínima interrupción.",
         ]
     },
     {
@@ -560,7 +566,7 @@ async def main(page: ft.Page):
             animacion_insectos_task[0] = None
         # Ancho automatico para los diferentes tamaños de pantalla, responsive para el card y el texto interno
         if page.width < 480:
-            ancho_card = int(page.width * 0.72)    # 93% del ancho en móviles
+            ancho_card = int(page.width * 0.74)    # 93% del ancho en móviles
         elif page.width < 700:
             ancho_card = int(page.width * 0.85)    # tablets chicas
         else:
@@ -683,40 +689,22 @@ async def main(page: ft.Page):
                         text_align=ft.TextAlign.LEFT,
                     )
                 )
-         # --- Calcula el alto estimado del contenido (solo una referencia simple) ---
-        texto_total = sum([len(str(p)) for p in slide["contenido"]])
-        lineas_estimadas = texto_total // 55 + len(slide["contenido"])  # 55 chars por línea aprox
-        alto_estimado = 60 + lineas_estimadas * 24  # 60px header, 24px por línea
 
-        # Limites para el alto del card
         if page.width < 600:
-            margen_redes = 120
-            max_card_height = int(page.height * 0.70)
-            if page.height - margen_redes < max_card_height:
-                max_card_height = page.height - margen_redes
+            max_card_height = int(page.height * 0.66)
         else:
-            margen_redes = 160
             max_card_height = int(page.height * 0.80)
-            if page.height - margen_redes < max_card_height:
-                max_card_height = page.height - margen_redes
+        if max_card_height < 220:
+            max_card_height = 220
 
-        # Si el alto estimado es MENOR que el máximo, NO pones height (card se ajusta solo)
-        # Si el alto estimado es MAYOR que el máximo, sí pones height y scroll
-        if alto_estimado < max_card_height:
-            contenido_slide_column = ft.Column(
-                controls=contenido_slide,
-                alignment=ft.MainAxisAlignment.START,
-                spacing=16,
-                scroll=None,  # No scroll, se adapta solo
-            )
-        else:
-            contenido_slide_column = ft.Column(
+        contenido_slide_column = ft.Column(
                 controls=contenido_slide,
                 alignment=ft.MainAxisAlignment.START,
                 spacing=16,
                 scroll="auto",
                 height=max_card_height,
-            )
+        )
+
         card = ft.Container(
             width=ancho_card,
             padding=ft.padding.symmetric(vertical=18, horizontal=8 if page.width < 400 else 18),
