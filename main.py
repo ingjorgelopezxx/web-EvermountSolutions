@@ -675,7 +675,7 @@ async def main(page: ft.Page):
                         )
                     )
                 contenido_slide.append(
-                    ft.Row(row_controles, alignment=ft.MainAxisAlignment.CENTER, spacing=5)
+                    ft.Row(row_controles, alignment=ft.MainAxisAlignment.CENTER, spacing=7)
                 )
             else:
                 contenido_slide.append(
