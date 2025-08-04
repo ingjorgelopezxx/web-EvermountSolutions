@@ -415,7 +415,7 @@ async def main(page: ft.Page):
                 "tipo": "clickable_row",
                 "items": [
                     {"nombre": "Subterránea", "id": "termita_subterranea"},
-                    {"nombre": "Madera", "id": "termita_madera_seca"},
+                    {"nombre": "Madera seca", "id": "termita_madera_seca"},
                     {"nombre": "Otras", "id": "termita_otros"},
                 ]
             },
@@ -559,7 +559,13 @@ async def main(page: ft.Page):
             animacion_insectos_task[0].cancel()
             animacion_insectos_task[0] = None
         # Ancho automatico para los diferentes tamaños de pantalla, responsive para el card y el texto interno
-        ancho_card = min(int(page.width * 0.8), 380)
+        if page.width < 480:
+            ancho_card = int(page.width * 0.93)    # 93% del ancho en móviles
+        elif page.width < 700:
+            ancho_card = int(page.width * 0.80)    # tablets chicas
+        else:
+            ancho_card = min(int(page.width * 0.65), 380)  # desktop, menor % para más margen
+
         if page.width < 350:
             ancho_card = int(page.width * 0.98)
                     
@@ -756,25 +762,18 @@ async def main(page: ft.Page):
             )
 
         # Contenedor de las flechas 
-        slide_row = ft.Row(
-            row_controls,
-            alignment=ft.MainAxisAlignment.CENTER,
-            vertical_alignment=ft.CrossAxisAlignment.CENTER,
-            expand=False,
-            tight=True,
-        )
-
         contenido.controls.append(
             ft.Container(
-                content=slide_row,
-                alignment=ft.alignment.center,
-                width=ancho_card,
-                padding=ft.padding.symmetric(horizontal=0),
+                content=ft.Row(
+                    row_controls,
+                    alignment=ft.MainAxisAlignment.CENTER,
+                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                    expand=False
+                ),
                 expand=False,
+                alignment=ft.alignment.center
             )
         )
-
-
         contenido.update()
         # 🟢 -- Aquí va la magia: animar si corresponde --
         if len(imagenes_animadas) > 0:
