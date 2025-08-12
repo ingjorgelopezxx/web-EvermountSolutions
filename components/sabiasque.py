@@ -11,7 +11,6 @@ SABIASQUE_ITEMS = [
             "Tienen un sistema nervioso que les permite sobrevivir un tiempo sin ella, "
             "aunque finalmente mueren por falta de agua. Además, pueden aguantar hasta "
             "40 minutos sin respirar y soportar niveles de radiación que matarían a un humano. "
-            "¡Por eso es tan importante controlarlas con expertos como Fumigax!"
         ),
     },
     {
@@ -74,7 +73,7 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
                         size=18,
                         weight=ft.FontWeight.BOLD,
                         color=ft.Colors.BLACK,
-                        text_align=ft.TextAlign.LEFT,
+                        text_align=ft.TextAlign.CENTER,
                     ),
                     ft.Container(
                         content=ft.Image(
@@ -91,7 +90,7 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
                         d["texto"],
                         size=15,
                         color=ft.Colors.BLACK,
-                        text_align=ft.TextAlign.LEFT,
+                        text_align=ft.TextAlign.JUSTIFY,
                     ),
                 ],
                 spacing=10,
