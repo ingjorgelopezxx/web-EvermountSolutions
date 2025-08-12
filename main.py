@@ -11,6 +11,8 @@ from components.insectos import ICONOS_INSECTOS, create_insectos_support, constr
 from components.intro import create_intro_overlay
 from components.carrusel import create_carrusel, DEFAULT_IMAGE_SETS
 from components.slides import create_slides_controller
+from components.sabiasque import render_sabiasque
+
 
 def main(page: ft.Page):
     # Inicializamos las propiedades de la pagina
@@ -83,9 +85,7 @@ def main(page: ft.Page):
     
     # Creamos la funcion On_CLic del Boton Sabias que
     def on_sabiasque_click(e=None):
-        contenido.controls.clear()
-        contenido.controls.append(ft.Text("SABÍAS QUE", size=28, weight=ft.FontWeight.BOLD))
-        contenido.update()
+        render_sabiasque(page, contenido)
 
     # --- Botones REDES ---
     boton_facebook, boton_instagram, boton_whatsapp, boton_sabiasque, start_bounce, stop_bounce = create_botones_redes(
