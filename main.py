@@ -6,7 +6,7 @@ from views.servicios import slides_servicios as servicios_slides
 from views.programas import slide_programas_control as programas_slides 
 from views.quienes import slides_quienes as quienes_slides 
 from views.historia import slides_historia as historia_slides 
-from components.botones import create_boton_empresa, create_botones_redes
+from components.botones import create_boton_empresa, create_botones_redes,create_botones_redes
 from components.insectos import ICONOS_INSECTOS, create_insectos_support, construir_contenido_slide_insectos
 from components.intro import create_intro_overlay
 from components.carrusel import create_carrusel, DEFAULT_IMAGE_SETS
@@ -80,9 +80,16 @@ def main(page: ft.Page):
     # Crear botones, menu y header
     container_boton_empresa, start_pulso_empresa, stop_pulso_empresa = create_boton_empresa(page, toggle_menu)
     animacion_empresa_task[0] = start_pulso_empresa()   # ← arranque inicial
+    
+    # Creamos la funcion On_CLic del Boton Sabias que
+    def on_sabiasque_click(e=None):
+        contenido.controls.clear()
+        contenido.controls.append(ft.Text("SABÍAS QUE", size=28, weight=ft.FontWeight.BOLD))
+        contenido.update()
+
     # --- Botones REDES ---
-    boton_facebook, boton_instagram, boton_whatsapp, start_bounce, stop_bounce = create_botones_redes(
-        page, contacto_whatsapp, contacto_instagram, contacto_facebook
+    boton_facebook, boton_instagram, boton_whatsapp, boton_sabiasque, start_bounce, stop_bounce = create_botones_redes(
+        page, contacto_whatsapp, contacto_instagram, contacto_facebook, on_sabiasque_click
     )
 
     # Menú del Boton_Empresa
@@ -157,7 +164,7 @@ def main(page: ft.Page):
     )   
 
     # Creamos la fila donde estaran los botones inferiores
-    Botones_agregar = ft.Row([boton_facebook,boton_instagram,boton_whatsapp],alignment=ft.MainAxisAlignment.END,vertical_alignment=ft.CrossAxisAlignment.END)
+    Botones_agregar = ft.Row([boton_sabiasque,boton_facebook,boton_instagram,boton_whatsapp],alignment=ft.MainAxisAlignment.END,vertical_alignment=ft.CrossAxisAlignment.END)
 
     # Agregamos un contenedor para incluir los botones y le asigamos un fondo
     zona_redes = ft.Container(

@@ -69,7 +69,7 @@ def create_boton_empresa(page: ft.Page, on_click_toggle):
     return container_boton_empresa, start_pulse, stop_pulse
 
 
-def create_botones_redes(page: ft.Page, url_whatsapp: str, url_instagram: str, url_facebook: str):
+def create_botones_redes(page: ft.Page, url_whatsapp: str, url_instagram: str, url_facebook: str, on_sabiasque_click=None ):
     """
     Devuelve:
       boton_facebook, boton_instagram, boton_whatsapp, start_bounce, stop_bounce
@@ -97,6 +97,13 @@ def create_botones_redes(page: ft.Page, url_whatsapp: str, url_instagram: str, u
         scale=1.0,
         animate_scale=200,
         tooltip="Síguenos en Facebook",
+    )
+    img_sabiasque = ft.Image(
+        src="https://i.postimg.cc/hj0qRQwn/white-Photoroom-1.jpg",
+        fit=ft.ImageFit.CONTAIN,
+        scale=1.0,
+        animate_scale=200,
+        tooltip="Sabías que...",
     )
 
     def _hover(img: ft.Image):
@@ -138,10 +145,19 @@ def create_botones_redes(page: ft.Page, url_whatsapp: str, url_instagram: str, u
         on_hover=_hover(img_facebook),
         ink=False,
     )
-
+    boton_sabiasque = ft.Container(
+        content=img_sabiasque,
+        width=60, height=60,
+        border_radius=30,
+        bgcolor=ft.Colors.WHITE,
+        shadow=ft.BoxShadow(1, 8, ft.Colors.BLACK26, offset=ft.Offset(2, 2)),
+        on_click=on_sabiasque_click or (lambda _: None),  # <-- aquí
+        on_hover=_hover(img_sabiasque),
+        ink=True,
+    )
     async def _bounce():
         try:
-            imgs = [img_whatsapp, img_instagram, img_facebook]
+            imgs = [img_whatsapp, img_instagram, img_facebook,img_sabiasque]
             while True:
                 for img in imgs:
                     img.scale = 1.2
@@ -166,4 +182,4 @@ def create_botones_redes(page: ft.Page, url_whatsapp: str, url_instagram: str, u
             task_ref[0] = None
 
     # orden: facebook, instagram, whatsapp (para tu Row actual)
-    return boton_facebook, boton_instagram, boton_whatsapp, start_bounce, stop_bounce
+    return boton_facebook, boton_instagram, boton_whatsapp, boton_sabiasque, start_bounce, stop_bounce
