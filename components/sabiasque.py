@@ -75,7 +75,36 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
     contenedor.spacing = 0
 
     bloques: list[ft.Control] = []
+    def _split_extra_item(p: str) -> tuple[str, str]:
+        if ":" in p:
+            head, tail = p.split(":", 1)
+            return head.strip(), tail.strip()
+        return p.strip(), ""
 
+
+    def _bullet_line(p: str) -> ft.Row:
+        if ":" in p:
+            head, body = p.split(":", 1)
+        else:
+            head, body = p, ""
+        rich_text = ft.Text(
+            spans=[
+                ft.TextSpan(f"{head.strip()}: ", ft.TextStyle(weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK)),
+                ft.TextSpan(body.strip(), ft.TextStyle(color=ft.Colors.BLACK)),
+            ],
+            size=14,
+            text_align=ft.TextAlign.JUSTIFY,
+        )
+        return ft.Row(
+            controls=[
+                ft.Text("•", size=18, color=ft.Colors.BLACK),
+                ft.Container(rich_text, expand=True)  # hace wrap ocupando todo el ancho disponible
+            ],
+            spacing=6,
+            vertical_alignment=ft.CrossAxisAlignment.START,
+        )
+
+    
     for i, d in enumerate(data):
         # Separación SOLO entre bloques (no arriba del primero)
         if i > 0:
@@ -116,26 +145,10 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
                         text_align=ft.TextAlign.JUSTIFY
                     ),
                     ft.Column(
-                        controls=[
-                            ft.Row(
-                    [
-                     ft.Text("•", size=18,color=ft.Colors.BLACK),
-                                ft.Text(
-                                    p.split(":", 1)[0] + ":",
-                                    size=14,color=ft.Colors.BLACK,
-                                    weight=ft.FontWeight.BOLD
-                                ),
-                                ft.Text(
-                                    p.split(":", 1)[1].strip() if ":" in p else "",
-                                    size=14,color=ft.Colors.BLACK,text_align=ft.TextAlign.JUSTIFY
-                                )
-                            ],
-                            spacing=6
-                        )
-                        for p in d.get("extra", [])
-                    ],
-                    spacing=2,width=page.width
-                ) if "extra" in d else ft.Container()
+                        controls=[_bullet_line(p) for p in d.get("extra", [])],
+                        spacing=4,
+                        expand=True,
+                    )
                 ],
                 spacing=10,
                 expand=True,
