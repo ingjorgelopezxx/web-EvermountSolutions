@@ -10,7 +10,7 @@ SABIASQUE_ITEMS = [
         "texto": (
             "Las cucarachas son plagas muy resistentes y adaptables, con diversas curiosidades que las hacen fascinantes y problemáticas. "
             "Son capaces de sobrevivir sin cabeza por un tiempo, soportan altos niveles de radiación y pueden sobrevivir sin comida por semanas o sin agua por días. "
-            "Además, pueden transmitir enfermedades y son atraídas por la comida y la humedad, lo que las convierte en una amenaza para la salud y la higiene."
+            "Además, pueden transmitir enfermedades y son atraídas por la comida y la humedad, lo que las convierte en una amenaza para la salud y la higiene. "
             "Algunas especies de cucarachas pueden vivir hasta un mes sin comida, adaptándose fácilmente a diferentes entornos, "
             "pueden correr hasta 3 millas por hora, lo que las hace muy difíciles de atrapar. Su velocidad y agilidad les permiten escapar " 
             "rápidamente de los depredadores y de los intentos de captura. Además, son capaces de girar rápidamente en ángulos agudos y esconderse en espacios reducidos. " 
@@ -113,7 +113,7 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
                         d["texto"],
                         size=15,
                         color=ft.Colors.BLACK,
-                        text_align=ft.TextAlign.JUSTIFY,
+                        text_align=ft.TextAlign.JUSTIFY
                     ),
                     ft.Column(
                         controls=[
@@ -127,14 +127,14 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
                                 ),
                                 ft.Text(
                                     p.split(":", 1)[1].strip() if ":" in p else "",
-                                    size=14,color=ft.Colors.BLACK
+                                    size=14,color=ft.Colors.BLACK,text_align=ft.TextAlign.JUSTIFY
                                 )
                             ],
                             spacing=6
                         )
                         for p in d.get("extra", [])
                     ],
-                    spacing=2
+                    spacing=2,width=page.width
                 ) if "extra" in d else ft.Container()
                 ],
                 spacing=10,
