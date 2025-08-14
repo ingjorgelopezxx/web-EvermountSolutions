@@ -352,11 +352,13 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
     scroll=ft.ScrollMode.AUTO,
     alignment=ft.MainAxisAlignment.START,
     )
-
+    
+     # Línea de separación debajo de las pestañas
+    divider = ft.Divider(color=ft.Colors.BLACK26, thickness=1)
     contenedor.controls.clear()
     contenedor.controls.append(
           ft.Column(
-            [pestañas, scroll_contenido],
+            [pestañas, divider,scroll_contenido],
             expand=True,
             spacing=0,
         )
