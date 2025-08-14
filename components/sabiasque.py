@@ -4,7 +4,7 @@ import flet as ft
 
 # Puedes cambiar/expandir estos items cuando quieras
 SABIASQUE_ITEMS = [
-    {
+    {   
         "especie": "Cucarachas",
         "titulo": "¿Sabías que las cucarachas pueden vivir hasta una semana sin su cabeza?",
         "imagen": "https://www.gardentech.com/-/media/project/oneweb/gardentech/images/pest-id/bug-pest/cockroach.png",
@@ -51,7 +51,7 @@ SABIASQUE_ITEMS = [
         "Capacidad de saltar: Pueden saltar verticalmente hasta medio metro y horizontalmente aproximadamente un metro."
         ]
     },
-    {
+    {   
         "especie": "Ratones",
         "titulo": "¿Sabías que los ratones pueden vivir hasta tres años en condiciones favorables, aumentando el riesgo de infestación si no se controla?",
         "imagen": "https://i.postimg.cc/FsrS6xC9/raton-campo-mus-musculus-768x576.jpg",
@@ -77,7 +77,7 @@ SABIASQUE_ITEMS = [
         "Nocturnidad: Los ratones son principalmente activos durante la noche, lo que dificulta su detección y control."
         ]
     },
-    {
+    {   
         "especie": "Termitas",
         "titulo": "¿Sabías que las termitas nunca duermen?",
         "imagen": "https://i.postimg.cc/wjVRQRQ1/termitas-1.png",
@@ -150,7 +150,7 @@ SABIASQUE_ITEMS = [
     ]
     },
     {
-    "especie": "Chinches",
+    "especie": "Chinces",
     "titulo": "¿Sabías que las chinches pueden sobrevivir meses sin alimentarse?",
     "imagen": "https://i.postimg.cc/7YPC9MmS/chinche-cimex-lectularius.jpg",
     "texto": (
@@ -231,24 +231,55 @@ def _img_height_for(page: ft.Page) -> int:
 
 
 def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = None):
+    """
+    Reemplaza el contenido principal por la sección 'Sabías que'.
+    - page: ft.Page
+    - contenedor: normalmente tu Column 'contenido'
+    - items: lista de curiosidades (opcional). Si no se pasa, usa SABIASQUE_ITEMS.
+    """
     data = items or SABIASQUE_ITEMS
     img_h = _img_height_for(page)
 
+    # Asegura que el contenedor principal no deje espacios arriba/entre bloques
     contenedor.padding = 0
     contenedor.spacing = 0
-
     bloques: list[ft.Control] = []
     bloque_keys: list[str] = []  # ← guardamos las keys
 
+    def _bullet_line(p: str) -> ft.Row:
+        if ":" in p:
+            head, body = p.split(":", 1)
+        else:
+            head, body = p, ""
+        rich_text = ft.Text(
+            spans=[
+                ft.TextSpan(f"{head.strip()}: ", ft.TextStyle(weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK)),
+                ft.TextSpan(body.strip(), ft.TextStyle(color=ft.Colors.BLACK)),
+            ],
+            size=14,
+            text_align=ft.TextAlign.JUSTIFY,
+        )
+        return ft.Row(
+            controls=[
+                ft.Text("•", size=18, color=ft.Colors.BLACK),
+                ft.Container(rich_text, expand=True)  # hace wrap ocupando todo el ancho disponible
+            ],
+            spacing=6,
+            vertical_alignment=ft.CrossAxisAlignment.START,
+        )
+
+    
     for i, d in enumerate(data):
+        # Separación SOLO entre bloques (no arriba del primero)
         if i > 0:
-            bloques.append(ft.Container(height=12))
+            bloques.append(ft.Container(height=12))  # pequeño espacio entre tarjetas
 
         k = f"sabiasque-{i}"   # ← key única por bloque
         bloque_keys.append(k)
 
         bloque = ft.Container(
-            key=k,               # ← ASIGNAR KEY AQUÍ
+            # Ocupa todo el ancho disponible
+            key=k,
             width=page.width,
             bgcolor=ft.Colors.WHITE,
             border_radius=12,
@@ -281,38 +312,11 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
                         color=ft.Colors.BLACK,
                         text_align=ft.TextAlign.JUSTIFY
                     ),
-                    # --- EXTRA en filas que se adaptan ---
                     ft.Column(
-                        controls=[
-                            ft.Row(
-                                [
-                                    ft.Text("•", size=18, color=ft.Colors.BLACK),
-                                    ft.Text(
-                                        p.split(":", 1)[0] + ":",
-                                        size=14,
-                                        color=ft.Colors.BLACK,
-                                        weight=ft.FontWeight.BOLD,
-                                    ),
-                                    ft.Container(  # ← asegura el wrap correcto
-                                        expand=True,
-                                        content=ft.Text(
-                                            p.split(":", 1)[1].strip() if ":" in p else "",
-                                            size=14,
-                                            color=ft.Colors.BLACK,
-                                            text_align=ft.TextAlign.JUSTIFY,
-                                            no_wrap=False,
-                                        ),
-                                    ),
-                                ],
-                                spacing=6,
-                                alignment=ft.MainAxisAlignment.START,
-                                vertical_alignment=ft.CrossAxisAlignment.START,
-                            )
-                            for p in d.get("extra", [])
-                        ],
-                        spacing=2,
-                        width=page.width,
-                    ) if "extra" in d else ft.Container(),
+                        controls=[_bullet_line(p) for p in d.get("extra", [])],
+                        spacing=4,
+                        expand=True,
+                    )
                 ],
                 spacing=10,
                 expand=True,
@@ -321,7 +325,7 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
         )
         bloques.append(bloque)
 
-    # Contenedor principal con scroll
+     # Contenedor principal con scroll
     scroll_contenido = ft.Column(
         bloques,
         spacing=0,
@@ -331,27 +335,27 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
 
     # Pestañas horizontales (índice)
     pestañas = ft.Row(
-        controls=[
-            ft.TextButton(
-                content=ft.Text(
-                    d["especie"],
-                    size=14,
-                    weight=ft.FontWeight.BOLD,
-                    color=ft.Colors.BLACK
-                ),
-                on_click=lambda e, idx=i: scroll_contenido.scroll_to(
-                    key=bloque_keys[idx], duration=500
-                )
+    controls=[
+        ft.TextButton(
+            content=ft.Text(
+                d["especie"],
+                size=14,
+                weight=ft.FontWeight.BOLD,
+                color=ft.Colors.BLACK
+            ),
+            on_click=lambda e, idx=i: scroll_contenido.scroll_to(
+                key=bloque_keys[idx], duration=500
             )
-            for i, d in enumerate(data)
-        ],
-        scroll=ft.ScrollMode.AUTO,
-        alignment=ft.MainAxisAlignment.START,
+        )
+        for i, d in enumerate(data)
+    ],
+    scroll=ft.ScrollMode.AUTO,
+    alignment=ft.MainAxisAlignment.START,
     )
 
     contenedor.controls.clear()
     contenedor.controls.append(
-        ft.Column(
+          ft.Column(
             [pestañas, scroll_contenido],
             expand=True,
             spacing=0,
@@ -359,11 +363,3 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
     )
     contenedor.update()
 
-
-def _titulo_corto(t: str) -> str:
-    # saca el “¿Sabías que ... ?” y deja algo corto para la pestaña
-    t = t.strip()
-    if t.startswith("¿Sabías que"):
-        t = t.replace("¿Sabías que", "").strip(" ?")
-    # recorta a ~24 chars para móviles
-    return (t[:24] + "…") if len(t) > 24 else t
