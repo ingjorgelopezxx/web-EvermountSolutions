@@ -259,7 +259,9 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
             ink=True,
             on_click=lambda e, i=idx: show_detail(i),
             content=ft.Column(
+                expand=True,                                # ocupa todo el alto de la card
                 spacing=6,
+                alignment=ft.MainAxisAlignment.CENTER,      # centra verticalmente
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                 controls=[
                     ft.Container(
