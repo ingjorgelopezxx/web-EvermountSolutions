@@ -284,32 +284,42 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
         )
 
     def show_grid():
-        # Montar grid una sola vez por entrada
-        grid.controls.clear()
-        for i, it in enumerate(data):
-            grid.controls.append(_tile(i, it))
-
         contenedor.controls.clear()
         contenedor.controls.append(
             ft.Column(
-                expand=True,
-                spacing=10,
                 controls=[
+                    # Encabezado centrado con Comic Sans y Divider
                     ft.Container(
-                        content=ft.Text(
-                            "Selecciona una especie",
-                            size=20,
-                            weight=ft.FontWeight.BOLD,
-                            color=ft.Colors.BLACK,
-                            text_align=ft.TextAlign.CENTER,
+                        alignment=ft.alignment.center,
+                        padding=ft.padding.symmetric(vertical=8),
+                        content=ft.Column(
+                            alignment=ft.MainAxisAlignment.CENTER,
+                            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                            spacing=6,
+                            controls=[
+                                ft.Text(
+                                    "Selecciona una especie",
+                                    size=20,
+                                    weight=ft.FontWeight.BOLD,
+                                    color=ft.Colors.BLACK,
+                                    text_align=ft.TextAlign.CENTER,
+                                    font_family="Comic Sans MS",   # 👈 Comic Sans
+                                ),
+                                ft.Divider(color=ft.Colors.BLACK26, thickness=1),
+                            ],
                         ),
-                        padding=ft.padding.symmetric(vertical=10),
                     ),
                     grid,
                 ],
+                expand=True,
+                spacing=10,
             )
         )
+        grid.controls.clear()
+        for i, it in enumerate(data):
+            grid.controls.append(_tile(i, it))
         contenedor.update()
+
 
     def show_detail(index: int):
         d = data[index]
@@ -352,7 +362,19 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
             controls=[
                 ft.Row(
                     controls=[
-                        ft.TextButton("← Volver", on_click=lambda e: show_grid()),
+                        ft.TextButton(
+                            "← Volver",
+                            style=ft.ButtonStyle(
+                                color={
+                                    ft.ControlState.DEFAULT: ft.Colors.BLACK,   # 👈 color negro
+                                    ft.ControlState.HOVERED: ft.Colors.BLACK,  # negro también al pasar el mouse
+                                },
+                                text_style=ft.TextStyle(
+                                    weight=ft.FontWeight.BOLD                 # 👈 negrita
+                                ),
+                            ),
+                            on_click=lambda e: show_grid(),
+                        ),
                         ft.Text(d.get("especie", "").upper(), size=16, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
                     ],
                     alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
