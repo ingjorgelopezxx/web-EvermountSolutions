@@ -395,9 +395,31 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
             ),
         )
-
+        # 👉 Vista de detalle con SCROLL
+        detail_view = ft.Column(
+            controls=[
+                ft.Row(
+                    controls=[
+                        ft.TextButton("← Volver", on_click=lambda e: show_grid()),
+                        ft.Text(
+                            d.get("especie", "").upper(),
+                            size=16,
+                            weight=ft.FontWeight.BOLD,
+                            color=ft.Colors.BLACK,
+                        ),
+                    ],
+                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                ),
+                ft.Divider(color=ft.Colors.BLACK26, thickness=1),
+                bloque,
+            ],
+            spacing=8,
+            expand=True,
+            scroll=ft.ScrollMode.AUTO,   # 👈 habilita scroll vertical
+        )
         # IMPORTANTE: limpiar y NO reinsertar el grid aquí (eso causaba duplicados)
         contenedor.controls.clear()
+        contenedor.controls.append(detail_view)
         contenedor.controls.append(
             ft.Column(
                 controls=[
@@ -440,6 +462,7 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
                 ],
                 expand=True,
                 spacing=0,
+                alignment=ft.MainAxisAlignment.CENTER
             )
         )
         contenedor.update()
