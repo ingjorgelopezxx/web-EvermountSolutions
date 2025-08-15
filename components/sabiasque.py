@@ -420,6 +420,7 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
         # IMPORTANTE: limpiar y NO reinsertar el grid aquí (eso causaba duplicados)
         contenedor.controls.clear()
         contenedor.controls.append(detail_view)
+        contenedor.update()
         contenedor.controls.append(
             ft.Column(
                 controls=[
