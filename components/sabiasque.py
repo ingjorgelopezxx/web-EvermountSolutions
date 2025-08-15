@@ -1,8 +1,7 @@
 # components/sabiasque.py
 import flet as ft
 
-
-# Puedes cambiar/expandir estos items cuando quieras
+# --------- Datos de ejemplo (asegúrate de que cada item tenga "especie") ----------
 SABIASQUE_ITEMS = [
     {   
         "especie": "Cucarachas",
@@ -218,150 +217,262 @@ SABIASQUE_ITEMS = [
 ]
 
 
+
+# --------- Helpers de layout ----------
 def _img_height_for(page: ft.Page) -> int:
     """Altura de imagen adaptada a celulares, tablets y PCs."""
-    if page.width < 480:      # Celulares pequeños
+    if page.width < 480:
         return 160
-    elif page.width < 768:    # Celulares grandes / Tablets pequeñas
+    elif page.width < 768:
         return 220
-    elif page.width < 1200:   # Tablets grandes / Laptops
+    elif page.width < 1200:
         return 280
-    else:                     # Monitores grandes
-        return 350
+    else:
+        return 320
 
 
+def _bullet_line(p: str) -> ft.Row:
+    """Viñeta con negrita antes de ':' y texto corrido después, con ajuste de línea."""
+    if ":" in p:
+        head, body = p.split(":", 1)
+    else:
+        head, body = p, ""
+    rich_text = ft.Text(
+        spans=[
+            ft.TextSpan(
+                f"{head.strip()}: ",
+                ft.TextStyle(weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
+            ),
+            ft.TextSpan(body.strip(), ft.TextStyle(color=ft.Colors.BLACK)),
+        ],
+        size=14,
+        text_align=ft.TextAlign.JUSTIFY,
+    )
+    return ft.Row(
+        controls=[
+            ft.Text("•", size=18, color=ft.Colors.BLACK),
+            ft.Container(rich_text, expand=True),
+        ],
+        spacing=6,
+        vertical_alignment=ft.CrossAxisAlignment.START,
+    )
+
+
+# --------- Render principal (muestra primero la cuadrícula) ----------
 def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = None):
     """
-    Reemplaza el contenido principal por la sección 'Sabías que'.
-    - page: ft.Page
-    - contenedor: normalmente tu Column 'contenido'
-    - items: lista de curiosidades (opcional). Si no se pasa, usa SABIASQUE_ITEMS.
+    Al entrar, muestra una CUADRÍCULA con la imagen + nombre de cada especie.
+    Al seleccionar una tarjeta, muestra el DETALLE de la especie.
     """
     data = items or SABIASQUE_ITEMS
-    img_h = _img_height_for(page)
-
-    # Asegura que el contenedor principal no deje espacios arriba/entre bloques
     contenedor.padding = 0
     contenedor.spacing = 0
-    bloques: list[ft.Control] = []
-    bloque_keys: list[str] = []  # ← guardamos las keys
+    grid = ft.GridView(
+            expand=True,
+            max_extent=220,        # ancho máx de cada tarjeta (ajústalo)
+            child_aspect_ratio=1,  # ← hace las celdas cuadradas
+            runs_count=None,
+            spacing=10,
+            run_spacing=10,
+    )
 
-    def _bullet_line(p: str) -> ft.Row:
-        if ":" in p:
-            head, body = p.split(":", 1)
-        else:
-            head, body = p, ""
-        rich_text = ft.Text(
-            spans=[
-                ft.TextSpan(f"{head.strip()}: ", ft.TextStyle(weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK)),
-                ft.TextSpan(body.strip(), ft.TextStyle(color=ft.Colors.BLACK)),
-            ],
-            size=14,
-            text_align=ft.TextAlign.JUSTIFY,
+    def _tile(idx: int, item: dict) -> ft.Container:
+        nombre = item.get("especie") or item.get("titulo", f"Item {idx+1}")
+        img = item.get("imagen", "")
+
+        return ft.Container(
+            bgcolor=ft.Colors.WHITE,
+            border_radius=12,
+            clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
+            shadow=ft.BoxShadow(1, 8, ft.Colors.BLACK12, offset=ft.Offset(2, 2)),
+            ink=True,
+            on_click=lambda e, i=idx: show_detail(i),
+            content=ft.Column(
+                spacing=5,
+                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                controls=[
+                    # Imagen centrada
+                    ft.Container(
+                        expand=True,
+                        bgcolor=ft.Colors.WHITE,
+                        alignment=ft.alignment.center,
+                        padding=8,
+                        content=ft.Image(
+                            src=img,
+                            fit=ft.ImageFit.CONTAIN,
+                            gapless_playback=True,
+                        ),
+                    ),
+                    # Nombre de la especie
+                    ft.Text(
+                        nombre,
+                        size=14,
+                        weight=ft.FontWeight.BOLD,
+                        color=ft.Colors.BLACK,
+                        text_align=ft.TextAlign.CENTER,
+                        no_wrap=True,
+                        overflow=ft.TextOverflow.ELLIPSIS,
+                    ),
+                ],
+            ),
         )
-        return ft.Row(
-            controls=[
-                ft.Text("•", size=18, color=ft.Colors.BLACK),
-                ft.Container(rich_text, expand=True)  # hace wrap ocupando todo el ancho disponible
-            ],
-            spacing=6,
-            vertical_alignment=ft.CrossAxisAlignment.START,
+
+
+
+    def show_grid():
+        # Montar el grid y poblarlo UNA sola vez por entrada
+        contenedor.controls.clear()
+        contenedor.controls.append(
+            ft.Column(
+                controls=[
+                    ft.Container(
+                        content=ft.Text(
+                            "Selecciona una especie",
+                            size=20,
+                            weight=ft.FontWeight.BOLD,
+                            color=ft.Colors.BLACK,
+                            text_align=ft.TextAlign.CENTER,
+                        ),
+                        padding=ft.padding.symmetric(vertical=10),
+                    ),
+                    grid,
+                ],
+                expand=True,
+                spacing=10,
+            )
         )
+        # Poblar el grid
+        grid.controls.clear()
+        for i, it in enumerate(data):
+            grid.controls.append(_tile(i, it))
+        contenedor.update()  # con esto basta (no hace falta grid.update())
 
-    
-    for i, d in enumerate(data):
-        # Separación SOLO entre bloques (no arriba del primero)
-        if i > 0:
-            bloques.append(ft.Container(height=12))  # pequeño espacio entre tarjetas
 
-        k = f"sabiasque-{i}"   # ← key única por bloque
-        bloque_keys.append(k)
+    def show_detail(index: int):
+        d = data[index]
+        img_h = _img_height_for(page)
 
         bloque = ft.Container(
-            # Ocupa todo el ancho disponible
-            key=k,
             width=page.width,
             bgcolor=ft.Colors.WHITE,
             border_radius=12,
             padding=12,
-            margin=ft.margin.only(left=0, right=0, top=0, bottom=0),
             shadow=ft.BoxShadow(1, 8, ft.Colors.BLACK12, offset=ft.Offset(2, 2)),
             content=ft.Column(
                 [
                     ft.Text(
-                        d["titulo"],
+                        d.get("titulo", d.get("especie", "Detalle")),
                         size=18,
                         weight=ft.FontWeight.BOLD,
                         color=ft.Colors.BLACK,
                         text_align=ft.TextAlign.CENTER,
                     ),
                     ft.Container(
-                        content=ft.Image(
-                            src=d["imagen"],
-                            fit=ft.ImageFit.COVER,
-                            border_radius=8,
-                        ),
                         height=img_h,
+                        bgcolor=ft.Colors.WHITE,
                         border_radius=8,
                         clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
-                        expand=True,
+                        alignment=ft.alignment.center,
+                        content=ft.Image(
+                            src=d.get("imagen", ""),
+                            fit=ft.ImageFit.CONTAIN,  # centrada y completa
+                        ),
                     ),
                     ft.Text(
-                        d["texto"],
+                        d.get("texto", ""),
                         size=15,
                         color=ft.Colors.BLACK,
-                        text_align=ft.TextAlign.JUSTIFY
+                        text_align=ft.TextAlign.JUSTIFY,
                     ),
                     ft.Column(
                         controls=[_bullet_line(p) for p in d.get("extra", [])],
                         spacing=4,
                         expand=True,
-                    )
+                    ),
                 ],
                 spacing=10,
                 expand=True,
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
             ),
         )
-        bloques.append(bloque)
 
-     # Contenedor principal con scroll
-    scroll_contenido = ft.Column(
-        bloques,
-        spacing=0,
-        expand=True,
-        scroll=ft.ScrollMode.AUTO,
-    )
-
-    # Pestañas horizontales (índice)
-    pestañas = ft.Row(
-    controls=[
-        ft.TextButton(
-            content=ft.Text(
-                d["especie"],
-                size=14,
-                weight=ft.FontWeight.BOLD,
-                color=ft.Colors.BLACK
-            ),
-            on_click=lambda e, idx=i: scroll_contenido.scroll_to(
-                key=bloque_keys[idx], duration=500
+        # IMPORTANTE: limpiar y NO reinsertar el grid aquí (eso causaba duplicados)
+        contenedor.controls.clear()
+        contenedor.controls.append(
+            ft.Column(
+                controls=[
+                    ft.Row(
+                        controls=[
+                            ft.TextButton("← Volver", on_click=lambda e: show_grid()),
+                            ft.Text(
+                                d.get("especie", "").upper(),
+                                size=16,
+                                weight=ft.FontWeight.BOLD,
+                                color=ft.Colors.BLACK,
+                            ),
+                        ],
+                        alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                    ),
+                    ft.Divider(color=ft.Colors.BLACK26, thickness=1),
+                    bloque,
+                ],
+                expand=True,
+                spacing=8,
             )
         )
-        for i, d in enumerate(data)
-    ],
-    scroll=ft.ScrollMode.AUTO,
-    alignment=ft.MainAxisAlignment.START,
-    )
-    
-     # Línea de separación debajo de las pestañas
-    divider = ft.Divider(color=ft.Colors.BLACK26, thickness=1)
-    contenedor.controls.clear()
-    contenedor.controls.append(
-          ft.Column(
-            [pestañas, divider,scroll_contenido],
-            expand=True,
-            spacing=0,
-        )
-    )
-    contenedor.update()
+        contenedor.update()
 
+
+        contenedor.controls.append(
+            ft.Column(
+                controls=[
+                    ft.Container(
+                        content=ft.Text(
+                            "Selecciona una Especie",
+                            size=22,
+                            weight=ft.FontWeight.BOLD,
+                            color=ft.Colors.BLACK,
+                            text_align=ft.TextAlign.CENTER,
+                        ),
+                        padding=ft.padding.symmetric(vertical=10),
+                    ),
+                    grid,
+                ],
+                expand=True,
+                spacing=0,
+            )
+        )
+        contenedor.update()
+
+    
+
+        contenedor.controls.clear()
+        contenedor.controls.append(
+            ft.Column(
+                controls=[
+                    ft.Row(
+                        controls=[
+                            ft.TextButton(
+                                "← Volver",
+                                on_click=lambda e: show_grid(),
+                            ),
+                            ft.Text(
+                                d.get("especie", "").upper(),
+                                size=16,
+                                weight=ft.FontWeight.BOLD,
+                                color=ft.Colors.BLACK,
+                            ),
+                        ],
+                        alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                    ),
+                    ft.Divider(color=ft.Colors.BLACK26, thickness=1),
+                    bloque,
+                ],
+                expand=True,
+                spacing=8,
+            )
+        )
+        contenedor.update()
+
+    # Mostrar cuadrícula inicialmente
+    show_grid()
