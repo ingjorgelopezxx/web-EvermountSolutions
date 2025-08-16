@@ -240,32 +240,44 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
 
     tile_img_h = _tile_img_height_for(page)
 
+    # 1) Helpers responsive
+    def _grid_metrics(page: ft.Page) -> tuple[int, float, int, int]:
+        w = page.width
+        if w < 480:            # Celular
+            return (120, 0.86, 6, 8)     # max_extent, aspect_ratio, spacing, run_spacing
+        elif w < 768:          # Tablet
+            return (160, 0.86, 8, 10)
+        elif w < 1200:         # Laptop
+            return (200, 0.86, 10, 12)
+        else:                  # Desktop
+            return (240, 0.9, 12, 14)
+
+    # 2) Crea el GridView usando esos parámetros
+    mx, ar, sp, rsp = _grid_metrics(page)
     grid = ft.GridView(
         expand=True,
-        max_extent=220,
-        child_aspect_ratio=0.86,   # espacio para imagen + etiqueta
-        spacing=10,
-        run_spacing=10,
+        max_extent=mx,
+        child_aspect_ratio=ar,
+        spacing=sp,
+        run_spacing=rsp,
     )
-    def _card_size(page: ft.Page) -> tuple[int, int]:
-        """Devuelve (ancho, alto) de la card según dispositivo."""
-        if page.width < 480:   # Celulares
-            return (80, 120)
-        elif page.width < 768: # Tablets
-            return (140, 180)
-        elif page.width < 1200: # Laptops
-            return (160, 180)
-        else:                  # PC de escritorio grandes
-            return (180, 220)
+
+    # 3) Ajusta en tiempo real cuando cambie el ancho de la ventana
+    def _on_resize(e=None):
+        mx, ar, sp, rsp = _grid_metrics(page)
+        grid.max_extent = mx
+        grid.child_aspect_ratio = ar
+        grid.spacing = sp
+        grid.run_spacing = rsp
+        grid.update()
+
+    page.on_resize = _on_resize
 
     def _tile(idx: int, item: dict, page: ft.Page) -> ft.Container:
         nombre = item.get("especie") or item.get("titulo", f"Item {idx+1}")
         img = item.get("imagen", "")
-        card_w, card_h = _card_size(page)
 
         return ft.Container(
-            width=card_w,
-            height=card_h,
             bgcolor=ft.Colors.WHITE,
             border_radius=12,
             clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
@@ -276,32 +288,26 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
             content=ft.Column(
                 expand=True,
                 spacing=0,
-                alignment=ft.MainAxisAlignment.START,
                 horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
                 controls=[
-                    # Imagen ocupa 90% de la altura
-                    ft.Container(
-                        expand=85,   # 👈 proporción 9
+                    ft.Container(  # imagen 85%
+                        expand=85,
                         alignment=ft.alignment.center,
                         padding=6,
-                        content=ft.Image(
-                            src=img,
-                            fit=ft.ImageFit.CONTAIN,
-                        ),
+                        content=ft.Image(src=img, fit=ft.ImageFit.CONTAIN),
                     ),
-                    # Texto ocupa 10% de la altura
-                    ft.Container(
-                        expand=15,   # 👈 proporción 1
+                    ft.Container(  # texto 15%
+                        expand=15,
                         alignment=ft.alignment.center,
                         padding=ft.padding.symmetric(horizontal=6, vertical=4),
                         content=ft.Text(
                             nombre,
                             size=14,
                             weight=ft.FontWeight.BOLD,
-                            color=ft.Colors.BLACK,
                             text_align=ft.TextAlign.CENTER,
                             max_lines=2,
                             overflow=ft.TextOverflow.ELLIPSIS,
+                            color=ft.Colors.BLACK,
                         ),
                     ),
                 ],
@@ -316,11 +322,11 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
                     # Encabezado centrado con Comic Sans y Divider
                     ft.Container(
                         alignment=ft.alignment.center,
-                        padding=ft.padding.symmetric(vertical=8),
+                        padding=ft.padding.symmetric(vertical=4),
                         content=ft.Column(
                             alignment=ft.MainAxisAlignment.CENTER,
                             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                            spacing=6,
+                            spacing=2,
                             controls=[
                                 ft.Text(
                                     "Selecciona una especie",
@@ -337,7 +343,7 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
                     grid,
                 ],
                 expand=True,
-                spacing=10,
+                spacing=2,
             )
         )
         grid.controls.clear()
