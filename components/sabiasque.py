@@ -239,6 +239,15 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
     contenedor.spacing = 0
 
     tile_img_h = _tile_img_height_for(page)
+    
+    # ---------- Handlers de navegación ----------
+    def on_view_pop(e: ft.ViewPopEvent):
+        if len(page.views) > 1:
+            page.views.pop()
+            page.update()
+
+    page.on_view_pop = on_view_pop
+
 
     # 1) Helpers responsive
     def _grid_metrics(page: ft.Page) -> tuple[int, float, int, int]:
@@ -315,41 +324,52 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
         )
 
     def show_grid():
-        contenedor.controls.clear()
-        contenedor.controls.append(
-            ft.Column(
-                controls=[
-                    # Encabezado centrado con Comic Sans y Divider
-                    ft.Container(
-                        alignment=ft.alignment.center,
-                        padding=ft.padding.symmetric(vertical=4),
-                        content=ft.Column(
-                            alignment=ft.MainAxisAlignment.CENTER,
-                            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                            spacing=2,
-                            controls=[
-                                ft.Text(
-                                    "Selecciona una especie",
-                                    size=20,
-                                    weight=ft.FontWeight.BOLD,
-                                    color=ft.Colors.BLACK,
-                                    text_align=ft.TextAlign.CENTER,
-                                    font_family="Comic Sans MS",   # 👈 Comic Sans
-                                ),
-                                ft.Divider(color=ft.Colors.BLACK26, thickness=1),
-                            ],
-                        ),
+        # Construye el mismo cuerpo que ya usabas (encabezado + grid)
+        body = ft.Column(
+            controls=[
+                ft.Container(
+                    alignment=ft.alignment.center,
+                    padding=ft.padding.symmetric(vertical=4),
+                    content=ft.Column(
+                        alignment=ft.MainAxisAlignment.CENTER,
+                        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                        spacing=2,
+                        controls=[
+                            ft.Text(
+                                "Selecciona una especie",
+                                size=20,
+                                weight=ft.FontWeight.BOLD,
+                                color=ft.Colors.BLACK,
+                                text_align=ft.TextAlign.CENTER,
+                                font_family="Comic Sans MS",
+                            ),
+                            ft.Divider(color=ft.Colors.BLACK26, thickness=1),
+                        ],
                     ),
-                    grid,
-                ],
-                expand=True,
-                spacing=2,
-            )
+                ),
+                grid,
+            ],
+            expand=True,
+            spacing=2,
         )
+
+        # Poblar grid
         grid.controls.clear()
         for i, it in enumerate(data):
             grid.controls.append(_tile(i, it, page))
-        contenedor.update()
+
+        # En vez de meterlo en 'contenedor', empuja una View
+        view = ft.View(
+            route="/sabiasque",
+            padding=0,
+            bgcolor=ft.Colors.WHITE,
+            controls=[body],
+        )
+
+        # Limpia y deja esta view como raíz
+        page.views.clear()
+        page.views.append(view)
+        page.update()
 
 
     def show_detail(index: int):
@@ -386,8 +406,8 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
             ),
         )
 
-        # Vista de detalle con SCROLL
-        detail_view = ft.ListView(
+        # Puedes dejar tu botón "← Volver" si quieres, pero ya no es necesario.
+        detail_view_body = ft.ListView(
             expand=True,
             spacing=8,
             controls=[
@@ -397,14 +417,12 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
                             "← Volver",
                             style=ft.ButtonStyle(
                                 color={
-                                    ft.ControlState.DEFAULT: ft.Colors.BLACK,   # 👈 color negro
-                                    ft.ControlState.HOVERED: ft.Colors.BLACK,  # negro también al pasar el mouse
+                                    ft.ControlState.DEFAULT: ft.Colors.BLACK,
+                                    ft.ControlState.HOVERED: ft.Colors.BLACK,
                                 },
-                                text_style=ft.TextStyle(
-                                    weight=ft.FontWeight.BOLD                 # 👈 negrita
-                                ),
+                                text_style=ft.TextStyle(weight=ft.FontWeight.BOLD),
                             ),
-                            on_click=lambda e: show_grid(),
+                            on_click=lambda e: (page.views.pop(), page.update()),
                         ),
                         ft.Text(d.get("especie", "").upper(), size=16, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
                     ],
@@ -415,9 +433,17 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
             ],
         )
 
-        contenedor.controls.clear()
-        contenedor.controls.append(detail_view)
-        contenedor.update()
+        view = ft.View(
+            route=f"/sabiasque/{index}",
+            padding=0,
+            bgcolor=ft.Colors.WHITE,
+            controls=[detail_view_body],
+        )
+
+        # Empuja la vista de detalle: el back de Android la cerrará y volverá al grid
+        page.views.append(view)
+        page.update()
+
 
     # Mostrar cuadrícula inicialmente
     show_grid()
