@@ -290,14 +290,14 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
                 spacing=0,
                 horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
                 controls=[
-                    ft.Container(  # imagen 85%
-                        expand=85,
+                    ft.Container(  # imagen 75%
+                        expand=75,
                         alignment=ft.alignment.center,
                         padding=6,
                         content=ft.Image(src=img, fit=ft.ImageFit.CONTAIN),
                     ),
-                    ft.Container(  # texto 15%
-                        expand=15,
+                    ft.Container(  # texto 25%
+                        expand=25,
                         alignment=ft.alignment.center,
                         padding=ft.padding.symmetric(horizontal=6, vertical=4),
                         content=ft.Text(
