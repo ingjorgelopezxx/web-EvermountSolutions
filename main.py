@@ -41,6 +41,15 @@ def main(page: ft.Page):
         alignment=ft.MainAxisAlignment.CENTER,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
     )
+
+    # Flag e inicializador de Sabías que
+    sabiasque_inicializado = [False]
+
+    def ensure_sabiasque():
+        if not sabiasque_inicializado[0]:
+            render_sabiasque(page, contenido)  # registra on_route_change interno y helpers
+            sabiasque_inicializado[0] = True
+
     
     #Funcion para detener el carrusel de imagenes 
     def parar_carrusel():
@@ -85,7 +94,11 @@ def main(page: ft.Page):
     
     # Creamos la funcion On_CLic del Boton Sabias que
     def on_sabiasque_click(e=None):
-        render_sabiasque(page, contenido)
+        parar_carrusel()          # opcional: detén carrusel al entrar
+        ensure_sabiasque()        # asegura que quedó registrado on_route_change
+        page.go("/sabiasque")     # navega por ruta (crea historial para botón atrás)
+
+
 
     # --- Botones REDES ---
     boton_facebook, boton_instagram, boton_whatsapp, boton_sabiasque, start_bounce, stop_bounce = create_botones_redes(
@@ -242,23 +255,26 @@ def main(page: ft.Page):
         page.update()
 
     def on_connect(e):
-        # Mostrar modal de bienvenida
+        # Si la pestaña se abrió en /sabiasque o /sabiasque/<idx>, inicializa y navega ahí
+        if (page.route or "").startswith("/sabiasque"):
+            ensure_sabiasque()
+            page.go(page.route or "/sabiasque")
+            return
+
+        # --- lo demás de tu on_connect tal como está ---
         show_intro()
-        # Cerrar menú si está abierto
         dropdown.visible = False
-        # Cerrar modal de insecto si estaba abierto
         modal_insecto.open = False
-        page.dialog = None  # <--- Opcional, asegura que no queda el modal "huérfano"
-        # Mostrar contenido inicial (texto y carrusel)
+        page.dialog = None
         contenido.controls.clear()
         contenido.controls.extend([
             ft.Text("Bienvenido a EvermountSolutions", size=22, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
             ft.Text("Control de plagas profesional. Haz clic en los botones.", color=ft.Colors.BLACK),
-            fila_carrusel,  # <- Agrega fila_carrusel primero
+            fila_carrusel,
         ])
-        contenido.update()  # <-- MUY IMPORTANTE: actualiza el contenido aquí
-        page.update()          # <- asegura que los controles ya “viven” en la page
-        set_first_set()        # <- ahora sí es seguro
+        contenido.update()
+        page.update()
+        set_first_set()
         start_carrusel()
     page.on_connect = on_connect
 
