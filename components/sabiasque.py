@@ -252,11 +252,11 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
         if page.width < 480:   # Celulares
             return (80, 120)
         elif page.width < 768: # Tablets
-            return (180, 220)
+            return (140, 180)
         elif page.width < 1200: # Laptops
-            return (200, 240)
+            return (160, 180)
         else:                  # PC de escritorio grandes
-            return (220, 260)
+            return (180, 220)
 
     def _tile(idx: int, item: dict, page: ft.Page) -> ft.Container:
         nombre = item.get("especie") or item.get("titulo", f"Item {idx+1}")
