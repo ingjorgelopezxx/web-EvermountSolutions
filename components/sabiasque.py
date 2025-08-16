@@ -250,7 +250,7 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
     def _card_size(page: ft.Page) -> tuple[int, int]:
         """Devuelve (ancho, alto) de la card según dispositivo."""
         if page.width < 480:   # Celulares
-            return (140, 180)
+            return (120, 160)
         elif page.width < 768: # Tablets
             return (180, 220)
         elif page.width < 1200: # Laptops
@@ -272,28 +272,41 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
             shadow=ft.BoxShadow(1, 8, ft.Colors.BLACK12, offset=ft.Offset(2, 2)),
             ink=True,
             on_click=lambda e, i=idx: show_detail(i),
+            padding=0,
             content=ft.Column(
+                expand=True,
+                spacing=0,
+                alignment=ft.MainAxisAlignment.START,
+                horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
                 controls=[
-                    ft.Image(
-                        src=img,
-                        fit=ft.ImageFit.CONTAIN,
-                        height=card_h * 0.6,   # 60% de la altura para imagen
+                    # Imagen ocupa 90% de la altura
+                    ft.Container(
+                        expand=85,   # 👈 proporción 9
+                        alignment=ft.alignment.center,
+                        padding=6,
+                        content=ft.Image(
+                            src=img,
+                            fit=ft.ImageFit.CONTAIN,
+                        ),
                     ),
-                    ft.Text(
-                        nombre,
-                        size=14,
-                        weight=ft.FontWeight.BOLD,
-                        color=ft.Colors.BLACK,
-                        text_align=ft.TextAlign.CENTER,
+                    # Texto ocupa 10% de la altura
+                    ft.Container(
+                        expand=15,   # 👈 proporción 1
+                        alignment=ft.alignment.center,
+                        padding=ft.padding.symmetric(horizontal=6, vertical=4),
+                        content=ft.Text(
+                            nombre,
+                            size=14,
+                            weight=ft.FontWeight.BOLD,
+                            color=ft.Colors.BLACK,
+                            text_align=ft.TextAlign.CENTER,
+                            max_lines=2,
+                            overflow=ft.TextOverflow.ELLIPSIS,
+                        ),
                     ),
                 ],
-                alignment=ft.MainAxisAlignment.CENTER,
-                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                spacing=8,
             ),
-            padding=8,
         )
-
 
     def show_grid():
         contenedor.controls.clear()
