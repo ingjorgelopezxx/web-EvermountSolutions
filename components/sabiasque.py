@@ -247,11 +247,25 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
         spacing=10,
         run_spacing=10,
     )
+    def _card_size(page: ft.Page) -> tuple[int, int]:
+        """Devuelve (ancho, alto) de la card según dispositivo."""
+        if page.width < 480:   # Celulares
+            return (140, 180)
+        elif page.width < 768: # Tablets
+            return (180, 220)
+        elif page.width < 1200: # Laptops
+            return (200, 240)
+        else:                  # PC de escritorio grandes
+            return (220, 260)
 
-    def _tile(idx: int, item: dict) -> ft.Container:
+    def _tile(idx: int, item: dict, page: ft.Page) -> ft.Container:
         nombre = item.get("especie") or item.get("titulo", f"Item {idx+1}")
         img = item.get("imagen", "")
+        card_w, card_h = _card_size(page)
+
         return ft.Container(
+            width=card_w,
+            height=card_h,
             bgcolor=ft.Colors.WHITE,
             border_radius=12,
             clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
@@ -259,16 +273,11 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
             ink=True,
             on_click=lambda e, i=idx: show_detail(i),
             content=ft.Column(
-                expand=True,                                # ocupa todo el alto de la card
-                spacing=6,
-                alignment=ft.MainAxisAlignment.CENTER,      # centra verticalmente
-                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                 controls=[
-                    ft.Container(
-                        height=tile_img_h,
-                        alignment=ft.alignment.center,
-                        bgcolor=ft.Colors.WHITE,
-                        content=ft.Image(src=img, fit=ft.ImageFit.CONTAIN, opacity=1.0),
+                    ft.Image(
+                        src=img,
+                        fit=ft.ImageFit.CONTAIN,
+                        height=card_h * 0.6,   # 60% de la altura para imagen
                     ),
                     ft.Text(
                         nombre,
@@ -276,12 +285,15 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
                         weight=ft.FontWeight.BOLD,
                         color=ft.Colors.BLACK,
                         text_align=ft.TextAlign.CENTER,
-                        no_wrap=True,
-                        overflow=ft.TextOverflow.ELLIPSIS,
                     ),
                 ],
+                alignment=ft.MainAxisAlignment.CENTER,
+                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                spacing=8,
             ),
+            padding=8,
         )
+
 
     def show_grid():
         contenedor.controls.clear()
@@ -317,7 +329,7 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
         )
         grid.controls.clear()
         for i, it in enumerate(data):
-            grid.controls.append(_tile(i, it))
+            grid.controls.append(_tile(i, it, page))
         contenedor.update()
 
 
