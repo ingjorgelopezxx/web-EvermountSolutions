@@ -250,7 +250,7 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
     def _card_size(page: ft.Page) -> tuple[int, int]:
         """Devuelve (ancho, alto) de la card según dispositivo."""
         if page.width < 480:   # Celulares
-            return (120, 160)
+            return (80, 120)
         elif page.width < 768: # Tablets
             return (180, 220)
         elif page.width < 1200: # Laptops
