@@ -138,8 +138,8 @@ def main(page: ft.Page):
     container_logo_empresa = ft.Container(
         content=ft.Container(
             content=imagen_boton_empresa,
-            width=50,
-            height=50,
+            width=26,
+            height=26,
             border_radius=25,
             bgcolor=ft.LinearGradient(
                 begin=ft.alignment.top_left,
@@ -156,11 +156,11 @@ def main(page: ft.Page):
             ink=True,
             alignment=ft.alignment.center,
         ),
-        width=64,
-        height=64,
+        width=40,
+        height=40,
         bgcolor=ft.Colors.BLACK12,
         border_radius=32,
-        padding=7,
+        padding=0,
     )
 
     # --- Botones REDES ---
