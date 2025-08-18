@@ -7,41 +7,13 @@ def create_boton_empresa(page: ft.Page, on_click_toggle):
     Devuelve:
       container_boton_empresa, start_pulse, stop_pulse
     """
-    imagen_boton_empresa = ft.Image(
-        src= "https://i.postimg.cc/rFxRRS5D/logo-72x72.png", fit=ft.ImageFit.CONTAIN,
-        scale=1.0, animate_scale=200, tooltip="Menú Empresa"
-    )
 
-    container_boton_empresa = ft.Container(
-        content=ft.Container(
-            content=imagen_boton_empresa,
-            width=50,
-            height=50,
-            border_radius=25,
-            bgcolor=ft.LinearGradient(
-                begin=ft.alignment.top_left,
-                end=ft.alignment.bottom_right,
-                colors=["#ffffff", "#dcdcdc"],
-            ),
-            shadow=ft.BoxShadow(
-                spread_radius=2,
-                blur_radius=10,
-                color=ft.Colors.BLACK38,
-                offset=ft.Offset(3, 3),
-            ),
-            on_click=on_click_toggle,
-            ink=True,
-            alignment=ft.alignment.center,
-        ),
-        width=64,
-        height=64,
-        bgcolor=ft.Colors.BLACK12,
-        border_radius=32,
-        padding=7,
-        scale=1.0,
-        animate_scale=200,
+    container_boton_empresa = ft.IconButton(
+        icon=ft.Icons.MENU,     # este es el ícono de 3 líneas
+        icon_color=ft.Colors.WHITE,
+        tooltip="Menú Empresa",
+        on_click=on_click_toggle,
     )
-
     async def _pulso():
         try:
             while True:

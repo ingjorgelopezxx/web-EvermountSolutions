@@ -94,11 +94,74 @@ def main(page: ft.Page):
     
     # Creamos la funcion On_CLic del Boton Sabias que
     def on_sabiasque_click(e=None):
-        parar_carrusel()          # opcional: detén carrusel al entrar
-        ensure_sabiasque()        # asegura que quedó registrado on_route_change
-        page.go("/sabiasque")     # navega por ruta (crea historial para botón atrás)
+        parar_carrusel()  # Detener carrusel si es necesario
+
+        # Re-inicializa siempre la cuadrícula de "Sabías que"
+        render_sabiasque(page, contenido)
+
+        # Cambia la ruta a /sabiasque y actualiza
+        page.route = "/sabiasque"
+        page.update()
 
 
+    def mostrar_inicio_con_intro(e=None):
+        # Limpiar contenido
+        contenido.controls.clear()
+
+        # Agregar carrusel si aún no está
+        if fila_carrusel not in contenido.controls:
+            contenido.controls.append(fila_carrusel)
+
+        contenido.update()
+        page.update()
+
+        # Mostrar intro modal
+        try:
+            show_intro()   # 👈 asegúrate de que show_intro esté definida
+        except Exception:
+            pass
+
+        # Lanzar carrusel en el próximo ciclo
+        async def kick():
+            await asyncio.sleep(0)
+            set_first_set()
+            start_carrusel()
+
+        page.run_task(kick)
+
+    imagen_boton_empresa = ft.Image(
+        src="https://i.postimg.cc/rFxRRS5D/logo-72x72.png",
+        fit=ft.ImageFit.CONTAIN,
+        tooltip="Ir al inicio",
+    )
+
+    container_logo_empresa = ft.Container(
+        content=ft.Container(
+            content=imagen_boton_empresa,
+            width=50,
+            height=50,
+            border_radius=25,
+            bgcolor=ft.LinearGradient(
+                begin=ft.alignment.top_left,
+                end=ft.alignment.bottom_right,
+                colors=["#ffffff", "#dcdcdc"],
+            ),
+            shadow=ft.BoxShadow(
+                spread_radius=2,
+                blur_radius=10,
+                color=ft.Colors.BLACK38,
+                offset=ft.Offset(3, 3),
+            ),
+            on_click=mostrar_inicio_con_intro,       # 👈 aquí lo conectamos
+            ink=True,
+            alignment=ft.alignment.center,
+        ),
+        width=64,
+        height=64,
+        bgcolor=ft.Colors.BLACK12,
+        border_radius=32,
+        padding=7,
+    )
 
     # --- Botones REDES ---
     boton_facebook, boton_instagram, boton_whatsapp, boton_sabiasque, start_bounce, stop_bounce = create_botones_redes(
@@ -171,6 +234,7 @@ def main(page: ft.Page):
             colors=["#0f2027", "#203a43", "#2c5364"],
         ),
         content=ft.Row([
+            container_logo_empresa, 
             ft.Container(content=texto_titulo, expand=True, alignment=ft.alignment.center_left),
             container_boton_empresa
         ], vertical_alignment=ft.CrossAxisAlignment.CENTER)
@@ -205,16 +269,7 @@ def main(page: ft.Page):
         page.update()
         contenido.controls.clear()
         if opt == "Inicio":
-            if fila_carrusel not in contenido.controls:
-                contenido.controls.append(fila_carrusel)
-            contenido.update()
-            page.update()
-            async def kick():
-                await asyncio.sleep(0)
-                set_first_set()
-                start_carrusel()
-            page.run_task(kick)
-            
+            mostrar_inicio_con_intro()
         elif opt == "Quiénes Somos":
             set_slides(quienes_slides)
             mostrar_slide(0)

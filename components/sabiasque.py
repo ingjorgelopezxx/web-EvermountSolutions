@@ -377,35 +377,15 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
         detail_view = ft.ListView(
             expand=True,
             spacing=8,
-            controls=[
-                ft.Row(
-                    controls=[
-                        ft.TextButton(
-                            "← Volver",
-                            style=ft.ButtonStyle(
-                                color={
-                                    ft.ControlState.DEFAULT: ft.Colors.BLACK,
-                                    ft.ControlState.HOVERED: ft.Colors.BLACK,
-                                },
-                                text_style=ft.TextStyle(weight=ft.FontWeight.BOLD),
-                            ),
-                            on_click=lambda e: page.go("/sabiasque"),  # 👈 ruta atrás
-                        ),
-                        ft.Text(d.get("especie", "").upper(), size=16, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
-                    ],
-                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-                ),
-                ft.Divider(color=ft.Colors.BLACK26, thickness=1),
-                bloque,
-            ],
+            controls=[bloque],
         )
 
         contenedor.controls.clear()
         contenedor.controls.append(detail_view)
         contenedor.update()
-
+    
     def on_route_change(e: ft.RouteChangeEvent):
-            route = e.route or "/sabiasque"
+            route = e.route or "/sabiasque".strip()
             if route.startswith("/sabiasque/"):
                 try:
                     idx = int(route.split("/")[-1])
@@ -421,6 +401,17 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
     if not getattr(page, "_sabiasque_router_set", False):
         page.on_route_change = on_route_change
         setattr(page, "_sabiasque_router_set", True)
+       
+        # --- reemplaza la ruta actual por /sabiasque SIN apilar historial y pinta la grilla ---
+    def _reset_to_grid():
+        # 1) Cambia la ruta “en el lugar” (sin push)
+        page.route = "/sabiasque"
+        # 2) Dispara tu handler para renderizar
+        on_route_change(ft.RouteChangeEvent(route="/sabiasque"))
+        page.update()
+
+    # lo exponemos para poder llamarlo desde main
+    setattr(page, "_sabiasque_reset_to_grid", _reset_to_grid)
 
     # ⬇️ Si ya estás en /sabiasque o /sabiasque/<i> cuando se carga el módulo, pinta inmediatamente
     if (page.route or "").startswith("/sabiasque"):
