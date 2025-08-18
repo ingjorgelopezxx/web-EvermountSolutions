@@ -250,17 +250,12 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
         spacing=sp,
         run_spacing=rsp,
     )
-
-    # 3) Ajusta en tiempo real cuando cambie el ancho de la ventana
-    def _on_resize(e=None):
+    def _apply_grid_metrics():
         mx, ar, sp, rsp = _grid_metrics(page)
         grid.max_extent = mx
         grid.child_aspect_ratio = ar
         grid.spacing = sp
         grid.run_spacing = rsp
-        grid.update()
-
-    page.on_resize = _on_resize
 
     def _tile(idx: int, item: dict, page: ft.Page) -> ft.Container:
         nombre = item.get("especie") or item.get("titulo", f"Item {idx+1}")
@@ -331,6 +326,12 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
         for i, it in enumerate(data):
             grid.controls.append(_tile(i, it, page))
 
+        # Ajusta métricas justo antes de pintar
+        try:
+            _apply_grid_metrics()
+        except Exception:
+            pass
+
         contenedor.controls.append(
             ft.Column(
                 controls=[header, grid],
@@ -338,7 +339,7 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
                 spacing=2,
             )
         )
-        contenedor.update()
+        page.update()
 
     def show_detail(index: int):
         d = data[index]
@@ -382,10 +383,10 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
 
         contenedor.controls.clear()
         contenedor.controls.append(detail_view)
-        contenedor.update()
+        page.update()
     
     def on_route_change(e: ft.RouteChangeEvent):
-            route = e.route or "/sabiasque".strip()
+            route = (e.route or "/sabiasque").strip()
             if route.startswith("/sabiasque/"):
                 try:
                     idx = int(route.split("/")[-1])
@@ -395,27 +396,16 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
             else:
                 show_grid()
 
-    page.on_route_change = on_route_change
-    # ⬇️ Registra el handler (evita sobreescribir repetidamente si llamas render_sabiasque más de una vez)
-    # Usa una "bandera" en page para no registrarlo dos veces
-    if not getattr(page, "_sabiasque_router_set", False):
-        page.on_route_change = on_route_change
-        setattr(page, "_sabiasque_router_set", True)
-       
-        # --- reemplaza la ruta actual por /sabiasque SIN apilar historial y pinta la grilla ---
     def _reset_to_grid():
-        # 1) Cambia la ruta “en el lugar” (sin push)
-        page.route = "/sabiasque"
-        # 2) Dispara tu handler para renderizar
-        on_route_change(ft.RouteChangeEvent(route="/sabiasque"))
+        page.route = "/sabiasque"   # fija ruta sin push
+        show_grid()                 # pinta la grilla directamente
         page.update()
 
-    # lo exponemos para poder llamarlo desde main
+    # Exponer helpers para usarlos desde main
     setattr(page, "_sabiasque_reset_to_grid", _reset_to_grid)
+    setattr(page, "_sabiasque_router", on_route_change)
+    setattr(page, "_sabiasque_show_grid", show_grid)
+    setattr(page, "_sabiasque_show_detail", show_detail)   # opcional
 
-    # ⬇️ Si ya estás en /sabiasque o /sabiasque/<i> cuando se carga el módulo, pinta inmediatamente
-    if (page.route or "").startswith("/sabiasque"):
-        # Dispara una vez el handler con la ruta actual (sin hacer page.go)
-        on_route_change(ft.RouteChangeEvent(route=page.route or "/sabiasque"))
 
 

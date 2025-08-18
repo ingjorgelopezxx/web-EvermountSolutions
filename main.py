@@ -94,13 +94,29 @@ def main(page: ft.Page):
     
     # Creamos la funcion On_CLic del Boton Sabias que
     def on_sabiasque_click(e=None):
-        parar_carrusel()  # Detener carrusel si es necesario
+        # 1) detén carrusel si aplica
+        try:
+            parar_carrusel()
+        except Exception:
+            pass
 
-        # Re-inicializa siempre la cuadrícula de "Sabías que"
-        render_sabiasque(page, contenido)
-
-        # Cambia la ruta a /sabiasque y actualiza
+        # 2) fija la ruta ANTES (evita ver el último detalle por 1s)
         page.route = "/sabiasque"
+
+        # 3) limpia contenedor central y monta el módulo (registra helpers)
+        contenido.controls.clear()
+        render_sabiasque(page, contenido)
+        # 👉 aquí asignamos el router (para que funcione el page.go de cada tarjeta)
+        if hasattr(page, "_sabiasque_router"):
+            page.on_route_change = page._sabiasque_router
+        # 4) pinta la grilla explícitamente (sin depender de on_route_change)
+        if hasattr(page, "_sabiasque_show_grid"):
+            page._sabiasque_show_grid()
+        else:
+            # Fallback si algo falló al registrar helpers
+            if hasattr(page, "_sabiasque_router") and page._sabiasque_router:
+                page._sabiasque_router(ft.RouteChangeEvent(route="/sabiasque"))
+
         page.update()
 
 
