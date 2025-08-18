@@ -228,7 +228,6 @@ def main(page: ft.Page):
     ])
 
     barra_superior = ft.Container(
-        padding=ft.padding.symmetric(horizontal=10, vertical=8),
         gradient=ft.LinearGradient(
             begin=ft.alignment.center_left, end=ft.alignment.center_right,
             colors=["#0f2027", "#203a43", "#2c5364"],
