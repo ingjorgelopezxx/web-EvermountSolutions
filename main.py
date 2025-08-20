@@ -303,7 +303,7 @@ def main(page: ft.Page):
         a = page.width
 
         # --- Escala del título ---
-        s = 18 if a < 450 else 22 if a < 600 else 30
+        s = 16 if a < 450 else 22 if a < 600 else 30
         texto_titulo.controls[0].size = s
         texto_titulo.controls[1].size = s
         texto_titulo.update()
@@ -312,16 +312,16 @@ def main(page: ft.Page):
         if a < 450:   # móviles
             icon_size = 26
             btn_size = 36
-            logo_size = 38
+            logo_size = 42
         elif a < 800: # tablets
             icon_size = 32
             btn_size = 44
-            logo_size = 50
+            logo_size = 54
 
         else:         # desktop
             icon_size = 38
             btn_size = 52
-            logo_size = 62
+            logo_size = 66
 
         # 1) tamaño del contenedor (área clickeable visual)
         container_boton_empresa.width = btn_size
