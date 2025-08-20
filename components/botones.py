@@ -8,12 +8,31 @@ def create_boton_empresa(page: ft.Page, on_click_toggle):
       container_boton_empresa, start_pulse, stop_pulse
     """
 
-    container_boton_empresa = ft.IconButton(
-        icon=ft.Icons.MENU,     # este es el ícono de 3 líneas
+    # Botón real (IconButton)
+    boton_empresa = ft.IconButton(
+        icon=ft.Icons.MENU,         # el ícono que usas
+        icon_size=24,                    # se actualizará de forma responsiva
         icon_color=ft.Colors.WHITE,
-        tooltip="Menú Empresa",
+        style=ft.ButtonStyle(
+            padding=ft.padding.all(0),   # 👈 sin padding para centrar perfecto
+            shape=ft.RoundedRectangleBorder(radius=9999),
+            bgcolor=ft.Colors.WHITE,
+        ),
         on_click=on_click_toggle,
+        tooltip="Empresa",
     )
+
+    # Contenedor externo que define el "tamaño del botón" y lo centra
+    container_boton_empresa = ft.Container(
+        content=boton_empresa,
+        width=44,                        # se actualizará de forma responsiva
+        height=44,                       # se actualizará de forma responsiva
+        alignment=ft.alignment.center,   # 👈 centra el IconButton adentro
+        border_radius=9999,
+        bgcolor=ft.Colors.TRANSPARENT,       # opcional: aro exterior
+        padding=0,
+    )
+    
     async def _pulso():
         try:
             while True:

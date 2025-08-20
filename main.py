@@ -303,30 +303,39 @@ def main(page: ft.Page):
         a = page.width
 
         # --- Escala del título ---
-        s = 14 if a < 450 else 18 if a < 600 else 26
+        s = 18 if a < 450 else 22 if a < 600 else 30
         texto_titulo.controls[0].size = s
         texto_titulo.controls[1].size = s
         texto_titulo.update()
 
         # tamaño del botón empresa (icono + área táctil) + Logo empresa
         if a < 450:   # móviles
-            icono_size = 26
-            boton_size = 36
-            logo_size = 32
+            icon_size = 26
+            btn_size = 36
+            logo_size = 38
         elif a < 800: # tablets
-            icono_size = 32
-            boton_size = 44
-            logo_size = 44
+            icon_size = 32
+            btn_size = 44
+            logo_size = 50
 
         else:         # desktop
-            icono_size = 38
-            boton_size = 52
-            logo_size = 56
+            icon_size = 38
+            btn_size = 52
+            logo_size = 62
 
-        container_boton_empresa.icon_size = icono_size
-        container_boton_empresa.width = boton_size
-        container_boton_empresa.height = boton_size
-        container_boton_empresa.update()
+        # 1) tamaño del contenedor (área clickeable visual)
+        container_boton_empresa.width = btn_size
+        container_boton_empresa.height = btn_size
+
+        # 2) tamaño del ícono del IconButton interno
+        inner_btn = container_boton_empresa.content
+        if isinstance(inner_btn, ft.IconButton):
+            inner_btn.icon_size = icon_size
+            # Si necesitas asegurar padding cero en runtime:
+            inner_btn.style = ft.ButtonStyle(
+                padding=ft.padding.all(0),
+                shape=ft.RoundedRectangleBorder(radius=9999),
+            )
 
         # ejemplo de escalado
         container_logo_empresa.width = logo_size
