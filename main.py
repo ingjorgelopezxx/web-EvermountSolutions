@@ -24,9 +24,7 @@ def main(page: ft.Page):
     animacion_empresa_task = [None]     # ahora guardará el task del pulso del botón empresa
     animacion_redes_task = [None]       # task del bounce de redes    
 
-    # intro, insectos y carrusel (devuelven helpers que usaremos luego)
-    intro_modal, show_intro, hide_intro = create_intro_overlay(page)
-    show_intro()
+    #insectos y carrusel (devuelven helpers que usaremos luego)
     modal_insecto, mostrar_info_insecto, start_anim_insectos, stop_anim_insectos = create_insectos_support(page)
     fila_carrusel, set_sets_imagenes, start_carrusel, stop_carrusel, set_first_set = create_carrusel(
     page, tam=3, sets=DEFAULT_IMAGE_SETS
@@ -44,6 +42,19 @@ def main(page: ft.Page):
 
     # Flag e inicializador de Sabías que
     sabiasque_inicializado = [False]
+    intro_mostrado = [False]
+
+    def show_intro_once():
+        if intro_mostrado[0]:
+            return
+        intro_mostrado[0] = True
+        # asegúrate de que nada intercepte clics
+        try:
+            cerrar_menu()
+            overlay_cierra_menu.visible = False
+        except Exception:
+            pass
+        show_intro()      # <- del create_intro_overlay
 
     def ensure_sabiasque():
         if not sabiasque_inicializado[0]:
@@ -81,11 +92,14 @@ def main(page: ft.Page):
         dropdown.visible = not dropdown.visible
         if dropdown.visible:
             # menú abierto → detener pulso (usa la API del componente)
+            abrir_menu()
             stop_pulso_empresa()
             animacion_empresa_task[0] = None
         else:
+            cerrar_menu()
             # menú cerrado → reanudar pulso (usa la API del componente)
             animacion_empresa_task[0] = start_pulso_empresa()
+            
         page.update()
 
     # Crear botones, menu y header
@@ -199,11 +213,34 @@ def main(page: ft.Page):
     def cerrar_menu_hover(e):
         if e.data == "false":
             dropdown.visible = False
+            cerrar_menu()
             if animacion_empresa_task[0] is None:
                 animacion_empresa_task[0] = start_pulso_empresa()
             page.update()
             
     menu_column = ft.Column(controls=menu_items, spacing=0)
+      # --- Overlay para cerrar el menú al hacer clic fuera ---
+    overlay_cierra_menu = ft.Container(
+        left=0, top=0, right=0, bottom=0,      # 👈 llena toda la viewport
+        bgcolor="rgba(0,0,0,0.001)",           # casi transparente (asegura eventos)
+        visible=False,
+        on_click=lambda e: cerrar_menu(),      # cierra al hacer clic/tap fuera
+    )
+    def abrir_menu():
+        dropdown.visible = True
+        overlay_cierra_menu.visible = True
+        stop_pulso_empresa()
+        animacion_empresa_task[0] = None
+        stack_raiz.update()  # 👈
+
+    def cerrar_menu():
+        dropdown.visible = False
+        overlay_cierra_menu.visible = False
+        # reanudar pulso si corresponde
+        if animacion_empresa_task[0] is None:
+            animacion_empresa_task[0] = start_pulso_empresa()
+        stack_raiz.update()  # 👈
+
     dropdown = ft.Container(
         content=ft.Container(
             content=menu_column,
@@ -215,10 +252,10 @@ def main(page: ft.Page):
             on_hover= cerrar_menu_hover
         ),
         visible=False,
-        alignment=ft.alignment.top_right,
-        margin=ft.margin.only(top=70, right=10),
+        top=50,       # 👈 posicionalo respecto a la ventana, no con alignment/margin
+        right=5,
     )
-   
+
     # --- Barra superior con botón Empresa y Titulo ---
     texto_titulo = ft.Stack([
         ft.Text("EvermountSolutions – Pest Defense",
@@ -249,15 +286,68 @@ def main(page: ft.Page):
         alignment=ft.alignment.center
     )
 
-    # Montaje final
-    page.add(
-        ft.Column([
-            barra_superior,
-            contenido,
-            zona_redes,
-        ], expand=True, horizontal_alignment=ft.CrossAxisAlignment.CENTER)
-    )
+    contenido_base = ft.Column([
+        barra_superior,
+        contenido,
+        zona_redes,
+    ], expand=True, 
+    spacing=0,           # sin espacios extra verticales
+    horizontal_alignment=ft.CrossAxisAlignment.CENTER,)
 
+    stack_raiz = ft.Stack(
+        controls=[
+            contenido_base,        # capa 0: contenido normal
+            overlay_cierra_menu,   # capa 1: overlay que capta clic fuera
+            dropdown,              # capa 2: menú dropdown, arriba del overlay
+        ], expand=True,    # 👈 importante Stack ocupa toda la altura
+    )
+    # después de crear stack_raiz con [contenido_base, overlay_cierra_menu, dropdown]
+    intro_modal, show_intro, hide_intro = create_intro_overlay(page)
+    stack_raiz.controls.append(intro_modal)   # 👈 lo montas encima de todo
+    def on_connect(e):
+        cerrar_menu()
+        overlay_cierra_menu.visible = False
+
+        # Si la pestaña se abrió en /sabiasque o /sabiasque/<idx>...
+        if (page.route or "").startswith("/sabiasque"):
+            ensure_sabiasque()
+            page.go(page.route or "/sabiasque")
+            return
+
+        # Render inicial
+        contenido.controls.clear()
+        contenido.controls.extend([
+            ft.Text("Bienvenido a EvermountSolutions", size=22, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
+            ft.Text("Control de plagas profesional. Haz clic en los botones.", color=ft.Colors.BLACK),
+            fila_carrusel,
+        ])
+        contenido.update()
+        page.update()
+
+        # Mostrar intro una sola vez
+        show_intro_once()
+
+        # Iniciar carrusel tras un tick
+        async def _kick():
+            await asyncio.sleep(0)
+            set_first_set()
+            start_carrusel()
+        page.run_task(_kick)
+
+    page.on_connect = on_connect
+
+    page.add(
+        ft.Container(
+            content=stack_raiz,
+            expand=True,           # 👈 asegura ocupar todo el viewport
+        )
+    )
+    # Fallback: en el próximo tick, intenta mostrar el intro una vez
+    async def _first_paint_intro():
+        await asyncio.sleep(0)
+        show_intro_once()
+
+    page.run_task(_first_paint_intro)
     ####### FUNCIONES #######
     # --- Modifica show_info (Funcion para saber que opcion del menu se selecciono) ---
     def show_info(opt):
@@ -269,19 +359,25 @@ def main(page: ft.Page):
         contenido.controls.clear()
         if opt == "Inicio":
             mostrar_inicio_con_intro()
+            cerrar_menu()
         elif opt == "Quiénes Somos":
+            cerrar_menu()
             set_slides(quienes_slides)
             mostrar_slide(0)
         elif opt == "Servicios":
+            cerrar_menu()
             set_slides(servicios_slides)
             mostrar_slide(0)
         elif opt == "Programas":
+            cerrar_menu()
             set_slides(programas_slides)
             mostrar_slide(0)
         elif opt == "Historia":
+            cerrar_menu()
             set_slides(historia_slides)
             mostrar_slide(0)
         elif opt == "Ubicación":
+            cerrar_menu()
             parar_carrusel()
             contenido.controls.append(
                 ft.Text("dirección de empresa", size=20, weight=ft.FontWeight.BOLD, color=ft.Colors.BLUE_900)
@@ -348,38 +444,12 @@ def main(page: ft.Page):
 
         page.update()
 
-
-    def on_connect(e):
-        # Si la pestaña se abrió en /sabiasque o /sabiasque/<idx>, inicializa y navega ahí
-        if (page.route or "").startswith("/sabiasque"):
-            ensure_sabiasque()
-            page.go(page.route or "/sabiasque")
-            return
-
-        # --- lo demás de tu on_connect tal como está ---
-        show_intro()
-        dropdown.visible = False
-        modal_insecto.open = False
-        page.dialog = None
-        contenido.controls.clear()
-        contenido.controls.extend([
-            ft.Text("Bienvenido a EvermountSolutions", size=22, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
-            ft.Text("Control de plagas profesional. Haz clic en los botones.", color=ft.Colors.BLACK),
-            fila_carrusel,
-        ])
-        contenido.update()
-        page.update()
-        set_first_set()
-        start_carrusel()
-    page.on_connect = on_connect
-
     page.on_resize = ajustar_tamanos
     page.on_window_event = lambda e: ajustar_tamanos() if e.data=="shown" else None
         # Iniciar animaciones
     animacion_empresa_task[0] = start_pulso_empresa()
     animacion_redes_task[0] = start_bounce()
     # Overlay oculto para cerrar el menu al hacer clic fuera de el
-    page.overlay.extend([dropdown, intro_modal,modal_insecto])
     page.update()
     ajustar_tamanos()
    
