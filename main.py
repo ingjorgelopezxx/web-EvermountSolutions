@@ -131,12 +131,6 @@ def main(page: ft.Page):
         contenido.update()
         page.update()
 
-        # Mostrar intro modal
-        try:
-            show_intro()   # 👈 asegúrate de que show_intro esté definida
-        except Exception:
-            pass
-
         # Lanzar carrusel en el próximo ciclo
         async def kick():
             await asyncio.sleep(0)
@@ -145,38 +139,28 @@ def main(page: ft.Page):
 
         page.run_task(kick)
 
-    imagen_boton_empresa = ft.Image(
-        src="https://i.postimg.cc/rFxRRS5D/logo-72x72.png",
-        fit=ft.ImageFit.CONTAIN,
-        tooltip="Ir al inicio",
+    imagen_logo_empresa = ft.Image(
+    src="https://i.postimg.cc/rFxRRS5D/logo-72x72.png",
+    fit=ft.ImageFit.COVER,   # llena el círculo sin dejar bordes
+    )
+
+    inner = ft.Container(
+        content=imagen_logo_empresa ,
+        width=50, height=50,               # se actualizan en ajustar_tamanos
+        border_radius=9999,                # círculo
+        clip_behavior=ft.ClipBehavior.ANTI_ALIAS,  # 👈 recorta a círculo
+        alignment=ft.alignment.center,
     )
 
     container_logo_empresa = ft.Container(
-        content=ft.Container(
-            content=imagen_boton_empresa,
-            width=16,
-            height=16,
-            border_radius=25,
-            bgcolor=ft.LinearGradient(
-                begin=ft.alignment.top_left,
-                end=ft.alignment.bottom_right,
-                colors=["#ffffff", "#dcdcdc"],
-            ),
-            shadow=ft.BoxShadow(
-                spread_radius=2,
-                blur_radius=10,
-                color=ft.Colors.BLACK38,
-                offset=ft.Offset(3, 3),
-            ),
-            on_click=mostrar_inicio_con_intro,       # 👈 aquí lo conectamos
-            ink=True,
-            alignment=ft.alignment.center,
-        ),
-        width=30,
-        height=30,
+        content=inner,
+        width=64, height=64,               # se actualizan en ajustar_tamanos
         bgcolor=ft.Colors.BLACK12,
-        border_radius=32,
-        padding=0,
+        border_radius=9999,                # círculo externo
+        padding=7,
+        on_click=mostrar_inicio_con_intro,
+        ink=True,
+        alignment=ft.alignment.center,
     )
 
     # --- Botones REDES ---
@@ -238,9 +222,9 @@ def main(page: ft.Page):
     # --- Barra superior con botón Empresa y Titulo ---
     texto_titulo = ft.Stack([
         ft.Text("EvermountSolutions – Pest Defense",
-                size=26, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK45, top=1, left=1),
+                 weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK45, top=1, left=1),
         ft.Text("EvermountSolutions – Pest Defense",
-                size=26, weight=ft.FontWeight.BOLD, color=ft.Colors.WHITE),
+                 weight=ft.FontWeight.BOLD, color=ft.Colors.WHITE),
     ])
 
     barra_superior = ft.Container(
@@ -317,12 +301,44 @@ def main(page: ft.Page):
     # --- Responsive: texto + ancho automático para WhatsApp ---
     def ajustar_tamanos(e=None):
         a = page.width
-        # título
-        s = 14 if a<450 else 18 if a<600 else 26
+
+        # --- Escala del título ---
+        s = 14 if a < 450 else 18 if a < 600 else 26
         texto_titulo.controls[0].size = s
         texto_titulo.controls[1].size = s
         texto_titulo.update()
+
+        # tamaño del botón empresa (icono + área táctil) + Logo empresa
+        if a < 450:   # móviles
+            icono_size = 26
+            boton_size = 36
+            logo_size = 32
+        elif a < 800: # tablets
+            icono_size = 32
+            boton_size = 44
+            logo_size = 44
+
+        else:         # desktop
+            icono_size = 38
+            boton_size = 52
+            logo_size = 56
+
+        container_boton_empresa.icon_size = icono_size
+        container_boton_empresa.width = boton_size
+        container_boton_empresa.height = boton_size
+        container_boton_empresa.update()
+
+        # ejemplo de escalado
+        container_logo_empresa.width = logo_size
+        container_logo_empresa.height = logo_size
+        container_logo_empresa.border_radius = logo_size // 2
+        inner_size = logo_size - 10   # margen/padding
+        container_logo_empresa.content.width = inner_size
+        container_logo_empresa.content.height = inner_size
+        container_logo_empresa.content.border_radius = inner_size // 2
+
         page.update()
+
 
     def on_connect(e):
         # Si la pestaña se abrió en /sabiasque o /sabiasque/<idx>, inicializa y navega ahí
