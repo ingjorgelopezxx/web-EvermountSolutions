@@ -61,12 +61,25 @@ def render_servicio_desratizacion(
     )
 
     # --- Textos ---
-    titulo = ft.Text(
-        "Desratización Profesional",  # 👈 una sola línea
-        size=SZ["title_sz"],
-        weight=ft.FontWeight.BOLD,
-        color="#0F3D47",
-        text_align=ft.TextAlign.CENTER,
+    titulo = ft.Stack(
+        controls=[
+            ft.Text(
+                "Desratización Profesional",
+                size=SZ["title_sz"],
+                weight=ft.FontWeight.BOLD,
+                color=ft.Colors.BLACK45,   # sombra oscura
+                text_align=ft.TextAlign.CENTER,
+                top=2, left=2,             # pequeño desplazamiento
+            ),
+            ft.Text(
+                "Desratización Profesional",
+                size=SZ["title_sz"],
+                weight=ft.FontWeight.BOLD,
+                color="#0F3D47",           # color principal
+                text_align=ft.TextAlign.CENTER,
+            ),
+        ],
+        alignment=ft.alignment.center,
     )
 
     lead = ft.Text(
