@@ -16,8 +16,8 @@ def render_servicio_desratizacion(
         w = p.width or 800
         if w < 420:    # móviles chicos
             return dict(
-                title_sz=18, lead_sz=15, body_sz=14,
-                rat_h=240, cta_h=50, cta_radius=24, cta_icon=24, cta_sz=16,
+                title_sz=26, lead_sz=14, body_sz=14,
+                rat_h=180, cta_h=50, cta_radius=24, cta_icon=24, cta_sz=16,
                 outer_pad=14, inner_gap=10,
             )
         elif w < 768:  # móviles grandes / tablets
