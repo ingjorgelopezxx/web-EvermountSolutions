@@ -12,7 +12,7 @@ from components.intro import create_intro_overlay
 from components.carrusel import create_carrusel, DEFAULT_IMAGE_SETS
 from components.slides import create_slides_controller
 from components.sabiasque import render_sabiasque
-
+from components.servicios_detalle import render_servicio_desratizacion
 
 def main(page: ft.Page):
     # Inicializamos las propiedades de la pagina
@@ -352,6 +352,8 @@ def main(page: ft.Page):
     # --- Modifica show_info (Funcion para saber que opcion del menu se selecciono) ---
     def show_info(opt):
         global slide_actual,slides
+        cerrar_menu()  # cerramos el menú siempre
+        parar_carrusel()
         dropdown.visible = False
         if animacion_empresa_task[0] is None:
             animacion_empresa_task[0] = start_pulso_empresa()
@@ -359,26 +361,18 @@ def main(page: ft.Page):
         contenido.controls.clear()
         if opt == "Inicio":
             mostrar_inicio_con_intro()
-            cerrar_menu()
         elif opt == "Quiénes Somos":
-            cerrar_menu()
             set_slides(quienes_slides)
             mostrar_slide(0)
         elif opt == "Servicios":
-            cerrar_menu()
-            set_slides(servicios_slides)
-            mostrar_slide(0)
+            render_servicio_desratizacion(page, contenido)
         elif opt == "Programas":
-            cerrar_menu()
             set_slides(programas_slides)
             mostrar_slide(0)
         elif opt == "Historia":
-            cerrar_menu()
             set_slides(historia_slides)
             mostrar_slide(0)
         elif opt == "Ubicación":
-            cerrar_menu()
-            parar_carrusel()
             contenido.controls.append(
                 ft.Text("dirección de empresa", size=20, weight=ft.FontWeight.BOLD, color=ft.Colors.BLUE_900)
             )
