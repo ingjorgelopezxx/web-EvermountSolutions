@@ -63,51 +63,24 @@ def render_servicio_desratizacion(
     # --- Textos ---
     titulo = ft.Stack(
         controls=[
-            # --- capas de glow ---
             ft.Text(
                 "Desratización Profesional",
                 size=SZ["title_sz"],
                 weight=ft.FontWeight.BOLD,
-                color=ft.Colors.CYAN_200,
+                color=ft.Colors.BLACK45,   # sombra oscura
                 text_align=ft.TextAlign.CENTER,
-                top=-2, left=-2,
+                top=2, left=2,             # pequeño desplazamiento
             ),
             ft.Text(
                 "Desratización Profesional",
                 size=SZ["title_sz"],
                 weight=ft.FontWeight.BOLD,
-                color=ft.Colors.CYAN_100,
-                text_align=ft.TextAlign.CENTER,
-                top=2, left=2,
-            ),
-            ft.Text(
-                "Desratización Profesional",
-                size=SZ["title_sz"],
-                weight=ft.FontWeight.BOLD,
-                color=ft.Colors.CYAN_100,
-                text_align=ft.TextAlign.CENTER,
-                top=-2, left=2,
-            ),
-            ft.Text(
-                "Desratización Profesional",
-                size=SZ["title_sz"],
-                weight=ft.FontWeight.BOLD,
-                color=ft.Colors.CYAN_100,
-                text_align=ft.TextAlign.CENTER,
-                top=2, left=-2,
-            ),
-            # --- texto principal ---
-            ft.Text(
-                "Desratización Profesional",
-                size=SZ["title_sz"],
-                weight=ft.FontWeight.BOLD,
-                color="#0F3D47",  # el mismo que la barra superior
+                color="#0F3D47",           # color principal
                 text_align=ft.TextAlign.CENTER,
             ),
         ],
         alignment=ft.alignment.center,
     )
-
 
     lead = ft.Text(
         "Los roedores son una de las plagas más peligrosas por los daños estructurales que causan y las enfermedades que transmiten. "
