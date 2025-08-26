@@ -1,10 +1,9 @@
 # components/menu_servicios.py
-import math
 import flet as ft
 
 SERVICIOS = [
     {"titulo": "Roedores", "imagen": "https://i.postimg.cc/4NLHX4nH/Chat-GPT-Image-26-ago-2025-03-08-53-p-m.png"},
-    {"titulo": "Desinfección y Sanitización Ambientes", "imagen": "https://i.postimg.cc/Kc6FhdDr/Chat-GPT-Image-26-ago-2025-03-32-59-p-m.png"},
+    {"titulo": "Desinfección y Sanitización", "imagen": "https://i.postimg.cc/Kc6FhdDr/Chat-GPT-Image-26-ago-2025-03-32-59-p-m.png"},
     {"titulo": "Insectos Voladores", "imagen": "https://i.postimg.cc/zvkh5JW3/Chat-GPT-Image-26-ago-2025-02-22-27-p-m.jpg"},
     {"titulo": "Insectos Rastreros", "imagen": "https://i.postimg.cc/D0zscS8F/Chat-GPT-Image-26-ago-2025-03-18-37-p-m.png"},
     {"titulo": "Tratamiento Termitas", "imagen": "https://i.postimg.cc/3JTQW24P/Chat-GPT-Image-26-ago-2025-03-13-04-p-m.png"},
@@ -12,83 +11,54 @@ SERVICIOS = [
 ]
 
 def render_menu_servicios(page: ft.Page, contenedor: ft.Column):
-    """
-    Menú de servicios responsivo con GridView (compatible con Flet sin Wrap/ResponsiveRow).
-    - Todas las tarjetas comparten altura por breakpoint.
-    - Se reserva altura de texto para 2 líneas (no se corta).
-    """
+    """Renderiza un menú de servicios con tarjetas de altura uniforme."""
 
-    # Breakpoints y métricas (ajusta aquí si quieres más altura en móvil)
+    # Breakpoints → métricas de grid, proporciones y texto
     def _sizes():
         w = page.width or 800
-        if w < 480:   # 📱 móvil (ej. 375 x 667)
-            return dict(
-                max_extent=200,      # ancho máx de cada tile
-                title_sz=12,         # tamaño de fuente título
-                title_pad_v=8,       # padding vertical del área de texto
-                img_h=130,           # altura fija imagen
-                spacing=8,
-                run_spacing=10,
-            )
-        elif w < 900: # 📲 tablet
-            return dict(
-                max_extent=240,
-                title_sz=15,
-                title_pad_v=10,
-                img_h=150,
-                spacing=10,
-                run_spacing=12,
-            )
-        else:         # 💻 desktop
-            return dict(
-                max_extent=280,
-                title_sz=18,
-                title_pad_v=12,
-                img_h=170,
-                spacing=12,
-                run_spacing=14,
-            )
+        if w < 480:              # 📱 móvil
+            return dict(max_extent=160, aspect=0.70, spacing=6, run_spacing=8, title_sz=12)
+        elif w < 900:            # 📲 tablet
+            return dict(max_extent=200, aspect=0.78, spacing=10, run_spacing=12, title_sz=14)
+        else:                    # 💻 PC
+            return dict(max_extent=260, aspect=0.86, spacing=12, run_spacing=14, title_sz=16)
 
     def _snack(msg: str):
         page.snack_bar = ft.SnackBar(content=ft.Text(msg))
         page.snack_bar.open = True
         page.update()
 
-    # Construye UNA tarjeta usando alturas fijas pre-calculadas
-    def _card(item: dict, sz: dict) -> ft.Container:
-        # Altura necesaria para 2 líneas de texto (aprox. line-height 1.3)
-        line_h = 1.30
-        text_h = math.ceil(sz["title_sz"] * line_h * 2) + (sz["title_pad_v"] * 2)
-
+    def _card(item: dict, title_size: int) -> ft.Container:
         return ft.Container(
             bgcolor=ft.Colors.WHITE,
             border_radius=12,
             clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
-            shadow=ft.BoxShadow(1, 3, ft.Colors.BLACK26, offset=ft.Offset(2, 2)),
+            shadow=ft.BoxShadow(1, 4, ft.Colors.BLACK26, offset=ft.Offset(2, 2)),
             ink=True,
             on_click=lambda e: _snack(f"Seleccionaste {item['titulo']}"),
             content=ft.Column(
+                expand=True,
                 spacing=0,
                 horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
                 controls=[
-                    # Imagen con altura fija
+                    # Imagen ocupa siempre la parte superior
                     ft.Container(
-                        height=sz["img_h"],
+                        expand=3,  # proporción flexible
                         alignment=ft.alignment.center,
                         content=ft.Image(src=item["imagen"], fit=ft.ImageFit.COVER),
                     ),
-                    # Área de texto con altura exacta para 2 líneas
+                    # Texto ocupa siempre la parte inferior
                     ft.Container(
-                        height=text_h,
+                        expand=1,
                         alignment=ft.alignment.center,
-                        padding=ft.padding.symmetric(horizontal=6, vertical=sz["title_pad_v"]),
+                        padding=ft.padding.symmetric(horizontal=6, vertical=8),
                         content=ft.Text(
                             item["titulo"],
-                            size=sz["title_sz"],
+                            size=title_size,
                             weight=ft.FontWeight.BOLD,
                             text_align=ft.TextAlign.CENTER,
-                            max_lines=2,                         # 🔒 solo 2 líneas
-                            overflow=ft.TextOverflow.ELLIPSIS,   # … si excede
+                            max_lines=2,  # 🔑 garantiza altura uniforme
+                            overflow=ft.TextOverflow.ELLIPSIS,
                             color=ft.Colors.BLACK,
                         ),
                     ),
@@ -96,37 +66,26 @@ def render_menu_servicios(page: ft.Page, contenedor: ft.Column):
             ),
         )
 
-    # Re-construye el GridView con el aspect_ratio correcto según las alturas
+    # Construye / reconstruye el grid
     def _build_grid():
         sz = _sizes()
-
-        # Altura total estimada de la tarjeta = imagen + texto (misma para todas)
-        line_h = 1.30
-        text_h = math.ceil(sz["title_sz"] * line_h * 2) + (sz["title_pad_v"] * 2)
-        card_h = sz["img_h"] + text_h
-
         grid.max_extent = sz["max_extent"]
+        grid.child_aspect_ratio = sz["aspect"]
         grid.spacing = sz["spacing"]
         grid.run_spacing = sz["run_spacing"]
-
-        # child_aspect_ratio = ancho / alto
-        # aproximamos ancho ~= max_extent (GridView calcula el real, pero esto alinea bastante bien)
-        grid.child_aspect_ratio = sz["max_extent"] / card_h
-
         grid.controls.clear()
         for it in SERVICIOS:
-            grid.controls.append(_card(it, sz))
+            grid.controls.append(_card(it, sz["title_sz"]))
         grid.update()
 
     # Grid base
     grid = ft.GridView(expand=True)
 
-    # Montaje en el contenedor destino
+    # Montaje
     contenedor.controls.clear()
     contenedor.controls.append(grid)
     contenedor.update()
 
-    # Primera construcción
     _build_grid()
 
     # Responsivo en tiempo real
