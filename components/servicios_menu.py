@@ -17,7 +17,7 @@ def render_menu_servicios(page: ft.Page, contenedor: ft.Column):
     def _sizes():
         w = page.width or 800
         if w < 480:              # 📱 móvil
-            return dict(max_extent=160, aspect=0.70, spacing=6, run_spacing=8, title_sz=12)
+            return dict(max_extent=160, aspect=0.60, spacing=6, run_spacing=8, title_sz=12)
         elif w < 900:            # 📲 tablet
             return dict(max_extent=200, aspect=0.78, spacing=10, run_spacing=12, title_sz=14)
         else:                    # 💻 PC
