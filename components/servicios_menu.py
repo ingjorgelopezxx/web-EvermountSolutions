@@ -21,19 +21,19 @@ def render_menu_servicios(page: ft.Page, contenedor: ft.Column):
         if w < 480:    # 📱 móvil
             return dict(
                 max_extent=160, aspect=0.60, spacing=8, run=10,
-                title_sz=13, heading_sz=18,
+                title_sz=13, heading_sz=24,
                 img_pct=60, txt_pct=40
             )
         elif w < 900:  # 📲 tablet
             return dict(
                 max_extent=240, aspect=0.78, spacing=10, run=12,
-                title_sz=16, heading_sz=22,
+                title_sz=16, heading_sz=28,
                 img_pct=70, txt_pct=30
             )
         else:          # 💻 desktop
             return dict(
                 max_extent=280, aspect=0.88, spacing=12, run=14,
-                title_sz=18, heading_sz=28,
+                title_sz=18, heading_sz=34,
                 img_pct=75, txt_pct=25
             )
 
