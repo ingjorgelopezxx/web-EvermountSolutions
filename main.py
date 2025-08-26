@@ -13,6 +13,7 @@ from components.carrusel import create_carrusel, DEFAULT_IMAGE_SETS
 from components.slides import create_slides_controller
 from components.sabiasque import render_sabiasque
 from components.servicios_detalle import render_servicio_desratizacion
+from components.servicios_menu import render_menu_servicios
 
 def main(page: ft.Page):
     # Inicializamos las propiedades de la pagina
@@ -365,7 +366,8 @@ def main(page: ft.Page):
             set_slides(quienes_slides)
             mostrar_slide(0)
         elif opt == "Servicios":
-            render_servicio_desratizacion(page, contenido)
+            cerrar_menu()
+            render_menu_servicios(page, contenido)
         elif opt == "Programas":
             set_slides(programas_slides)
             mostrar_slide(0)
