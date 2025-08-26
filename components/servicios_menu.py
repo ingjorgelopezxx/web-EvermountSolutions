@@ -20,7 +20,7 @@ def render_menu_servicios(page: ft.Page, contenedor: ft.Column):
         w = page.width or 800
         if w < 480:    # 📱 móvil
             return dict(
-                max_extent=200, aspect=0.66, spacing=8, run=10,
+                max_extent=160, aspect=0.60, spacing=8, run=10,
                 title_sz=13, heading_sz=18,
                 img_pct=60, txt_pct=40
             )
