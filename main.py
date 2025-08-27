@@ -62,7 +62,53 @@ def main(page: ft.Page):
             render_sabiasque(page, contenido)  # registra on_route_change interno y helpers
             sabiasque_inicializado[0] = True
 
-    
+    def _route_handler(e: ft.RouteChangeEvent):
+        r = (e.route or "/").strip()
+
+        # Cierra menú/overlays si estuvieran abiertos
+        try:
+            cerrar_menu()
+            overlay_cierra_menu.visible = False
+        except Exception:
+            pass
+
+        # --- Rutas de Sabías que ---
+        if r.startswith("/sabiasque"):
+            ensure_sabiasque()
+            # Si el módulo registró su propio router, delega
+            if hasattr(page, "_sabiasque_router"):
+                page._sabiasque_router(ft.RouteChangeEvent(route=r))
+            else:
+                # Fallback: pinta grilla
+                render_sabiasque(page, contenido)
+                if hasattr(page, "_sabiasque_show_grid"):
+                    page._sabiasque_show_grid()
+            page.update()
+            return
+
+        # --- Ruta de Servicios (menú de tarjetas) ---
+        if r == "/servicios":
+            try:
+                parar_carrusel()
+            except Exception:
+                pass
+            render_menu_servicios(page, contenido)
+            page.update()
+            return
+        if r == "/servicios/roedores":
+            render_servicio_desratizacion(page, contenido)
+            page.update()
+            return
+        # --- Inicio (cualquier otra ruta) ---
+        contenido.controls.clear()
+        if fila_carrusel not in contenido.controls:
+            contenido.controls.append(fila_carrusel)
+        contenido.update()
+        page.update()
+
+    # activa router
+    page.on_route_change = _route_handler
+
     #Funcion para detener el carrusel de imagenes 
     def parar_carrusel():
             stop_carrusel()
@@ -114,28 +160,11 @@ def main(page: ft.Page):
             parar_carrusel()
         except Exception:
             pass
-
-        # 2) fija la ruta ANTES (evita ver el último detalle por 1s)
-        page.route = "/sabiasque"
-
-        # 3) limpia contenedor central y monta el módulo (registra helpers)
-        contenido.controls.clear()
-        render_sabiasque(page, contenido)
-        # 👉 aquí asignamos el router (para que funcione el page.go de cada tarjeta)
-        if hasattr(page, "_sabiasque_router"):
-            page.on_route_change = page._sabiasque_router
-        # 4) pinta la grilla explícitamente (sin depender de on_route_change)
-        if hasattr(page, "_sabiasque_show_grid"):
-            page._sabiasque_show_grid()
-        else:
-            # Fallback si algo falló al registrar helpers
-            if hasattr(page, "_sabiasque_router") and page._sabiasque_router:
-                page._sabiasque_router(ft.RouteChangeEvent(route="/sabiasque"))
-
-        page.update()
-
+        page.go("/sabiasque")
 
     def mostrar_inicio_con_intro(e=None):
+        page.route = "/"
+        _route_handler(ft.RouteChangeEvent(route="/"))
         # Limpiar contenido
         contenido.controls.clear()
 
@@ -253,7 +282,7 @@ def main(page: ft.Page):
             on_hover= cerrar_menu_hover
         ),
         visible=False,
-        top=50,       # 👈 posicionalo respecto a la ventana, no con alignment/margin
+        top=35,       # 👈 posicionalo respecto a la ventana, no con alignment/margin
         right=5,
     )
 
@@ -308,7 +337,10 @@ def main(page: ft.Page):
     def on_connect(e):
         cerrar_menu()
         overlay_cierra_menu.visible = False
-
+        # Si se abre directamente en /servicios o /sabiasque...
+        if (page.route or "").startswith("/sabiasque") or (page.route or "") == "/servicios":
+            _route_handler(ft.RouteChangeEvent(route=page.route or "/servicios"))
+            return
         # Si la pestaña se abrió en /sabiasque o /sabiasque/<idx>...
         if (page.route or "").startswith("/sabiasque"):
             ensure_sabiasque()
@@ -366,8 +398,7 @@ def main(page: ft.Page):
             set_slides(quienes_slides)
             mostrar_slide(0)
         elif opt == "Servicios":
-            cerrar_menu()
-            render_menu_servicios(page, contenido)
+            page.go("/servicios")   # 👉 ahora guarda la ruta en el historial
         elif opt == "Programas":
             set_slides(programas_slides)
             mostrar_slide(0)
@@ -395,7 +426,7 @@ def main(page: ft.Page):
         a = page.width
 
         # --- Escala del título ---
-        s = 16 if a < 450 else 22 if a < 600 else 30
+        s = 15 if a < 480 else 24 if a < 900 else 28
         texto_titulo.controls[0].size = s
         texto_titulo.controls[1].size = s
         texto_titulo.update()
@@ -405,15 +436,17 @@ def main(page: ft.Page):
             icon_size = 26
             btn_size = 36
             logo_size = 42
+            dropdown.top = 32
         elif a < 800: # tablets
             icon_size = 32
             btn_size = 44
             logo_size = 54
-
+            dropdown.top = 40
         else:         # desktop
             icon_size = 38
             btn_size = 52
             logo_size = 66
+            dropdown.top = 45
 
         # 1) tamaño del contenedor (área clickeable visual)
         container_boton_empresa.width = btn_size
@@ -450,3 +483,6 @@ def main(page: ft.Page):
     ajustar_tamanos()
    
 ft.app(target=main, view=ft.WEB_BROWSER, port=int(os.environ.get("PORT", 8080)))
+
+
+

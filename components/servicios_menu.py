@@ -2,12 +2,12 @@
 import flet as ft
 
 SERVICIOS = [
-    {"titulo": "Roedores", "imagen": "https://i.postimg.cc/4NLHX4nH/Chat-GPT-Image-26-ago-2025-03-08-53-p-m.png"},
-    {"titulo": "Desinfección y Sanitización", "imagen": "https://i.postimg.cc/Kc6FhdDr/Chat-GPT-Image-26-ago-2025-03-32-59-p-m.png"},
-    {"titulo": "Insectos Voladores", "imagen": "https://i.postimg.cc/zvkh5JW3/Chat-GPT-Image-26-ago-2025-02-22-27-p-m.jpg"},
-    {"titulo": "Insectos Rastreros", "imagen": "https://i.postimg.cc/D0zscS8F/Chat-GPT-Image-26-ago-2025-03-18-37-p-m.png"},
-    {"titulo": "Tratamiento Termitas", "imagen": "https://i.postimg.cc/3JTQW24P/Chat-GPT-Image-26-ago-2025-03-13-04-p-m.png"},
-    {"titulo": "Aves Urbanas", "imagen": "https://i.postimg.cc/HnWjCFgt/Chat-GPT-Image-26-ago-2025-03-09-31-p-m.png"},
+    {"titulo": "Roedores", "imagen": "https://i.postimg.cc/4NLHX4nH/Chat-GPT-Image-26-ago-2025-03-08-53-p-m.png","ruta": "/servicios/roedores"},
+    {"titulo": "Desinfección y Sanitización", "imagen": "https://i.postimg.cc/Kc6FhdDr/Chat-GPT-Image-26-ago-2025-03-32-59-p-m.png","ruta": "/servicios/sanitizacion"},
+    {"titulo": "Insectos Voladores", "imagen": "https://i.postimg.cc/zvkh5JW3/Chat-GPT-Image-26-ago-2025-02-22-27-p-m.jpg","ruta": "/servicios/voladores"},
+    {"titulo": "Insectos Rastreros", "imagen": "https://i.postimg.cc/D0zscS8F/Chat-GPT-Image-26-ago-2025-03-18-37-p-m.png","ruta": "/servicios/rastreros"},
+    {"titulo": "Tratamiento Termitas", "imagen": "https://i.postimg.cc/3JTQW24P/Chat-GPT-Image-26-ago-2025-03-13-04-p-m.png","ruta": "/servicios/termitas"},
+    {"titulo": "Aves Urbanas", "imagen": "https://i.postimg.cc/HnWjCFgt/Chat-GPT-Image-26-ago-2025-03-09-31-p-m.png","ruta": "/servicios/aves"},
 ]
 
 def render_menu_servicios(page: ft.Page, contenedor: ft.Column):
@@ -49,7 +49,7 @@ def render_menu_servicios(page: ft.Page, contenedor: ft.Column):
             clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
             shadow=ft.BoxShadow(1, 4, ft.Colors.BLACK26, offset=ft.Offset(2, 2)),
             ink=True,
-            on_click=lambda e: _snack(f"Seleccionaste {item['titulo']}"),
+            on_click=lambda e: page.go(item["ruta"]),  # 👉 navegar a la ruta guardada
             content=ft.Column(
                 expand=True,
                 spacing=0,
@@ -106,8 +106,4 @@ def render_menu_servicios(page: ft.Page, contenedor: ft.Column):
     contenedor.update()
 
     _build_grid()
-
-    def _on_resize(e):
-        _build_grid()
-
-    page.on_resize = _on_resize
+    page.on_resize = lambda e: _build_grid()

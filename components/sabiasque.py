@@ -310,7 +310,7 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
                 spacing=2,
                 controls=[
                     ft.Text(
-                        "Selecciona una especie",
+                        "Seleccionar Especie",
                         size=20,
                         weight=ft.FontWeight.BOLD,
                         color=ft.Colors.BLACK,
