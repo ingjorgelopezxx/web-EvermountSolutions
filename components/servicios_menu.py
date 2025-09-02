@@ -3,8 +3,8 @@ import flet as ft
 
 SERVICIOS = [
     {"titulo": "Roedores", "imagen": "https://i.postimg.cc/4NLHX4nH/Chat-GPT-Image-26-ago-2025-03-08-53-p-m.png","ruta": "/servicios/roedores"},
-    {"titulo": "Desinfección y Sanitización", "imagen": "https://i.postimg.cc/Kc6FhdDr/Chat-GPT-Image-26-ago-2025-03-32-59-p-m.png","ruta": "/servicios/sanitizacion"},
-    {"titulo": "Insectos Voladores", "imagen": "https://i.postimg.cc/zvkh5JW3/Chat-GPT-Image-26-ago-2025-02-22-27-p-m.jpg","ruta": "/servicios/voladores"},
+    {"titulo": "Desinfección y Sanitización", "imagen": "https://i.postimg.cc/zGfdKtvL/desinfeccion-Photoroom-Photoroom.png","ruta": "/servicios/sanitizacion"},
+    {"titulo": "Insectos Voladores", "imagen": "https://i.postimg.cc/V6hZkjmS/white-Photoroom-Photoroom.png","ruta": "/servicios/voladores"},
     {"titulo": "Insectos Rastreros", "imagen": "https://i.postimg.cc/D0zscS8F/Chat-GPT-Image-26-ago-2025-03-18-37-p-m.png","ruta": "/servicios/rastreros"},
     {"titulo": "Tratamiento Termitas", "imagen": "https://i.postimg.cc/3JTQW24P/Chat-GPT-Image-26-ago-2025-03-13-04-p-m.png","ruta": "/servicios/termitas"},
     {"titulo": "Aves Urbanas", "imagen": "https://i.postimg.cc/HnWjCFgt/Chat-GPT-Image-26-ago-2025-03-09-31-p-m.png","ruta": "/servicios/aves"},
@@ -96,7 +96,7 @@ def render_menu_servicios(page: ft.Page, contenedor: ft.Column):
         "Seleccionar Servicio",
         weight=ft.FontWeight.BOLD,
         text_align=ft.TextAlign.CENTER,
-        color=ft.Colors.BLACK,
+        color="#0F3D47",           # color principal
     )
 
     grid = ft.GridView(expand=True)

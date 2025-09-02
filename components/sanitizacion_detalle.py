@@ -1,19 +1,16 @@
 # components/servicios_detalle.py
+import flet as ft
 import re
 from urllib.parse import quote
-
-import flet as ft
-
-
-def render_servicio_desratizacion(
+def render_servicio_sanitizacion(
     page: ft.Page,
     contenedor: ft.Column,
     *,
-    rat_img_url: str = "https://i.postimg.cc/FsrS6xC9/raton-campo-mus-musculus-768x576.jpg",
+    sanitizacion_img_url: str = "https://i.postimg.cc/zGfdKtvL/desinfeccion-Photoroom-Photoroom.png",
     whatsapp_num: str = "+56999724454",
 ):
     """
-    Pinta el detalle del servicio 'Desratización' con estilo tipo flyer.
+    Pinta el detalle del servicio 'Sanitizacion' con estilo tipo flyer.
     """
 
     def _sizes_for(p: ft.Page):
@@ -21,19 +18,19 @@ def render_servicio_desratizacion(
         if w < 420:    # móviles chicos
             return dict(
                 title_sz=26, lead_sz=14, body_sz=14,
-                rat_h=180, cta_h=50, cta_radius=24, cta_icon=24, cta_sz=16,
+                zaniti_h=180, cta_h=50, cta_radius=24, cta_icon=24, cta_sz=16,
                 outer_pad=14, inner_gap=10,
             )
         elif w < 768:  # móviles grandes / tablets
             return dict(
                 title_sz=32, lead_sz=17, body_sz=16,
-                rat_h=300, cta_h=56, cta_radius=28, cta_icon=28, cta_sz=18,
+                zaniti_h=300, cta_h=56, cta_radius=28, cta_icon=28, cta_sz=18,
                 outer_pad=18, inner_gap=14,
             )
         else:          # desktop
             return dict(
                 title_sz=52, lead_sz=18, body_sz=17,
-                rat_h=360, cta_h=60, cta_radius=32, cta_icon=30, cta_sz=20,
+                zaniti_h=360, cta_h=60, cta_radius=32, cta_icon=30, cta_sz=20,
                 outer_pad=22, inner_gap=16,
             )
 
@@ -53,7 +50,6 @@ def render_servicio_desratizacion(
             url += f"?text={quote(msg)}"
 
         page.launch_url(url)
-
     WHATSAPP_ICON = "https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
 
     icono_whatsapp = ft.Image(
@@ -95,7 +91,7 @@ def render_servicio_desratizacion(
 
     # --- Textos ---
     titulo_text = ft.Text(
-        "Desratización Profesional",
+        "Desinfección y Sanitización de Ambientes",
         size=SZ["title_sz"],
         weight=ft.FontWeight.BOLD,
         color="#0F3D47",           # color principal
@@ -106,36 +102,36 @@ def render_servicio_desratizacion(
     titulo = ft.Stack(controls=[titulo_text], alignment=ft.alignment.center)
 
     lead = ft.Text(
-        "Los roedores son una de las plagas más peligrosas por los daños estructurales que causan y las enfermedades que transmiten. "
-        "Nuestro servicio de desratización incluye diagnóstico, control activo y sellado de accesos.",
+        "Protege la salud de tu familia, empleados y clientes con nuestros servicios de sanitización "
+        "profesional. Eliminamos virus, bacterias, hongos y malos olores de forma segura, rápida y eficaz.",
         size=SZ["lead_sz"],
         color=ft.Colors.BLACK87,
-        text_align=ft.TextAlign.JUSTIFY,
+        text_align=ft.TextAlign.JUSTIFY,  # 👈 justificado
     )
 
     desc = ft.Column(
         spacing=4,
         controls=[
-            ft.Text("🔍 Inspección detallada para detectar nidos y rutas.", size=SZ["body_sz"], text_align=ft.TextAlign.JUSTIFY, color=ft.Colors.BLACK),
-            ft.Text("🧠 Estrategias inteligentes: cebos, trampas, estaciones seguras.", size=SZ["body_sz"], text_align=ft.TextAlign.JUSTIFY, color=ft.Colors.BLACK),
-            ft.Text("🚪 Recomendaciones de cierre y sellado estructural.", size=SZ["body_sz"], text_align=ft.TextAlign.JUSTIFY, color=ft.Colors.BLACK),
-            ft.Text("💡 Mantenemos tu propiedad libre de roedores con mínima interrupción.", size=SZ["body_sz"], text_align=ft.TextAlign.JUSTIFY, color=ft.Colors.BLACK),
+            ft.Text("🧼 Aplicación con nebulizador ULV o termonebulización.", size=SZ["body_sz"], text_align=ft.TextAlign.JUSTIFY,color=ft.Colors.BLACK),
+            ft.Text("🌱 Uso de productos certificados por ISP y amigables con el medio ambiente.", size=SZ["body_sz"], text_align=ft.TextAlign.JUSTIFY,color=ft.Colors.BLACK),
+            ft.Text("💼 Ideal para hogares, oficinas, clínicas, escuelas y empresas.", size=SZ["body_sz"], text_align=ft.TextAlign.JUSTIFY,color=ft.Colors.BLACK),
+            ft.Text("🚫 Previene contagios y garantiza ambientes más saludables.", size=SZ["body_sz"], text_align=ft.TextAlign.JUSTIFY,color=ft.Colors.BLACK),
         ],
     )
 
-    imagen_rata = ft.Container(
-        height=SZ["rat_h"],
+    imagen_sanitizacion_ambiente = ft.Container(
+        height=SZ["zaniti_h"],
         alignment=ft.alignment.center,
-        content=ft.Image(src=rat_img_url, fit=ft.ImageFit.CONTAIN),
+        content=ft.Image(src=sanitizacion_img_url, fit=ft.ImageFit.CONTAIN),
     )
 
     card = ft.Container(
         bgcolor=ft.Colors.WHITE,
-        padding=ft.padding.symmetric(horizontal=SZ["outer_pad"], vertical=SZ["outer_pad"] + 4),
+        padding=ft.padding.symmetric(horizontal=SZ["outer_pad"], vertical=SZ["outer_pad"]+4),
         content=ft.Column(
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
             spacing=SZ["inner_gap"],
-            controls=[titulo, imagen_rata, lead, desc, ft.Container(height=6), fila_boton],
+            controls=[titulo,imagen_sanitizacion_ambiente, lead, desc, ft.Container(height=6), fila_boton],
         ),
     )
 
@@ -150,7 +146,7 @@ def render_servicio_desratizacion(
 
         titulo_text.size = SZ["title_sz"]
         lead.size = SZ["lead_sz"]
-        imagen_rata.height = SZ["rat_h"]
+        imagen_sanitizacion_ambiente.height = SZ["rat_h"]
 
         # CTA
         icono_whatsapp.width = SZ["cta_icon"] + 6

@@ -14,17 +14,30 @@ from components.slides import create_slides_controller
 from components.sabiasque import render_sabiasque
 from components.servicios_detalle import render_servicio_desratizacion
 from components.servicios_menu import render_menu_servicios
-
+from components.sanitizacion_detalle import render_servicio_sanitizacion
+from components.insectos_voladores_detalle import render_servicio_voladores
+from components.insectos_rastreros_detalle import render_servicio_rastreros
+from components.termitas_detalle import render_servicio_termitas
+from components.aves_urbanas_detalles import render_servicio_aves_urbanas
 def main(page: ft.Page):
     # Inicializamos las propiedades de la pagina
     page.title = "EvermountSolutions"
     page.bgcolor = ft.Colors.WHITE
     page.padding = 0
-    
+
     # Usamos lista para mutabilidad, inicializamos la variable 
     animacion_empresa_task = [None]     # ahora guardará el task del pulso del botón empresa
     animacion_redes_task = [None]       # task del bounce de redes    
 
+    # WhatsApp mensaje mutable
+    WHATSAPP_MSG = [""]   # 👈 ahora es lista de un solo valor
+
+    # Contactos Redes Sociales
+    numero_whatsapp = "+56999724454"
+    contacto_whatsapp = f"https://wa.me/{numero_whatsapp}?text={WHATSAPP_MSG}"
+    contacto_instagram = "https://instagram.com/evermountsolutions"
+    contacto_facebook = "https://facebook.com/evermountsolutions"
+   
     #insectos y carrusel (devuelven helpers que usaremos luego)
     modal_insecto, mostrar_info_insecto, start_anim_insectos, stop_anim_insectos = create_insectos_support(page)
     fila_carrusel, set_sets_imagenes, start_carrusel, stop_carrusel, set_first_set = create_carrusel(
@@ -96,7 +109,52 @@ def main(page: ft.Page):
             page.update()
             return
         if r == "/servicios/roedores":
+            # Guarda el mensaje para WhatsApp en el storage del navegador
+            page.client_storage.set(
+                "whatsapp_msg",
+                "Hola👋 EvermountSolutions, me gustaría agendar una visita para control de roedores 🐀. ¿Tienen disponibilidad?"
+            )
             render_servicio_desratizacion(page, contenido)
+            page.update()
+            return
+        if r == "/servicios/sanitizacion":
+            page.client_storage.set(
+                "whatsapp_msg",
+                "Hola👋 EvermountSolutions, me gustaría agendar una visita para Desinfección y Sanitización de Ambientes 🧼. ¿Tienen disponibilidad?"
+            )
+            render_servicio_sanitizacion(page, contenido)
+            page.update()
+            return
+        if r == "/servicios/voladores":
+            page.client_storage.set(
+                "whatsapp_msg",
+                "Hola👋 EvermountSolutions, me gustaría agendar una visita para control de Insectos Voladores 🦟. ¿Tienen disponibilidad?"
+            )
+            render_servicio_voladores(page, contenido)
+            page.update()
+            return
+        if r == "/servicios/rastreros":
+            page.client_storage.set(
+                "whatsapp_msg",
+                "Hola👋 EvermountSolutions, me gustaría agendar una visita para control de Insectos Rastreros 🪳. ¿Tienen disponibilidad?"
+            )
+            render_servicio_rastreros(page, contenido)
+            page.update()
+            return
+        if r == "/servicios/termitas":
+            page.client_storage.set(
+                "whatsapp_msg",
+                "Hola👋 EvermountSolutions, me gustaría agendar una visita para control de Termitas 🐜. ¿Tienen disponibilidad?"
+            )
+            render_servicio_termitas(page, contenido)
+            page.update()
+            return
+        if r == "/servicios/aves":
+            page.client_storage.set(
+                "whatsapp_msg",
+                "Hola👋 EvermountSolutions, me gustaría agendar una visita para control de Aves Urbanas 🕊️. ¿Tienen disponibilidad?"
+            )
+            render_servicio_aves_urbanas(page, contenido)
             page.update()
             return
         # --- Inicio (cualquier otra ruta) ---
@@ -127,12 +185,6 @@ def main(page: ft.Page):
     stop_anim_insectos=stop_anim_insectos,
     on_enter_slides=parar_carrusel,   # <- detiene carrusel al entrar a slides
     )
-
-    # Contactos Redes Sociales
-    numero_whatsapp = "+56937539304"
-    contacto_whatsapp = f"https://wa.me/{numero_whatsapp}?text=Hola"
-    contacto_instagram = "https://instagram.com/evermountsolutions"
-    contacto_facebook = "https://facebook.com/evermountsolutions"
 
      # --- Botón EMPRESA (header) ---
     def toggle_menu(e):
