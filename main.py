@@ -19,6 +19,7 @@ from components.insectos_voladores_detalle import render_servicio_voladores
 from components.insectos_rastreros_detalle import render_servicio_rastreros
 from components.termitas_detalle import render_servicio_termitas
 from components.aves_urbanas_detalles import render_servicio_aves_urbanas
+from components.panta_inicial import get_pantalla_inicial
 def main(page: ft.Page):
     # Inicializamos las propiedades de la pagina
     page.title = "EvermountSolutions"
@@ -43,10 +44,23 @@ def main(page: ft.Page):
     fila_carrusel, set_sets_imagenes, start_carrusel, stop_carrusel, set_first_set = create_carrusel(
     page, tam=3, sets=DEFAULT_IMAGE_SETS
     )
-    
+    pantalla_inicial = get_pantalla_inicial(page)
+   
+    def render_inicio():
+        contenido.controls.clear()
+        contenido.controls.extend([
+            pantalla_inicial,
+            ft.Text("Bienvenido a EvermountSolutions", size=22, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
+            ft.Text("Control de plagas profesional. Haz clic en los botones.", color=ft.Colors.BLACK),
+            fila_carrusel
+        ])
+        contenido.update()
+        page.update()
+
     # Contenido central mutable
     contenido = ft.Column(
-        [ft.Text("Bienvenido a EvermountSolutions"),
+        [   pantalla_inicial,
+            ft.Text("Bienvenido a EvermountSolutions"),
             ft.Text("Control de plagas profesional. Haz clic en los botones."),
             fila_carrusel],
         expand=True,
@@ -158,11 +172,7 @@ def main(page: ft.Page):
             page.update()
             return
         # --- Inicio (cualquier otra ruta) ---
-        contenido.controls.clear()
-        if fila_carrusel not in contenido.controls:
-            contenido.controls.append(fila_carrusel)
-        contenido.update()
-        page.update()
+        render_inicio()
 
     # activa router
     page.on_route_change = _route_handler
@@ -217,16 +227,7 @@ def main(page: ft.Page):
     def mostrar_inicio_con_intro(e=None):
         page.route = "/"
         _route_handler(ft.RouteChangeEvent(route="/"))
-        # Limpiar contenido
-        contenido.controls.clear()
-
-        # Agregar carrusel si aún no está
-        if fila_carrusel not in contenido.controls:
-            contenido.controls.append(fila_carrusel)
-
-        contenido.update()
-        page.update()
-
+        render_inicio()
         # Lanzar carrusel en el próximo ciclo
         async def kick():
             await asyncio.sleep(0)
@@ -398,16 +399,9 @@ def main(page: ft.Page):
             ensure_sabiasque()
             page.go(page.route or "/sabiasque")
             return
-
+        
         # Render inicial
-        contenido.controls.clear()
-        contenido.controls.extend([
-            ft.Text("Bienvenido a EvermountSolutions", size=22, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
-            ft.Text("Control de plagas profesional. Haz clic en los botones.", color=ft.Colors.BLACK),
-            fila_carrusel,
-        ])
-        contenido.update()
-        page.update()
+        render_inicio()
 
         # Mostrar intro una sola vez
         show_intro_once()
@@ -535,6 +529,3 @@ def main(page: ft.Page):
     ajustar_tamanos()
    
 ft.app(target=main, view=ft.WEB_BROWSER, port=int(os.environ.get("PORT", 8080)))
-
-
-
