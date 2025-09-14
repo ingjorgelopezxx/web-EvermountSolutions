@@ -9,7 +9,6 @@ from views.historia import slides_historia as historia_slides
 from components.botones import create_boton_empresa, create_botones_redes,create_botones_redes
 from components.insectos import ICONOS_INSECTOS, create_insectos_support, construir_contenido_slide_insectos
 from components.intro import create_intro_overlay
-from components.carrusel import create_carrusel, DEFAULT_IMAGE_SETS
 from components.slides import create_slides_controller
 from components.sabiasque import render_sabiasque
 from components.servicios_detalle import render_servicio_desratizacion
@@ -41,28 +40,20 @@ def main(page: ft.Page):
    
     #insectos y carrusel (devuelven helpers que usaremos luego)
     modal_insecto, mostrar_info_insecto, start_anim_insectos, stop_anim_insectos = create_insectos_support(page)
-    fila_carrusel, set_sets_imagenes, start_carrusel, stop_carrusel, set_first_set = create_carrusel(
-    page, tam=3, sets=DEFAULT_IMAGE_SETS
-    )
-    pantalla_inicial = get_pantalla_inicial(page)
-   
+
+    pantalla_inicial, set_first_set, start_carrusel, stop_carrusel = get_pantalla_inicial(page)
+
     def render_inicio():
         contenido.controls.clear()
         contenido.controls.extend([
             pantalla_inicial,
-            ft.Text("Bienvenido a EvermountSolutions", size=22, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
-            ft.Text("Control de plagas profesional. Haz clic en los botones.", color=ft.Colors.BLACK),
-            fila_carrusel
         ])
         contenido.update()
         page.update()
 
     # Contenido central mutable
     contenido = ft.Column(
-        [   pantalla_inicial,
-            ft.Text("Bienvenido a EvermountSolutions"),
-            ft.Text("Control de plagas profesional. Haz clic en los botones."),
-            fila_carrusel],
+        [pantalla_inicial],
         expand=True,
         alignment=ft.MainAxisAlignment.CENTER,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
@@ -98,7 +89,20 @@ def main(page: ft.Page):
             overlay_cierra_menu.visible = False
         except Exception:
             pass
+        
+        if r == "/":
+            # reconstruir contenido con pantalla_inicial
+            render_inicio()
 
+            # relanzar carrusel
+            async def kick():
+                await asyncio.sleep(0)
+                set_first_set()    # coloca primer set de imágenes
+                start_carrusel()   # arranca la animación
+            page.run_task(kick)
+
+            return
+        
         # --- Rutas de Sabías que ---
         if r.startswith("/sabiasque"):
             ensure_sabiasque()
@@ -180,8 +184,8 @@ def main(page: ft.Page):
     #Funcion para detener el carrusel de imagenes 
     def parar_carrusel():
             stop_carrusel()
-            if fila_carrusel in contenido.controls:
-                contenido.controls.remove(fila_carrusel)
+            if pantalla_inicial in contenido.controls:
+                contenido.controls.remove(pantalla_inicial)
             contenido.update()  
         # ...otros elif para las demás opciones...
 
