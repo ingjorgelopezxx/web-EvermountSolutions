@@ -41,7 +41,7 @@ def main(page: ft.Page):
     #insectos y carrusel (devuelven helpers que usaremos luego)
     modal_insecto, mostrar_info_insecto, start_anim_insectos, stop_anim_insectos = create_insectos_support(page)
 
-    pantalla_inicial, set_first_set, start_carrusel, stop_carrusel = get_pantalla_inicial(page)
+    pantalla_inicial, start_carrusel, stop_carrusel = get_pantalla_inicial(page)
 
     def render_inicio():
         contenido.controls.clear()
@@ -97,7 +97,6 @@ def main(page: ft.Page):
             # relanzar carrusel
             async def kick():
                 await asyncio.sleep(0)
-                set_first_set()    # coloca primer set de imágenes
                 start_carrusel()   # arranca la animación
             page.run_task(kick)
 
@@ -235,9 +234,7 @@ def main(page: ft.Page):
         # Lanzar carrusel en el próximo ciclo
         async def kick():
             await asyncio.sleep(0)
-            set_first_set()
             start_carrusel()
-
         page.run_task(kick)
 
     imagen_logo_empresa = ft.Image(
@@ -413,7 +410,6 @@ def main(page: ft.Page):
         # Iniciar carrusel tras un tick
         async def _kick():
             await asyncio.sleep(0)
-            set_first_set()
             start_carrusel()
         page.run_task(_kick)
 
@@ -466,7 +462,6 @@ def main(page: ft.Page):
         async def _kick():
             # un tick para asegurar que los controles ya están montados
             await asyncio.sleep(0)
-            set_first_set()
             start_carrusel()
         page.run_task(_kick)
     _init_carousel_after_mount()

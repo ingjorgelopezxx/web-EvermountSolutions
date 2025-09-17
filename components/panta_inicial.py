@@ -1,6 +1,6 @@
 # panta_inicial.py
 import flet as ft
-from components.carrusel import create_carrusel, DEFAULT_IMAGE_SETS  # 👈 importa tu carrusel
+from components.carrusel import create_carrusel  # 👈 importa tu carrusel
 
 def get_pantalla_inicial(page: ft.Page):
     """
@@ -10,9 +10,8 @@ def get_pantalla_inicial(page: ft.Page):
     """
 
     # --- Carrusel ---
-    fila_carrusel, set_sets_imagenes, start_carrusel, stop_carrusel, set_first_set = create_carrusel(
-        page, tam=3, sets=DEFAULT_IMAGE_SETS
-    )
+    carrusel, start_carrusel, stop_carrusel = create_carrusel(page, intervalo=3)
+
 
     # --- Datos de contacto ---
     numero_telefono = "+56999724454"
@@ -38,7 +37,7 @@ def get_pantalla_inicial(page: ft.Page):
                 content=ft.Row(
                     [
                         ft.Icon(ft.Icons.PHONE, color=ft.Colors.BLUE, size=24),
-                        ft.Text("Llamada", **texto_style)
+                        ft.Text("+56999724454", **texto_style)
                     ],
                     vertical_alignment=ft.CrossAxisAlignment.CENTER,
                     spacing=6,
@@ -51,7 +50,7 @@ def get_pantalla_inicial(page: ft.Page):
                 content=ft.Row(
                     [
                         ft.Icon(ft.Icons.EMAIL, color=ft.Colors.GREEN, size=24),
-                        ft.Text("Correo", **texto_style)
+                        ft.Text("E-Mail", **texto_style)
                     ],
                     vertical_alignment=ft.CrossAxisAlignment.CENTER,
                     spacing=6,
@@ -86,11 +85,12 @@ def get_pantalla_inicial(page: ft.Page):
                 padding=ft.padding.only(left=10, right=20, top=10, bottom=10),
                 bgcolor=None,
             ),
-            fila_carrusel   # 👈 carrusel debajo de la fila de iconos
+            carrusel   # 👈 carrusel debajo de la fila de iconos
         ],
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         spacing=10,
     )
 
     # 👇 Devuelvo también funciones del carrusel por si quieres controlarlo desde main
-    return contenedor, set_first_set, start_carrusel, stop_carrusel
+    return contenedor, start_carrusel, stop_carrusel
+
