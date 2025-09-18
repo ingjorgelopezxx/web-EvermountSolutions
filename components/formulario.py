@@ -9,7 +9,7 @@ SMTP_SERVER = "smtp.gmail.com"      # Servidor SMTP (Gmail)
 SMTP_PORT = 587                     # Puerto TLS para Gmail
 EMAIL_USER = "evermountsolutions@gmail.com"   # Cambia por tu correo remitente
 EMAIL_PASS = "oiesfqyg afvluloa"  # Cambia por tu contraseña o App Password Gmail
-EMAIL_DESTINO = "Operaciones@evermountsolutions.cl"  # Cambia por el correo de destino
+EMAIL_DESTINO = "operaciones@evermountsolutions.cl"  # Cambia por el correo de destino
 
 def create_formulario(page: ft.Page):
     """
@@ -103,24 +103,46 @@ def create_formulario(page: ft.Page):
 
         page.update()
 
-    # --- Botón Enviar ---
+    # --- Botón enviar transparente con estilo ---
     boton_enviar = ft.ElevatedButton(
         text="Enviar",
-        width=ancho_responsivo(),
-        on_click=enviar_formulario,
-        bgcolor="#090229",
-        color=ft.Colors.WHITE
+        color=ft.Colors.WHITE,
+        bgcolor="transparent",  # transparente para mostrar gradiente del container
+        style=ft.ButtonStyle(
+            text_style=ft.TextStyle(
+                size=20,
+                weight=ft.FontWeight.BOLD,
+            ),
+            overlay_color="rgba(255,255,255,0.1)",  # color al presionar
+            elevation=0,
+            shape=ft.RoundedRectangleBorder(radius=8)
+        ),
+        on_click=enviar_formulario
     )
+
+    # --- Contenedor con fondo degradado ---
+    boton_con_gradiente = ft.Container(
+        content=boton_enviar,
+        width=ancho_responsivo(),
+        border_radius=8,
+        gradient=ft.LinearGradient(
+            begin=ft.alignment.center_left,
+            end=ft.alignment.center_right,
+            colors=["#0f2027", "#203a43", "#2c5364"]  # 👈 tus colores degradado
+        ),
+        padding=0
+    )
+
 
     # --- Columna del formulario ---
     formulario = ft.Column(
         [
-            ft.Text("Contáctanos", size=20, weight=ft.FontWeight.BOLD, color="#090229"),  # Azul oscuro
+            ft.Text("Contáctanos", size=28, weight=ft.FontWeight.BOLD, color="#090229"),  # Azul oscuro
             nombre,
             correo,
             telefono,
             mensaje,
-            boton_enviar,
+            boton_con_gradiente,
             status_text
         ],
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
