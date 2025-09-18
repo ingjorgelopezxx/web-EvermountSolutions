@@ -16,7 +16,7 @@ def get_pantalla_inicial(page: ft.Page):
     # --- Datos de contacto ---
     numero_telefono = "+56999724454"
     enlace_llamada = f"tel:{numero_telefono}"
-    enlace_correo = "mailto:info@evermountsolutions.cl?subject=Consulta&body=Hola, quisiera más información"
+    enlace_correo = "mailto:operaciones@evermountsolutions.cl?subject=Consulta&body=Hola, quisiera más información"
     enlace_ubicacion = "https://maps.google.com/?q=EvermountSolutions+Chile"
 
     texto_style = dict(size=14, weight=ft.FontWeight.W_600, color=ft.Colors.BLACK)

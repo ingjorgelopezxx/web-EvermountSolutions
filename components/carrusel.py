@@ -7,6 +7,7 @@ IMAGENES = [
     "https://i.postimg.cc/QdbnZCy5/voladores-insectos.png",
     "https://i.postimg.cc/bJ2Trw3m/termitas.png",
     "https://i.postimg.cc/hGQxb3Tj/voladores-aves.png",
+    "https://i.postimg.cc/C13hWvW5/insectos-rastreros.png",
     "https://i.postimg.cc/g0bcQM1r/programas-mensuales.png",
 ]
 

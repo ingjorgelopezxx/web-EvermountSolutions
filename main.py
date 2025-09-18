@@ -19,6 +19,7 @@ from components.insectos_rastreros_detalle import render_servicio_rastreros
 from components.termitas_detalle import render_servicio_termitas
 from components.aves_urbanas_detalles import render_servicio_aves_urbanas
 from components.panta_inicial import get_pantalla_inicial
+from components.formulario import create_formulario
 def main(page: ft.Page):
     # Inicializamos las propiedades de la pagina
     page.title = "EvermountSolutions"
@@ -38,25 +39,28 @@ def main(page: ft.Page):
     contacto_instagram = "https://instagram.com/evermountsolutions"
     contacto_facebook = "https://facebook.com/evermountsolutions"
    
-    #insectos y carrusel (devuelven helpers que usaremos luego)
+    #insectos
     modal_insecto, mostrar_info_insecto, start_anim_insectos, stop_anim_insectos = create_insectos_support(page)
-
+    # --- Carrusel ---
     pantalla_inicial, start_carrusel, stop_carrusel = get_pantalla_inicial(page)
+    # --- Formulario ---
+    formulario = create_formulario(page)
 
     def render_inicio():
         contenido.controls.clear()
         contenido.controls.extend([
-            pantalla_inicial,
+            pantalla_inicial,formulario
         ])
         contenido.update()
         page.update()
 
     # Contenido central mutable
     contenido = ft.Column(
-        [pantalla_inicial],
+        [pantalla_inicial,formulario],
         expand=True,
         alignment=ft.MainAxisAlignment.CENTER,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+        scroll="auto",
     )
 
     # Flag e inicializador de Sabías que
