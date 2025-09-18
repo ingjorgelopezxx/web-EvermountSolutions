@@ -10,7 +10,7 @@ SMTP_SERVER = "smtp.gmail.com"      # Servidor SMTP (Gmail)
 SMTP_PORT = 587                     # Puerto TLS para Gmail
 EMAIL_USER = "evermountsolutions@gmail.com"   # Cambia por tu correo remitente
 EMAIL_PASS = "oiesfqyg afvluloa"  # Cambia por tu contraseña o App Password Gmail
-EMAIL_DESTINO = "ingjorgelopezxx@gmail.com"  # Cambia por el correo de destino
+EMAIL_DESTINO = "operaciones@evermountsolutions.cl"  # Cambia por el correo de destino
 
 # --- Validar correo electrónico ---
 def validar_correo(email: str) -> bool:
@@ -40,7 +40,7 @@ def create_formulario(page: ft.Page):
         # 2) Mostrar tu modal de aviso
         mostrar_modal(
             "Correo inválido",
-            "Ingresa un correo con formato correcto (ej: usuario@dominio.com).",
+            "Ingresa un correo con formato correcto (ejemplo: usuario@dominio.com).",
             ft.Colors.RED_400
         )
 
