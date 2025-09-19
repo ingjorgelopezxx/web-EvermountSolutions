@@ -9,7 +9,7 @@ SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
 EMAIL_USER = "evermountsolutions@gmail.com"
 EMAIL_PASS = "oiesfqyg afvluloa"
-EMAIL_DESTINO = "operaciones@evermountsolutions.cl"
+EMAIL_DESTINO = "ingjorgelopezxx@gmail.com"
 
 def validar_correo(email: str) -> bool:
     patron = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
@@ -213,15 +213,21 @@ def create_formulario(page: ft.Page):
 
         if not nombre_val or not correo_val or not mensaje_val:
             enviando_overlay.visible = False
-            status_text.value = "Por favor completa todos los campos obligatorios."
-            status_text.color = ft.Colors.RED
+            mostrar_modal(
+            "Por favor completar todos los campos!",
+            "asi se enviara la informacion correctamente",
+            ft.Colors.RED_400
+            )
             page.update()
             return
 
         if not validar_correo(correo_val):
             enviando_overlay.visible = False
-            status_text.value = "Por favor ingresa un correo electrónico válido."
-            status_text.color = ft.Colors.RED
+            mostrar_modal(
+            "Correo inválido",
+            "Ingresa un correo con formato correcto (ejemplo: usuario@dominio.com).",
+            ft.Colors.RED_400
+            )
             page.update()
             return
 
@@ -251,8 +257,8 @@ def create_formulario(page: ft.Page):
             correo_tf.value = ""
             telefono.value = ""
             mensaje.value = ""
-
             enviando_overlay.visible = False
+            actualizar_estado_boton()
             page.update()
 
             mostrar_modal(
@@ -262,8 +268,10 @@ def create_formulario(page: ft.Page):
             )
         except Exception as ex:
             enviando_overlay.visible = False
-            status_text.value = f"Error al enviar la información: {ex}"
-            status_text.color = ft.Colors.RED
+            mostrar_modal(
+            f"Error al enviar la información: {ex}",
+            ft.Colors.RED_400
+            )
             page.update()
 
     def enviar_formulario(e):
@@ -309,8 +317,7 @@ def create_formulario(page: ft.Page):
                     correo_tf,
                     telefono,
                     mensaje,
-                    boton_con_gradiente,
-                    status_text
+                    boton_con_gradiente
                 ],
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                 spacing=10

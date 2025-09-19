@@ -20,6 +20,8 @@ from components.termitas_detalle import render_servicio_termitas
 from components.aves_urbanas_detalles import render_servicio_aves_urbanas
 from components.panta_inicial import get_pantalla_inicial
 from components.formulario import create_formulario
+from components.vertical_imagenes import create_vertical_carousel
+from components.valores import create_valores
 def main(page: ft.Page):
     # Inicializamos las propiedades de la pagina
     page.title = "EvermountSolutions"
@@ -39,29 +41,63 @@ def main(page: ft.Page):
     contacto_instagram = "https://instagram.com/evermountsolutions"
     contacto_facebook = "https://facebook.com/evermountsolutions"
    
+    # Crear carrusel vertical
+    carrusel_vertical, start_vertical, stop_vertical = create_vertical_carousel(page, intervalo=3)
+    valores_section = create_valores(page)
+    # --- Calcular ancho y altura inicial (16:9) ---
+    ancho_imagen_programas = page.width
+    altura_imagen_programas = max(200, ancho_imagen_programas * 9 / 16)  # mínimo 200px
+
+    # Imagen inicial
+    imagen_programas = ft.Image(
+        src="https://i.postimg.cc/RVMPVJ5L/Agregar-un-t-tulo.png",
+        fit=ft.ImageFit.FILL,
+        width=ancho_imagen_programas,
+        height=altura_imagen_programas,
+    )
+    def crear_separador(page: ft.Page, texto: str) -> ft.Container:
+        return ft.Container(
+            bgcolor="#0D2943",  # azul oscuro
+            margin=ft.margin.only(top=10),  # 👈 separación superior
+            content=ft.Text(
+                texto,
+                size=20,
+                weight=ft.FontWeight.BOLD,
+                color=ft.Colors.WHITE,
+                text_align=ft.TextAlign.CENTER,
+            ),
+            alignment=ft.alignment.center,
+            width=page.width,  # ancho completo
+        )
+
+    separador_servicios = crear_separador(page, "SERVICIOS")
+    separador_programas = crear_separador(page, "PROGRAMAS")
+    separador_VMS = crear_separador(page, "MISION - VISION - VALORES")
+    separador_final = crear_separador(page, "2025 Todos los Derechos Reservados")
     #insectos
     modal_insecto, mostrar_info_insecto, start_anim_insectos, stop_anim_insectos = create_insectos_support(page)
     # --- Carrusel ---
     pantalla_inicial, start_carrusel, stop_carrusel = get_pantalla_inicial(page)
     # --- Formulario ---
     formulario = create_formulario(page)
-
+    menu_servicios_container = ft.Column(spacing=10)  # 👈 aquí pondremos el menú
     def render_inicio():
         contenido.controls.clear()
         contenido.controls.extend([
-            pantalla_inicial,formulario
+            pantalla_inicial,formulario,separador_servicios,menu_servicios_container,separador_programas,imagen_programas,carrusel_vertical,separador_VMS,valores_section,separador_final   
         ])
         contenido.update()
         page.update()
 
     # Contenido central mutable
     contenido = ft.Column(
-        [pantalla_inicial,formulario],
+        [pantalla_inicial,formulario,separador_servicios,menu_servicios_container,separador_programas,imagen_programas,carrusel_vertical,separador_VMS,valores_section,separador_final],
         expand=True,
         alignment=ft.MainAxisAlignment.CENTER,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         scroll="auto",
     )
+    
 
     # Flag e inicializador de Sabías que
     sabiasque_inicializado = [False]
@@ -101,7 +137,8 @@ def main(page: ft.Page):
             # relanzar carrusel
             async def kick():
                 await asyncio.sleep(0)
-                start_carrusel()   # arranca la animación
+                start_carrusel()
+                start_vertical()
             page.run_task(kick)
 
             return
@@ -187,6 +224,7 @@ def main(page: ft.Page):
     #Funcion para detener el carrusel de imagenes 
     def parar_carrusel():
             stop_carrusel()
+            stop_vertical()
             if pantalla_inicial in contenido.controls:
                 contenido.controls.remove(pantalla_inicial)
             contenido.update()  
@@ -239,6 +277,7 @@ def main(page: ft.Page):
         async def kick():
             await asyncio.sleep(0)
             start_carrusel()
+            start_vertical()
         page.run_task(kick)
 
     imagen_logo_empresa = ft.Image(
@@ -415,9 +454,16 @@ def main(page: ft.Page):
         async def _kick():
             await asyncio.sleep(0)
             start_carrusel()
+            start_vertical()
         page.run_task(_kick)
 
     page.on_connect = on_connect
+
+    # Cuando se monte la página, iniciar carrusel imagenes verticales
+    async def iniciar():
+        await asyncio.sleep(0)
+        start_vertical()
+    page.run_task(iniciar)
 
     page.add(
         ft.Container(
@@ -425,6 +471,8 @@ def main(page: ft.Page):
             expand=True,           # 👈 asegura ocupar todo el viewport
         )
     )
+    # Esto inyecta el grid de servicios en el contenedor vacío
+    render_menu_servicios(page, menu_servicios_container)
     # Fallback: en el próximo tick, intenta mostrar el intro una vez
     async def _first_paint_intro():
         await asyncio.sleep(0)
@@ -467,6 +515,7 @@ def main(page: ft.Page):
             # un tick para asegurar que los controles ya están montados
             await asyncio.sleep(0)
             start_carrusel()
+            start_vertical()
         page.run_task(_kick)
     _init_carousel_after_mount()
 

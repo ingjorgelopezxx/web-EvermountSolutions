@@ -91,14 +91,17 @@ def render_menu_servicios(page: ft.Page, contenedor: ft.Column):
         grid.update()
         heading.update()
 
-    # Encabezado dinámico
-    heading = ft.Text(
+    heading = ft.Container(
+    alignment=ft.alignment.center,
+    content=ft.Text(
         "Seleccionar Servicio",
         weight=ft.FontWeight.BOLD,
         text_align=ft.TextAlign.CENTER,
-        color="#0F3D47",           # color principal
+        color="#0F3D47",
+        size=24  # opcional, tamaño
     )
-
+    )
+    
     grid = ft.GridView(expand=True)
 
     contenedor.controls.clear()
