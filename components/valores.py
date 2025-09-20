@@ -82,7 +82,7 @@ def create_valores(page: ft.Page):
                 ft.Text(
                     spans=[
                         ft.TextSpan(
-                            "1. Compromiso Familiar: ",
+                            "1.Compromiso Familiar: ",
                             style=ft.TextStyle(weight=ft.FontWeight.BOLD,color=ft.Colors.BLACK)
                         ),
                         ft.TextSpan(
@@ -90,7 +90,7 @@ def create_valores(page: ft.Page):
                              style=ft.TextStyle(color=ft.Colors.BLACK)
                         ),
                         ft.TextSpan(
-                            "2. Responsabilidad: ",
+                            "2.Responsabilidad: ",
                             style=ft.TextStyle(weight=ft.FontWeight.BOLD,color=ft.Colors.BLACK)
                         ),
                         ft.TextSpan(
@@ -98,7 +98,7 @@ def create_valores(page: ft.Page):
                             style=ft.TextStyle(color=ft.Colors.BLACK)
                         ),
                         ft.TextSpan(
-                            "3. Innovación: ",
+                            "3.Innovación: ",
                             style=ft.TextStyle(weight=ft.FontWeight.BOLD,color=ft.Colors.BLACK)
                         ),
                         ft.TextSpan(
@@ -106,7 +106,7 @@ def create_valores(page: ft.Page):
                             style=ft.TextStyle(color=ft.Colors.BLACK)
                         ),
                         ft.TextSpan(
-                            "4. Transparencia: ",
+                            "4.Transparencia: ",
                             style=ft.TextStyle(weight=ft.FontWeight.BOLD,color=ft.Colors.BLACK)
                         ),
                         ft.TextSpan(
@@ -114,7 +114,7 @@ def create_valores(page: ft.Page):
                             style=ft.TextStyle(color=ft.Colors.BLACK)
                         ),
                         ft.TextSpan(
-                            "5. Cercanía con el Cliente: ",
+                            "5.Cercanía con el Cliente: ",
                             style=ft.TextStyle(weight=ft.FontWeight.BOLD,color=ft.Colors.BLACK)
                         ),
                         ft.TextSpan(

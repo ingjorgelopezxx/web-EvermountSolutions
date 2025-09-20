@@ -22,6 +22,7 @@ from components.panta_inicial import get_pantalla_inicial
 from components.formulario import create_formulario
 from components.vertical_imagenes import create_vertical_carousel
 from components.valores import create_valores
+from flet_webview import WebView   # 👈 ahora desde aquí
 def main(page: ft.Page):
     # Inicializamos las propiedades de la pagina
     page.title = "EvermountSolutions"
@@ -34,6 +35,21 @@ def main(page: ft.Page):
 
     # WhatsApp mensaje mutable
     WHATSAPP_MSG = [""]   # 👈 ahora es lista de un solo valor
+
+    youtube_webview = WebView(
+        url="https://youtube.com/embed/yTCMgd-P4RQ",
+        expand=True
+    )
+
+    video_card = ft.Container(
+        bgcolor=ft.Colors.WHITE,
+        border_radius=12,
+        shadow=ft.BoxShadow(1, 4, ft.Colors.BLACK26, offset=ft.Offset(2, 2)),
+        padding=10,
+        width=300,
+        height=500,
+        content=youtube_webview
+    )
 
     # Contactos Redes Sociales
     numero_whatsapp = "+56999724454"
@@ -69,11 +85,25 @@ def main(page: ft.Page):
             alignment=ft.alignment.center,
             width=page.width,  # ancho completo
         )
+    def crear_firma(page: ft.Page, texto: str) -> ft.Container:
+        return ft.Container(
+            bgcolor="#0D2943",  # azul oscuro
+            content=ft.Text(
+                texto,
+                size=12,
+                weight=ft.FontWeight.BOLD,
+                color=ft.Colors.WHITE,
+                text_align=ft.TextAlign.CENTER,
+            ),
+            alignment=ft.alignment.center,
+            width=page.width,  # ancho completo
+        )
 
-    separador_servicios = crear_separador(page, "SERVICIOS")
-    separador_programas = crear_separador(page, "PROGRAMAS")
+    separador_servicios = crear_separador(page, "🪳🦟SERVICIOS🐀🐜")
+    separador_programas = crear_separador(page, "📅 PROGRAMAS")
     separador_VMS = crear_separador(page, "MISION - VISION - VALORES")
-    separador_final = crear_separador(page, "2025 Todos los Derechos Reservados")
+    separador_final = crear_firma(page, "Desarollo por Ing. Jorge Lopez con Tecnología Flet & Python\n Contacto: +56937539304 Instagram: jorgelopezsilva\n2025 Todos los Derechos Reservados")
+    separador_sanitizacion = crear_separador(page, "🏠 Sanitización de Ambientes")
     #insectos
     modal_insecto, mostrar_info_insecto, start_anim_insectos, stop_anim_insectos = create_insectos_support(page)
     # --- Carrusel ---
@@ -84,14 +114,14 @@ def main(page: ft.Page):
     def render_inicio():
         contenido.controls.clear()
         contenido.controls.extend([
-            pantalla_inicial,formulario,separador_servicios,menu_servicios_container,separador_programas,imagen_programas,carrusel_vertical,separador_VMS,valores_section,separador_final   
+            pantalla_inicial,formulario,separador_servicios,menu_servicios_container,separador_programas,imagen_programas,carrusel_vertical,separador_VMS,valores_section,separador_sanitizacion,video_card,separador_final  
         ])
         contenido.update()
         page.update()
 
     # Contenido central mutable
     contenido = ft.Column(
-        [pantalla_inicial,formulario,separador_servicios,menu_servicios_container,separador_programas,imagen_programas,carrusel_vertical,separador_VMS,valores_section,separador_final],
+        [pantalla_inicial,formulario,separador_servicios,menu_servicios_container,separador_programas,imagen_programas,carrusel_vertical,separador_VMS,valores_section,separador_sanitizacion,video_card,separador_final],
         expand=True,
         alignment=ft.MainAxisAlignment.CENTER,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
