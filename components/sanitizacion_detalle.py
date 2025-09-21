@@ -1,4 +1,3 @@
-# components/servicios_detalle.py
 import flet as ft
 import re
 from urllib.parse import quote

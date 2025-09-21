@@ -2,10 +2,9 @@ import json
 import flet as ft
 import asyncio
 import os
-from views.servicios import slides_servicios as servicios_slides
-from views.programas import slide_programas_control as programas_slides 
-from views.quienes import slides_quienes as quienes_slides 
-from views.historia import slides_historia as historia_slides 
+from views.quienes import create_quienes
+from views.historia import create_historia
+from views.contactos import create_contactos_row  # 👈 importar fila de iconos
 from components.botones import create_boton_empresa, create_botones_redes,create_botones_redes
 from components.insectos import ICONOS_INSECTOS, create_insectos_support, construir_contenido_slide_insectos
 from components.intro import create_intro_overlay
@@ -18,7 +17,7 @@ from components.insectos_voladores_detalle import render_servicio_voladores
 from components.insectos_rastreros_detalle import render_servicio_rastreros
 from components.termitas_detalle import render_servicio_termitas
 from components.aves_urbanas_detalles import render_servicio_aves_urbanas
-from components.panta_inicial import get_pantalla_inicial
+from components.carrusel import create_carrusel 
 from components.formulario import create_formulario
 from components.vertical_imagenes import create_vertical_carousel
 from components.valores import create_valores
@@ -34,7 +33,9 @@ def main(page: ft.Page):
     animacion_redes_task = [None]       # task del bounce de redes    
 
     # WhatsApp mensaje mutable
-    WHATSAPP_MSG = [""]   # 👈 ahora es lista de un solo valor
+    WHATSAPP_MSG = ["Hola 👋 Evermount Solutions.%0A"
+    "Me gustaría recibir información sobre los servicios de control de plagas y sus costos.%0A"
+    "¿Podrían orientarme, por favor?"]   # 👈 ahora es lista de un solo valor
 
     youtube_webview = WebView(
         url="https://youtube.com/embed/yTCMgd-P4RQ",
@@ -54,7 +55,7 @@ def main(page: ft.Page):
     # Contactos Redes Sociales
     numero_whatsapp = "+56999724454"
     contacto_whatsapp = f"https://wa.me/{numero_whatsapp}?text={WHATSAPP_MSG}"
-    contacto_instagram = "https://instagram.com/evermountsolutions"
+    contacto_instagram = "https://www.instagram.com/evermount_solutions?igsh=MTJ4YzI5aHVtZ3Fiaw=="
     contacto_facebook = "https://facebook.com/evermountsolutions"
    
     # Crear carrusel vertical
@@ -98,30 +99,64 @@ def main(page: ft.Page):
             alignment=ft.alignment.center,
             width=page.width,  # ancho completo
         )
+    def crear_separador(page: ft.Page, texto: str, icono=None) -> ft.Container:
+        contenido_row = ft.Row(
+            [
+                ft.Icon(icono, color=ft.Colors.WHITE, size=24) if icono else ft.Container(),
+                ft.Text(
+                    texto,
+                    size=20,
+                    weight=ft.FontWeight.BOLD,
+                    color=ft.Colors.WHITE,
+                    text_align=ft.TextAlign.CENTER,
+                ),
+            ],
+            alignment=ft.MainAxisAlignment.CENTER,
+            spacing=8,
+        )
 
+        return ft.Container(
+            bgcolor="#0D2943",
+            margin=ft.margin.only(top=10),
+            content=contenido_row,
+            alignment=ft.alignment.center,
+            width=page.width,
+        )
+
+    historia_section = create_historia(page)
+    quienes_section = create_quienes(page)
+    fila_iconos = create_contactos_row(page)
+    fila_iconos.key = "contactos_iconos"  # 👈 clave única
     separador_servicios = crear_separador(page, "🪳🦟SERVICIOS🐀🐜")
+    separador_servicios.key = "servicios_menu"
     separador_programas = crear_separador(page, "📅 PROGRAMAS")
-    separador_VMS = crear_separador(page, "MISION - VISION - VALORES")
-    separador_final = crear_firma(page, "Desarollo por Ing. Jorge Lopez con Tecnología Flet & Python\n Contacto: +56937539304 Instagram: jorgelopezsilva\n2025 Todos los Derechos Reservados")
+    separador_programas.key = "programas_inicio"
+    separador_VMS = crear_separador(page, "🏳️MISION   👁VISION   ⭐VALORES")
+    separador_VMS.key = "mision"  # 👈 clave única
+    separador_historia = crear_separador(page, "Historia", ft.Icons.HISTORY)
+    separador_historia.key = "historia"  # 👈 clave única
+    separador_quienes = crear_separador(page, "Quiénes Somos", ft.Icons.PEOPLE)
+    separador_quienes.key = "quienes_somos"
+    separador_final = crear_firma(page, "Desarrollo por Ing. Jorge Lopez con Tecnología Flet & Python\n Contacto: +56937539304 Instagram: jorgelopezsilva\n2025 Todos los Derechos Reservados")
     separador_sanitizacion = crear_separador(page, "🏠 Sanitización de Ambientes")
     #insectos
     modal_insecto, mostrar_info_insecto, start_anim_insectos, stop_anim_insectos = create_insectos_support(page)
     # --- Carrusel ---
-    pantalla_inicial, start_carrusel, stop_carrusel = get_pantalla_inicial(page)
+    pantalla_inicial, start_carrusel, stop_carrusel  = create_carrusel(page)
     # --- Formulario ---
     formulario = create_formulario(page)
     menu_servicios_container = ft.Column(spacing=10)  # 👈 aquí pondremos el menú
     def render_inicio():
         contenido.controls.clear()
         contenido.controls.extend([
-            pantalla_inicial,formulario,separador_servicios,menu_servicios_container,separador_programas,imagen_programas,carrusel_vertical,separador_VMS,valores_section,separador_sanitizacion,video_card,separador_final  
+            fila_iconos,pantalla_inicial,formulario,separador_servicios,menu_servicios_container,separador_programas,imagen_programas,carrusel_vertical,separador_VMS,valores_section,separador_sanitizacion,video_card,separador_quienes,quienes_section,separador_historia,historia_section,separador_final  
         ])
         contenido.update()
         page.update()
 
     # Contenido central mutable
     contenido = ft.Column(
-        [pantalla_inicial,formulario,separador_servicios,menu_servicios_container,separador_programas,imagen_programas,carrusel_vertical,separador_VMS,valores_section,separador_sanitizacion,video_card,separador_final],
+        [fila_iconos,pantalla_inicial,formulario,separador_servicios,menu_servicios_container,separador_programas,imagen_programas,carrusel_vertical,separador_VMS,valores_section,separador_sanitizacion,video_card,separador_quienes,quienes_section,separador_historia,historia_section,separador_final],
         expand=True,
         alignment=ft.MainAxisAlignment.CENTER,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
@@ -187,16 +222,8 @@ def main(page: ft.Page):
             page.update()
             return
 
-        # --- Ruta de Servicios (menú de tarjetas) ---
-        if r == "/servicios":
-            try:
-                parar_carrusel()
-            except Exception:
-                pass
-            render_menu_servicios(page, contenido)
-            page.update()
-            return
         if r == "/servicios/roedores":
+            parar_carrusel()
             # Guarda el mensaje para WhatsApp en el storage del navegador
             page.client_storage.set(
                 "whatsapp_msg",
@@ -206,6 +233,7 @@ def main(page: ft.Page):
             page.update()
             return
         if r == "/servicios/sanitizacion":
+            parar_carrusel()
             page.client_storage.set(
                 "whatsapp_msg",
                 "Hola👋 EvermountSolutions, me gustaría agendar una visita para Desinfección y Sanitización de Ambientes 🧼. ¿Tienen disponibilidad?"
@@ -214,6 +242,7 @@ def main(page: ft.Page):
             page.update()
             return
         if r == "/servicios/voladores":
+            parar_carrusel()
             page.client_storage.set(
                 "whatsapp_msg",
                 "Hola👋 EvermountSolutions, me gustaría agendar una visita para control de Insectos Voladores 🦟. ¿Tienen disponibilidad?"
@@ -222,6 +251,7 @@ def main(page: ft.Page):
             page.update()
             return
         if r == "/servicios/rastreros":
+            parar_carrusel()
             page.client_storage.set(
                 "whatsapp_msg",
                 "Hola👋 EvermountSolutions, me gustaría agendar una visita para control de Insectos Rastreros 🪳. ¿Tienen disponibilidad?"
@@ -230,6 +260,7 @@ def main(page: ft.Page):
             page.update()
             return
         if r == "/servicios/termitas":
+            parar_carrusel()
             page.client_storage.set(
                 "whatsapp_msg",
                 "Hola👋 EvermountSolutions, me gustaría agendar una visita para control de Termitas 🐜. ¿Tienen disponibilidad?"
@@ -238,6 +269,7 @@ def main(page: ft.Page):
             page.update()
             return
         if r == "/servicios/aves":
+            parar_carrusel()
             page.client_storage.set(
                 "whatsapp_msg",
                 "Hola👋 EvermountSolutions, me gustaría agendar una visita para control de Aves Urbanas 🕊️. ¿Tienen disponibilidad?"
@@ -347,9 +379,7 @@ def main(page: ft.Page):
         ("Quiénes Somos", ft.Icons.PEOPLE), 
         ("Historia", ft.Icons.HISTORY), 
         ("Contactos", ft.Icons.CONTACT_PHONE),
-        ("Ubicación",  ft.Icons.PLACE),
-        ("Misión",     ft.Icons.FLAG),
-        ("Visión",     ft.Icons.VISIBILITY),
+        ("Misión-Visión", ft.Icons.FLAG),
     ]
     menu_items = []
     for text, icon in menu_data:
@@ -405,7 +435,7 @@ def main(page: ft.Page):
             border_radius=6,
             shadow=ft.BoxShadow(1,4,ft.Colors.BLACK26, offset=ft.Offset(0,2)),
             width=150,
-            height=290,
+            height=223,
             on_hover= cerrar_menu_hover
         ),
         visible=False,
@@ -514,25 +544,35 @@ def main(page: ft.Page):
     def show_info(opt):
         global slide_actual,slides
         cerrar_menu()  # cerramos el menú siempre
-        parar_carrusel()
         dropdown.visible = False
         if animacion_empresa_task[0] is None:
             animacion_empresa_task[0] = start_pulso_empresa()
         page.update()
-        contenido.controls.clear()
+        
         if opt == "Inicio":
+            contenido.controls.clear()
             mostrar_inicio_con_intro()
         elif opt == "Quiénes Somos":
-            set_slides(quienes_slides)
-            mostrar_slide(0)
+            page.scroll_to(key="quienes_somos", duration=500)
+            return
         elif opt == "Servicios":
-            page.go("/servicios")   # 👉 ahora guarda la ruta en el historial
+            page.scroll_to(key="servicios_menu", duration=500)
+            return
         elif opt == "Programas":
-            set_slides(programas_slides)
-            mostrar_slide(0)
+            page.update()
+            page.scroll_to(key="programas_inicio", duration=500)
+            return
         elif opt == "Historia":
-            set_slides(historia_slides)
-            mostrar_slide(0)
+            page.update()
+            page.scroll_to(key="historia", duration=500)
+            return
+        elif opt == "Misión-Visión":
+            page.scroll_to(key="mision", duration=500)
+            return
+        elif opt == "Contactos":
+            page.scroll_to(key="contactos_iconos", duration=500)
+            return
+
         elif opt == "Ubicación":
             contenido.controls.append(
                 ft.Text("dirección de empresa", size=20, weight=ft.FontWeight.BOLD, color=ft.Colors.BLUE_900)

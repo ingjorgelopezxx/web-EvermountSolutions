@@ -19,6 +19,7 @@ def create_valores(page: ft.Page):
                         ft.Icon(ft.Icons.FLAG, color=COLOR_TITULO, size=ICON_SIZE),
                         ft.Text("Misión", size=TITULO_SIZE, weight=ft.FontWeight.BOLD, color=COLOR_TITULO),
                     ],
+                    alignment=ft.MainAxisAlignment.CENTER,  # 👈 importante
                     vertical_alignment=ft.CrossAxisAlignment.CENTER,
                     spacing=10
                 ),
@@ -48,6 +49,7 @@ def create_valores(page: ft.Page):
                         ft.Icon(ft.Icons.VISIBILITY, color=COLOR_TITULO, size=ICON_SIZE),
                         ft.Text("Visión", size=TITULO_SIZE, weight=ft.FontWeight.BOLD, color=COLOR_TITULO),
                     ],
+                    alignment=ft.MainAxisAlignment.CENTER,  # 👈 importante
                     vertical_alignment=ft.CrossAxisAlignment.CENTER,
                     spacing=10
                 ),
@@ -76,6 +78,7 @@ def create_valores(page: ft.Page):
                         ft.Icon(ft.Icons.VERIFIED, color=COLOR_TITULO, size=ICON_SIZE),
                         ft.Text("Valores Corporativos", size=TITULO_SIZE, weight=ft.FontWeight.BOLD, color=COLOR_TITULO),
                     ],
+                    alignment=ft.MainAxisAlignment.CENTER,  # 👈 importante
                     vertical_alignment=ft.CrossAxisAlignment.CENTER,
                     spacing=10
                 ),

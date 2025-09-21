@@ -42,7 +42,7 @@ def create_intro_overlay(page: ft.Page):
                 ),
                 ft.Text(
                     "Si deseas obtener más información referente a la empresa "
-                    "haz clic sobre el botón ubicado en la esquina superior derecha.",
+                    "haz clic sobre ☰ menú ubicado en la esquina superior derecha.",
                     weight=ft.FontWeight.BOLD,
                     color=ft.Colors.BLUE_900
                 ),

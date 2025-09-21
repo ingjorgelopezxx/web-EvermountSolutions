@@ -56,15 +56,15 @@ def create_carrusel(page: ft.Page, intervalo: int = 3):
         except asyncio.CancelledError:
             pass
 
-    def start():
+    def start_carrusel():
         if tarea[0] is None:
             activo[0] = True
             tarea[0] = page.run_task(_rotar)
 
-    def stop():
+    def stop_carrusel():
         activo[0] = False
         if tarea[0] is not None:
             tarea[0].cancel()
             tarea[0] = None
 
-    return contenedor, start, stop
+    return contenedor, start_carrusel, stop_carrusel
