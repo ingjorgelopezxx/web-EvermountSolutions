@@ -9,7 +9,7 @@ SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
 EMAIL_USER = "evermountsolutions@gmail.com"
 EMAIL_PASS = "oiesfqyg afvluloa"
-EMAIL_DESTINO = "ingjorgelopezxx@gmail.com"
+EMAIL_DESTINO = "operaciones@evermountsolutions.cl"
 
 def validar_correo(email: str) -> bool:
     patron = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
