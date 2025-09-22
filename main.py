@@ -57,7 +57,7 @@ def main(page: ft.Page):
     numero_whatsapp = "+56999724454"
     contacto_whatsapp = f"https://wa.me/{numero_whatsapp}?text={WHATSAPP_MSG}"
     contacto_instagram = "https://www.instagram.com/evermount_solutions?igsh=MTJ4YzI5aHVtZ3Fiaw=="
-    contacto_facebook = "https://facebook.com/evermountsolutions"
+    contacto_facebook = "http://facebook.com/share/15bcUW9HyS"
    
     # Crear carrusel vertical
     carrusel_vertical, start_vertical, stop_vertical = create_vertical_carousel(page, intervalo=3)
