@@ -22,6 +22,7 @@ from components.formulario import create_formulario
 from components.vertical_imagenes import create_vertical_carousel
 from components.valores import create_valores
 from flet_webview import WebView   # 👈 ahora desde aquí
+
 def main(page: ft.Page):
     # Inicializamos las propiedades de la pagina
     page.title = "EvermountSolutions"
@@ -38,7 +39,7 @@ def main(page: ft.Page):
     "¿Podrían orientarme, por favor?"]   # 👈 ahora es lista de un solo valor
 
     youtube_webview = WebView(
-        url="https://youtube.com/embed/yTCMgd-P4RQ",
+        url="https://www.youtube.com/embed/En49PmGEfLs?autoplay=1&mute=1&controls=1", 
         expand=True
     )
 
@@ -49,7 +50,7 @@ def main(page: ft.Page):
         padding=10,
         width=300,
         height=500,
-        content=youtube_webview
+        content=youtube_webview,
     )
 
     # Contactos Redes Sociales
@@ -61,17 +62,7 @@ def main(page: ft.Page):
     # Crear carrusel vertical
     carrusel_vertical, start_vertical, stop_vertical = create_vertical_carousel(page, intervalo=3)
     valores_section = create_valores(page)
-    # --- Calcular ancho y altura inicial (16:9) ---
-    ancho_imagen_programas = page.width
-    altura_imagen_programas = max(200, ancho_imagen_programas * 9 / 16)  # mínimo 200px
-
-    # Imagen inicial
-    imagen_programas = ft.Image(
-        src="https://i.postimg.cc/RVMPVJ5L/Agregar-un-t-tulo.png",
-        fit=ft.ImageFit.FILL,
-        width=ancho_imagen_programas,
-        height=altura_imagen_programas,
-    )
+  
     def crear_separador(page: ft.Page, texto: str) -> ft.Container:
         return ft.Container(
             bgcolor="#0D2943",  # azul oscuro
@@ -149,14 +140,14 @@ def main(page: ft.Page):
     def render_inicio():
         contenido.controls.clear()
         contenido.controls.extend([
-            fila_iconos,pantalla_inicial,formulario,separador_servicios,menu_servicios_container,separador_programas,imagen_programas,carrusel_vertical,separador_VMS,valores_section,separador_sanitizacion,video_card,separador_quienes,quienes_section,separador_historia,historia_section,separador_final  
+            fila_iconos,pantalla_inicial,formulario,separador_servicios,menu_servicios_container,separador_programas,carrusel_vertical,separador_VMS,valores_section,separador_sanitizacion,video_card,separador_quienes,quienes_section,separador_historia,historia_section,separador_final  
         ])
         contenido.update()
         page.update()
 
     # Contenido central mutable
     contenido = ft.Column(
-        [fila_iconos,pantalla_inicial,formulario,separador_servicios,menu_servicios_container,separador_programas,imagen_programas,carrusel_vertical,separador_VMS,valores_section,separador_sanitizacion,video_card,separador_quienes,quienes_section,separador_historia,historia_section,separador_final],
+        [fila_iconos,pantalla_inicial,formulario,separador_servicios,menu_servicios_container,separador_programas,carrusel_vertical,separador_VMS,valores_section,separador_sanitizacion,video_card,separador_quienes,quienes_section,separador_historia,historia_section,separador_final],
         expand=True,
         alignment=ft.MainAxisAlignment.CENTER,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
@@ -332,6 +323,14 @@ def main(page: ft.Page):
         page.go("/sabiasque")
 
     def mostrar_inicio_con_intro(e=None):
+        # Si YA estamos en "/"
+        if page.route == "/":
+            # no reconstruir, solo actualizar y scrollear
+            page.update()
+            page.scroll_to(key="contactos_iconos", duration=500)
+            return
+        contenido.controls.clear()
+        # Si NO estamos en "/", reconstruir y redirigir
         page.route = "/"
         _route_handler(ft.RouteChangeEvent(route="/"))
         render_inicio()
@@ -462,7 +461,6 @@ def main(page: ft.Page):
             container_boton_empresa
         ], vertical_alignment=ft.CrossAxisAlignment.CENTER)
     )   
-
     # Creamos la fila donde estaran los botones inferiores
     Botones_agregar = ft.Row([boton_sabiasque,boton_facebook,boton_instagram,boton_whatsapp],alignment=ft.MainAxisAlignment.END,vertical_alignment=ft.CrossAxisAlignment.END)
 
@@ -550,7 +548,6 @@ def main(page: ft.Page):
         page.update()
         
         if opt == "Inicio":
-            contenido.controls.clear()
             mostrar_inicio_con_intro()
         elif opt == "Quiénes Somos":
             page.scroll_to(key="quienes_somos", duration=500)
