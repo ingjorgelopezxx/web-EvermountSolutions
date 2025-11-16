@@ -1,11 +1,12 @@
 import json
+import time
 import flet as ft
 import asyncio
 import os
 from views.quienes import create_quienes
 from views.historia import create_historia
 from views.contactos import create_contactos_row  # 👈 importar fila de iconos
-from components.botones import create_boton_empresa, create_botones_redes,create_botones_redes
+from components.botones import create_boton_empresa, create_botones_redes
 from components.insectos import ICONOS_INSECTOS, create_insectos_support, construir_contenido_slide_insectos
 from components.intro import create_intro_overlay
 from components.slides import create_slides_controller
@@ -44,13 +45,18 @@ def main(page: ft.Page):
     )
 
     video_card = ft.Container(
-        bgcolor=ft.Colors.WHITE,
-        border_radius=12,
-        shadow=ft.BoxShadow(1, 4, ft.Colors.BLACK26, offset=ft.Offset(2, 2)),
-        padding=10,
+        border_radius=20,                    # 🔥 Bordes redondeados estilo carrusel
+        clip_behavior=ft.ClipBehavior.ANTI_ALIAS,  
+        bgcolor="transparent",               # Sin fondo
+        shadow=ft.BoxShadow(1, 4, ft.Colors.BLACK26, offset=ft.Offset(2, 2)),  
+        padding=0,                           # Sin marco blanco
         width=300,
-        height=500,
-        content=youtube_webview,
+        height=400,
+        content=ft.Container(
+            border_radius=20,                # 🔥 Recorte interno redondeado
+            clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
+            content=youtube_webview
+        ),
     )
 
     # Contactos Redes Sociales
@@ -62,7 +68,12 @@ def main(page: ft.Page):
     # Crear carrusel vertical
     carrusel_vertical, start_vertical, stop_vertical = create_vertical_carousel(page, intervalo=3)
     valores_section = create_valores(page)
-  
+    # --- Zona multimedia: carrusel + video (layout se ajusta en ajustar_tamanos) ---
+    zona_multimedia = ft.Container(
+        content=carrusel_vertical,
+        alignment=ft.alignment.center,
+    )
+    
     def crear_separador(page: ft.Page, texto: str) -> ft.Container:
         return ft.Container(
             bgcolor="#0D2943",  # azul oscuro
@@ -78,18 +89,30 @@ def main(page: ft.Page):
             width=page.width,  # ancho completo
         )
     def crear_firma(page: ft.Page, texto: str) -> ft.Container:
-        return ft.Container(
-            bgcolor="#0D2943",  # azul oscuro
-            content=ft.Text(
-                texto,
-                size=12,
-                weight=ft.FontWeight.BOLD,
-                color=ft.Colors.WHITE,
-                text_align=ft.TextAlign.CENTER,
-            ),
-            alignment=ft.alignment.center,
-            width=page.width,  # ancho completo
+        # texto multi-línea original (para móviles)
+        txt = ft.Text(
+            texto,
+            size=12,
+            weight=ft.FontWeight.BOLD,
+            color=ft.Colors.WHITE,
+            text_align=ft.TextAlign.CENTER,
         )
+
+        cont = ft.Container(
+            bgcolor="#0D2943",  # azul oscuro (estilo móvil)
+            content=txt,
+            alignment=ft.alignment.center,
+            width=None,
+        )
+
+        # guardamos info para poder cambiar estilos según el dispositivo
+        cont.data = {
+            "mobile_bg": "#0D2943",
+            "raw_text": texto,                            # con saltos de línea
+            "oneline_text": " ".join(texto.split()),      # sin saltos (los reemplaza por espacios)
+        }
+        return cont
+
     def crear_separador(page: ft.Page, texto: str, icono=None) -> ft.Container:
         contenido_row = ft.Row(
             [
@@ -118,6 +141,12 @@ def main(page: ft.Page):
     quienes_section = create_quienes(page)
     fila_iconos = create_contactos_row(page)
     fila_iconos.key = "contactos_iconos"  # 👈 clave única
+        # Slot para insertar fila_iconos en la barra superior cuando sea desktop
+    slot_iconos_header = ft.Container(
+        visible=False,
+        alignment=ft.alignment.center_right,  # alineado a la derecha
+    )
+
     separador_servicios = crear_separador(page, "🪳🦟SERVICIOS🐀🐜")
     separador_servicios.key = "servicios_menu"
     separador_programas = crear_separador(page, "📅 PROGRAMAS")
@@ -134,26 +163,74 @@ def main(page: ft.Page):
     modal_insecto, mostrar_info_insecto, start_anim_insectos, stop_anim_insectos = create_insectos_support(page)
     # --- Carrusel ---
     pantalla_inicial, start_carrusel, stop_carrusel  = create_carrusel(page)
+        # --- Helper: iniciar carruseles sólo si ya están montados ---
+    async def _kick_carruseles():
+        # Espera un tick para que el árbol se monte
+        await asyncio.sleep(0)
+
+        # Carrusel principal: solo si ya está montado
+        if getattr(pantalla_inicial, "page", None) is not None:
+            start_carrusel()
+
+        # Carrusel vertical: SIEMPRE lo arrancamos
+        # porque dentro de _rotar() ya esperas a que imagen.page no sea None
+        start_vertical()
+
+
     # --- Formulario ---
     formulario = create_formulario(page)
     menu_servicios_container = ft.Column(spacing=10)  # 👈 aquí pondremos el menú
+
+    # --- WRAPPERS para no reutilizar los mismos controles en varios padres ---
+    cont_pantalla = ft.Container(
+        content=pantalla_inicial,
+        border_radius=0,
+        padding=0,
+        key= "cont_pantalla"
+    )
+
+    cont_form = ft.Container(
+        content=formulario,
+        border_radius=0,
+        padding=0,
+    )
+
+    # --- Fila/Columna responsiva: móvil apilado, tablet/PC 65% / 35% ---
+    inicio_responsive = ft.ResponsiveRow(
+        controls=[
+            ft.Container(content=cont_pantalla, col={"xs": 12, "md": 8, "lg": 8}),
+            ft.Container(content=cont_form,     col={"xs": 12, "md": 4, "lg": 4}),
+        ],
+        columns=12, 
+        run_spacing=10,   # espacio vertical entre filas cuando se apila
+        spacing=10,       # espacio horizontal entre columnas
+        key = "inicio_responsive"
+    )
+
     def render_inicio():
         contenido.controls.clear()
         contenido.controls.extend([
-            fila_iconos,pantalla_inicial,formulario,separador_servicios,menu_servicios_container,separador_programas,carrusel_vertical,separador_VMS,valores_section,separador_sanitizacion,video_card,separador_quienes,quienes_section,separador_historia,historia_section,separador_final  
-        ])
+           inicio_responsive,separador_servicios,menu_servicios_container,separador_programas,zona_multimedia,separador_VMS,valores_section,separador_sanitizacion,separador_quienes,quienes_section,separador_historia,historia_section,separador_final])
         contenido.update()
         page.update()
+        
 
     # Contenido central mutable
     contenido = ft.Column(
-        [fila_iconos,pantalla_inicial,formulario,separador_servicios,menu_servicios_container,separador_programas,carrusel_vertical,separador_VMS,valores_section,separador_sanitizacion,video_card,separador_quienes,quienes_section,separador_historia,historia_section,separador_final],
+        [inicio_responsive,separador_servicios,menu_servicios_container,separador_programas,zona_multimedia,separador_VMS,valores_section,separador_sanitizacion,separador_quienes,quienes_section,separador_historia,historia_section,separador_final],
         expand=True,
         alignment=ft.MainAxisAlignment.CENTER,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         scroll="auto",
     )
     
+        # Helper para remover controles sin que Flet explote
+    def safe_remove(control, controls_list):
+        try:
+            if control in controls_list:
+                controls_list.remove(control)
+        except Exception:
+            pass
 
     # Flag e inicializador de Sabías que
     sabiasque_inicializado = [False]
@@ -187,16 +264,18 @@ def main(page: ft.Page):
             pass
         
         if r == "/":
-            # reconstruir contenido con pantalla_inicial
+            # reconstruir contenido
             render_inicio()
 
-            # relanzar carrusel
-            async def kick():
-                await asyncio.sleep(0)
-                start_carrusel()
-                start_vertical()
-            page.run_task(kick)
+            # asegurar que los contenedores principales están visibles
+            cont_pantalla.visible = True
+            cont_form.visible = True
+            # ➕ recolocar fila_iconos según ancho actual (desktop / tablet / móvil)
+            ajustar_tamanos()
+            # relanzar carruseles SOLO tras montaje
+            page.run_task(_kick_carruseles)
 
+            page.update()
             return
         
         # --- Rutas de Sabías que ---
@@ -276,12 +355,12 @@ def main(page: ft.Page):
 
     #Funcion para detener el carrusel de imagenes 
     def parar_carrusel():
-            stop_carrusel()
-            stop_vertical()
-            if pantalla_inicial in contenido.controls:
-                contenido.controls.remove(pantalla_inicial)
-            contenido.update()  
-        # ...otros elif para las demás opciones...
+        stop_carrusel()
+        stop_vertical()
+        # ❌ No quites pantalla_inicial del contenido; si quieres ocultarlo, oculta el contenedor:
+        # if pantalla_inicial in contenido.controls: ...
+        # ✅ Mejor: no remover nada aquí. Solo detener.
+        contenido.update()
 
     # Se crea el controlador de slides (ya existe `contenido` y callbacks de insectos)
     set_slides, mostrar_slide, navegar_slide, get_slide_index = create_slides_controller(
@@ -323,23 +402,30 @@ def main(page: ft.Page):
         page.go("/sabiasque")
 
     def mostrar_inicio_con_intro(e=None):
-        # Si YA estamos en "/"
-        if page.route == "/":
-            # no reconstruir, solo actualizar y scrollear
-            page.update()
-            page.scroll_to(key="contactos_iconos", duration=500)
-            return
-        contenido.controls.clear()
-        # Si NO estamos en "/", reconstruir y redirigir
-        page.route = "/"
-        _route_handler(ft.RouteChangeEvent(route="/"))
-        render_inicio()
-        # Lanzar carrusel en el próximo ciclo
-        async def kick():
-            await asyncio.sleep(0)
-            start_carrusel()
-            start_vertical()
-        page.run_task(kick)
+            # cierra menú/overlays por si acaso
+            try:
+                cerrar_menu()
+                overlay_cierra_menu.visible = False
+            except Exception:
+                pass
+
+            # Delega al router. No limpies contenido ni llames render_inicio aquí.
+            page.go("/")
+            
+            # 🔥 Scroll automático SOLO en tablet/PC
+            if (page.width or 0) >= 600:
+                # Dar un pequeño tiempo para permitir que el contenido se reconstruya
+                async def _scroll_after_load():
+                    await asyncio.sleep(0.05)
+                    try:
+                        page.scroll_to(key="inicio_responsive", duration=200)
+                    except Exception:
+                        pass
+
+                page.run_task(_scroll_after_load)
+            else: page.scroll_to(key="cont_pantalla", duration=200)
+
+
 
     imagen_logo_empresa = ft.Image(
     src="https://i.postimg.cc/rFxRRS5D/logo-72x72.png",
@@ -458,17 +544,58 @@ def main(page: ft.Page):
         content=ft.Row([
             container_logo_empresa, 
             ft.Container(content=texto_titulo, expand=True, alignment=ft.alignment.center_left),
-            container_boton_empresa
+            slot_iconos_header,
+            container_boton_empresa 
         ], vertical_alignment=ft.CrossAxisAlignment.CENTER)
     )   
     # Creamos la fila donde estaran los botones inferiores
     Botones_agregar = ft.Row([boton_sabiasque,boton_facebook,boton_instagram,boton_whatsapp],alignment=ft.MainAxisAlignment.END,vertical_alignment=ft.CrossAxisAlignment.END)
+    # --- TEXTO PROMOCIONAL (solo visible en tablet/PC) ---
+    promo_text = ft.Text(
+        "🔥 Promoción especial: 20% de descuento en programas mensuales y anuales de control de plagas. ¡Cotiza hoy mismo! 🔥",
+        size=20,
+        weight=ft.FontWeight.BOLD,
+        color=ft.Colors.BLACK,
+        no_wrap=True,
+        text_align=ft.TextAlign.LEFT,
+    )
 
-    # Agregamos un contenedor para incluir los botones y le asigamos un fondo
+    # Contenedor flotante que se va a mover horizontalmente
+    promo_flotante = ft.Container(
+        content=promo_text,
+        top=5,
+        left=0,
+    )
+
+    # Stack con fondo + texto en movimiento (ocupará toda la zona izquierda)
+    promo_stack = ft.Stack(
+        controls=[
+            ft.Container(  # fondo fijo
+                bgcolor="rgba(255,255,255,0.90)",
+                expand=True,
+            ),
+            promo_flotante,  # texto que se desplaza encima
+        ],
+        height=40,
+        expand=True,
+        visible=False,  # solo visible en tablet/PC (se maneja en ajustar_tamanos)
+    )
+
+    # Barra inferior: promo a la izquierda, redes a la derecha
+    barra_inferior = ft.Row(
+        alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+        vertical_alignment=ft.CrossAxisAlignment.CENTER,
+        controls=[
+            promo_stack,     # izquierda
+            Botones_agregar  # derecha
+        ],
+    )
+
+    # Zona de redes (contenedor final)
     zona_redes = ft.Container(
-        content=Botones_agregar,
+        content=barra_inferior,
         bgcolor="rgba(255,255,255,0.90)",
-        alignment=ft.alignment.center
+        alignment=ft.alignment.center,
     )
 
     contenido_base = ft.Column([
@@ -478,6 +605,48 @@ def main(page: ft.Page):
     ], expand=True, 
     spacing=0,           # sin espacios extra verticales
     horizontal_alignment=ft.CrossAxisAlignment.CENTER,)
+
+    async def marquee_loop():
+        await asyncio.sleep(1)
+
+        VELOCIDAD = 90   # píxeles por segundo (ajústalo)
+        PAUSA_FIN = 0.8  # pausa antes de reiniciar
+
+        while True:
+            # Si no es visible (modo móvil) → espera sin animar
+            if not promo_stack.visible:
+                await asyncio.sleep(0.5)
+                continue
+
+            # ancho área visible
+            ancho = zona_redes.width or page.width or 900
+
+            # estimación de ancho del texto
+            texto_ancho = len(promo_text.value) * 8
+
+            # posición inicial: fuera por la derecha
+            x_inicial = ancho
+            x_final = -texto_ancho
+
+            # tiempo inicial
+            t0 = time.time()
+
+            # loop de animación suave basado en tiempo real
+            while True:
+                t = time.time() - t0
+                x = x_inicial - VELOCIDAD * t
+
+                if x < x_final:
+                    break  # terminó el recorrido
+
+                promo_flotante.left = x
+                promo_flotante.update()
+
+                await asyncio.sleep(0.01)  # ~100 FPS reales
+
+            # pausa antes de reiniciar
+            await asyncio.sleep(PAUSA_FIN)
+
 
     stack_raiz = ft.Stack(
         controls=[
@@ -490,37 +659,15 @@ def main(page: ft.Page):
     intro_modal, show_intro, hide_intro = create_intro_overlay(page)
     stack_raiz.controls.append(intro_modal)   # 👈 lo montas encima de todo
     def on_connect(e):
-        cerrar_menu()
-        overlay_cierra_menu.visible = False
-        # Si se abre directamente en /servicios o /sabiasque...
-        if (page.route or "").startswith("/sabiasque") or (page.route or "") == "/servicios":
-            _route_handler(ft.RouteChangeEvent(route=page.route or "/servicios"))
-            return
-        # Si la pestaña se abrió en /sabiasque o /sabiasque/<idx>...
-        if (page.route or "").startswith("/sabiasque"):
-            ensure_sabiasque()
-            page.go(page.route or "/sabiasque")
-            return
-        
         # Render inicial
-        render_inicio()
-
-        # Mostrar intro una sola vez
+        page.go(page.route or "/")
+        # Intro una vez
         show_intro_once()
-
-        # Iniciar carrusel tras un tick
-        async def _kick():
-            await asyncio.sleep(0)
-            start_carrusel()
-            start_vertical()
-        page.run_task(_kick)
-
     page.on_connect = on_connect
 
     # Cuando se monte la página, iniciar carrusel imagenes verticales
     async def iniciar():
         await asyncio.sleep(0)
-        start_vertical()
     page.run_task(iniciar)
 
     page.add(
@@ -529,13 +676,15 @@ def main(page: ft.Page):
             expand=True,           # 👈 asegura ocupar todo el viewport
         )
     )
+    page.run_task(marquee_loop)
+    # Inicia carruseles tras montar el árbol
+    page.run_task(_kick_carruseles)
     # Esto inyecta el grid de servicios en el contenedor vacío
     render_menu_servicios(page, menu_servicios_container)
     # Fallback: en el próximo tick, intenta mostrar el intro una vez
     async def _first_paint_intro():
         await asyncio.sleep(0)
         show_intro_once()
-
     page.run_task(_first_paint_intro)
     ####### FUNCIONES #######
     # --- Modifica show_info (Funcion para saber que opcion del menu se selecciono) ---
@@ -576,16 +725,6 @@ def main(page: ft.Page):
             )
             contenido.update()
 
-    # 🔧 Inicializa el carrusel en el primer render
-    def _init_carousel_after_mount():
-        async def _kick():
-            # un tick para asegurar que los controles ya están montados
-            await asyncio.sleep(0)
-            start_carrusel()
-            start_vertical()
-        page.run_task(_kick)
-    _init_carousel_after_mount()
-
     # --- Responsive: texto + ancho automático para WhatsApp ---
     def ajustar_tamanos(e=None):
         a = page.width
@@ -597,12 +736,12 @@ def main(page: ft.Page):
         texto_titulo.update()
 
         # tamaño del botón empresa (icono + área táctil) + Logo empresa
-        if a < 450:   # móviles
+        if a < 600:   # móviles
             icon_size = 26
             btn_size = 36
             logo_size = 42
             dropdown.top = 32
-        elif a < 800: # tablets
+        elif a < 1020: # tablets
             icon_size = 32
             btn_size = 44
             logo_size = 54
@@ -621,13 +760,12 @@ def main(page: ft.Page):
         inner_btn = container_boton_empresa.content
         if isinstance(inner_btn, ft.IconButton):
             inner_btn.icon_size = icon_size
-            # Si necesitas asegurar padding cero en runtime:
             inner_btn.style = ft.ButtonStyle(
                 padding=ft.padding.all(0),
                 shape=ft.RoundedRectangleBorder(radius=9999),
             )
 
-        # ejemplo de escalado
+        # ejemplo de escalado Logo
         container_logo_empresa.width = logo_size
         container_logo_empresa.height = logo_size
         container_logo_empresa.border_radius = logo_size // 2
@@ -636,9 +774,159 @@ def main(page: ft.Page):
         container_logo_empresa.content.height = inner_size
         container_logo_empresa.content.border_radius = inner_size // 2
 
+        # ==== NUEVO: mover fila_iconos y video según ancho ====
+        es_desktop = a >= 1020
+        es_tablet = 600 <= a < 1020
+
+        if es_tablet or es_desktop:
+            # --- Ajustar tamaños de textos para Tablet y PC ---
+            try:
+                if valores_section.data:
+                    if es_tablet or es_desktop:
+                        # TITULOS tamaño 24
+                        for t in valores_section.data["titulos"]:
+                            t.size = 24
+                        # TEXTOS tamaño 18
+                        for t in valores_section.data["textos"]:
+                            t.size = 18
+                    else:
+                        # Móvil valores originales
+                        for t in valores_section.data["titulos"]:
+                            t.size = 20
+                        for t in valores_section.data["textos"]:
+                            t.size = 14
+            except:
+                pass
+
+            # --- Ajustar tamaños en QUIÉNES SOMOS ---
+            try:
+                if quienes_section.data:
+                    if es_tablet or es_desktop:
+                        quienes_section.data["subtitulo"].size = 24
+                        quienes_section.data["texto"].size = 18
+                    else:
+                        quienes_section.data["subtitulo"].size = 18
+                        quienes_section.data["texto"].size = 14
+            except:
+                pass
+            
+                # --- Ajustar tamaños en HISTORIA ---
+            try:
+                if historia_section.data:
+                    if es_tablet or es_desktop:
+                        historia_section.data["sub1"].size = 24
+                        historia_section.data["sub2"].size = 24
+                        historia_section.data["texto"].size = 18
+                        for b in historia_section.data["bullets"]:
+                            b.size = 18
+                    else:
+                        historia_section.data["sub1"].size = 18
+                        historia_section.data["sub2"].size = 18
+                        historia_section.data["texto"].size = 14
+                        for b in historia_section.data["bullets"]:
+                            b.size = 14
+            except:
+                pass
+
+            # Tamaño del video en PC/Tablet
+            video_card.width = 263
+            video_card.height = 350
+
+            # ⚠️ Importante: asegurarnos que video_card NO esté suelto en contenido
+            safe_remove(video_card, contenido.controls)
+
+            # 👉 PC/TABLET: también eliminamos el separador de sanitización del contenido
+            safe_remove(separador_sanitizacion, contenido.controls)
+
+            # PC/TABLET → carrusel + video juntos en zona_multimedia
+            zona_multimedia.content = ft.Row(
+                [
+                    ft.Container(
+                        content=video_card,
+                        alignment=ft.alignment.center,
+                        margin=ft.margin.only(left=20, right=20),
+                    ),
+                    ft.Container(
+                        content=carrusel_vertical,
+                        expand=True,
+                        alignment=ft.alignment.center,
+                    ),
+                    
+                ],
+                alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                vertical_alignment=ft.CrossAxisAlignment.CENTER,
+            )
+            zona_multimedia.update()
+
+            # modo tablet / PC → sin saltos de línea la firma
+            separador_final.content.value = separador_final.data["oneline_text"]
+            separador_final.content.size = 22
+            separador_final.bgcolor = separador_final.data["mobile_bg"]
+
+            # fila_iconos va al header
+            safe_remove(fila_iconos, contenido.controls)
+            slot_iconos_header.content = fila_iconos
+            slot_iconos_header.visible = True
+            slot_iconos_header.update()
+
+            # mostrar promo
+            promo_stack.visible = True
+
+        else:
+            # MÓVIL → solo carrusel en zona_multimedia
+            zona_multimedia.content = carrusel_vertical
+            zona_multimedia.update()
+            barra_inferior.alignment = ft.MainAxisAlignment.END
+            # 👇 Asegurarnos de que separador_sanitizacion EXISTE en contenido
+            if separador_sanitizacion not in contenido.controls:
+                try:
+                    # idealmente después de valores_section
+                    idx_val = contenido.controls.index(valores_section)
+                    contenido.controls.insert(idx_val + 1, separador_sanitizacion)
+                except ValueError:
+                    try:
+                        # o antes de separador_quienes
+                        idx_q = contenido.controls.index(separador_quienes)
+                        contenido.controls.insert(idx_q, separador_sanitizacion)
+                    except ValueError:
+                        # último recurso: al final
+                        contenido.controls.append(separador_sanitizacion)
+
+            # restaurar video debajo de separador_sanitizacion
+            safe_remove(video_card, contenido.controls)
+            
+            try:
+                idx = contenido.controls.index(separador_sanitizacion)
+                contenido.controls.insert(idx + 1, video_card)
+            except ValueError:
+                contenido.controls.append(video_card)
+
+            # Firma con saltos de línea
+            separador_final.content.value = separador_final.data["raw_text"]
+            separador_final.bgcolor = separador_final.data["mobile_bg"]
+
+            # iconos vuelven al contenido (móvil)
+            slot_iconos_header.content = None
+            slot_iconos_header.visible = False
+            slot_iconos_header.update()
+
+            if fila_iconos not in contenido.controls:
+                contenido.controls.insert(0, fila_iconos)
+
+            promo_stack.visible = False
+            separador_final.update()
+
+        # Ajuste adaptativo extra de la fila de iconos
+        try:
+            if hasattr(fila_iconos, "data") and callable(fila_iconos.data.get("apply_style_adaptativo")):
+                fila_iconos.data["apply_style_adaptativo"]()
+        except Exception:
+            pass
+
         page.update()
 
-    page.on_resize = ajustar_tamanos
+
+    page.on_resized = ajustar_tamanos
     page.on_window_event = lambda e: ajustar_tamanos() if e.data=="shown" else None
         # Iniciar animaciones
     animacion_empresa_task[0] = start_pulso_empresa()
@@ -646,5 +934,4 @@ def main(page: ft.Page):
     # Overlay oculto para cerrar el menu al hacer clic fuera de el
     page.update()
     ajustar_tamanos()
-   
 ft.app(target=main, view=ft.WEB_BROWSER, port=int(os.environ.get("PORT", 8080)))

@@ -133,17 +133,20 @@ def create_formulario(page: ft.Page):
 
     def actualizar_estado_boton():
         campos_llenos = (
-            (nombre.value or "").strip() != "" and
-            (correo_tf.value or "").strip() != "" and
-            (telefono.value or "").strip() != "" and
-            (mensaje.value or "").strip() != ""
+            (nombre_real.value or "").strip() != "" and
+            (correo_tf_real.value or "").strip() != "" and
+            (telefono_real.value or "").strip() != "" and
+            (mensaje_real.value or "").strip() != ""
         )
         sin_alerta = not warning_icon.visible
         habilitar = campos_llenos and sin_alerta
+
         boton_enviar.disabled = not habilitar
         boton_con_gradiente.opacity = 1.0 if habilitar else 0.4
+
         boton_con_gradiente.update()
         boton_enviar.update()
+
 
     # --- Validaciones en vivo ---
     def on_mensaje_nombre_change(e):
@@ -175,8 +178,44 @@ def create_formulario(page: ft.Page):
         warning_icon.update()
         actualizar_estado_boton()
 
-    correo_tf = ft.TextField(
+        # --- Breakpoint por ancho: PC/Tablet (>=700) vs Teléfono (<700) ---
+    BREAKPOINT_TABLET = 700
+
+    def es_pc_o_tablet():
+        # page.width existe en Flet (no window_width)
+        return (page.width or 0) >= BREAKPOINT_TABLET
+
+    def label_color_actual():
+        return ft.Colors.BLACK if es_pc_o_tablet() else ft.Colors.BLACK54
+
+    def padding_horizontal_actual():
+        return 20 if es_pc_o_tablet() else 0
+    
+    def enviar_formulario(e):
+        enviando_overlay.visible = True
+        page.update()
+        # 👇 Correcto: pasar la función async sin ejecutarla
+        page.run_task(proceso_envio)
+  
+    boton_enviar = ft.ElevatedButton(
+        text="Enviar",
+        disabled=True,
+        color=ft.Colors.WHITE,
+        bgcolor="transparent",
+        style=ft.ButtonStyle(
+            text_style=ft.TextStyle(size=20, weight=ft.FontWeight.BOLD),
+            overlay_color="rgba(255,255,255,0.1)",
+            elevation=0,
+            shape=ft.RoundedRectangleBorder(radius=8)
+        ),
+        on_click=enviar_formulario
+    )
+    # Conserva tu warning_icon / handlers tal como los tienes...
+
+    # --- Creamos los TextField "reales" (referencias a TF puros) ---
+    correo_tf_real = ft.TextField(
         label="Correo electrónico",
+        label_style=ft.TextStyle(color=label_color_actual()),
         color=ft.Colors.BLACK,
         width=ancho_responsivo(),
         height=ALTURA_CAMPOS,
@@ -184,32 +223,100 @@ def create_formulario(page: ft.Page):
         on_change=on_correo_change
     )
 
-    nombre = ft.TextField(label="Nombre", width=ancho_responsivo(), height=ALTURA_CAMPOS,
-                          color=ft.Colors.BLACK, on_change=on_mensaje_nombre_change)
-    telefono = ft.TextField(label="Teléfono", width=ancho_responsivo(), height=ALTURA_CAMPOS,
-                            color=ft.Colors.BLACK, on_change=solo_numeros_y_mas)
-    mensaje = ft.TextField(label="Mensaje", multiline=True, min_lines=3,
-                           width=ancho_responsivo(), color=ft.Colors.BLACK,
-                           on_change=on_mensaje_nombre_change)
+    nombre_real = ft.TextField(
+        label="Nombre",
+        label_style=ft.TextStyle(color=label_color_actual()),
+        width=ancho_responsivo(),
+        height=ALTURA_CAMPOS,
+        color=ft.Colors.BLACK,
+        on_change=on_mensaje_nombre_change
+    )
 
-    status_text = ft.Text("", color=ft.Colors.GREEN)
+    telefono_real = ft.TextField(
+        label="Teléfono",
+        label_style=ft.TextStyle(color=label_color_actual()),
+        width=ancho_responsivo(),
+        height=ALTURA_CAMPOS,
+        color=ft.Colors.BLACK,
+        on_change=solo_numeros_y_mas
+    )
 
-    def ajustar_anchos(e=None):
+    mensaje_real = ft.TextField(
+        label="Mensaje",
+        label_style=ft.TextStyle(color=label_color_actual()),
+        multiline=True,
+        min_lines=3,
+        width=ancho_responsivo(),
+        color=ft.Colors.BLACK,
+        on_change=on_mensaje_nombre_change
+    )
+
+    # 👇 Mantén tu variable correo_tf apuntando al TF real si la usas en otras funciones
+    correo_tf = correo_tf_real
+      # --- Helper: envolver un TextField con padding lateral dinámico ---
+    def wrap_con_padding(tf):
+        return ft.Container(
+            content=tf,
+            padding=ft.padding.symmetric(horizontal=padding_horizontal_actual()),
+            alignment=ft.alignment.center,   # 👈 centra el TextField dentro del contenedor
+        )
+    
+    # --- Envolvemos con padding dinámico (solo PC/Tablet) ---
+    nombre   = wrap_con_padding(nombre_real)
+    correo_w = wrap_con_padding(correo_tf_real)
+    telefono = wrap_con_padding(telefono_real)
+    mensaje  = wrap_con_padding(mensaje_real)
+
+    boton_con_gradiente = ft.Container(
+        content=boton_enviar,
+        width=ancho_responsivo(),
+        border_radius=8,
+        gradient=ft.LinearGradient(
+            begin=ft.alignment.center_left,
+            end=ft.alignment.center_right,
+            colors=["#0f2027", "#203a43", "#2c5364"]
+        ),
+        opacity=0.4
+    )
+    boton_wrapper = ft.Container(
+        content=boton_con_gradiente,
+        padding=ft.padding.symmetric(horizontal=padding_horizontal_actual())
+    )
+    # --- Ajuste responsivo en resize (ancho + estilos) ---
+    def ajustar_responsivo(e=None):
         w = ancho_responsivo()
-        nombre.width = w
-        correo_tf.width = w
-        telefono.width = w
-        mensaje.width = w
-        boton_enviar.width = w
+
+        for tf in (nombre_real, correo_tf_real, telefono_real, mensaje_real):
+            tf.width = w
+
+        lc = label_color_actual()
+        ph = padding_horizontal_actual()
+
+        for tf in (nombre_real, correo_tf_real, telefono_real, mensaje_real):
+            tf.label_style = ft.TextStyle(color=lc)
+
+        # contenedores de campos (con padding lateral)
+        for cont in (nombre, correo_w, telefono, mensaje):
+            cont.padding = ft.padding.symmetric(horizontal=ph)
+
+        # ancho del gradiente (contenido real)
+        boton_con_gradiente.width = w
+        # 👇 padding externo va en el wrapper
+        boton_wrapper.padding = ft.padding.symmetric(horizontal=ph)
+
         page.update()
 
-    page.on_resize = ajustar_anchos
+
+    # Llama a una primera vez y engánchalo al evento
+    ajustar_responsivo()
+    page.on_resize = ajustar_responsivo
+
 
     async def proceso_envio():
-        nombre_val = nombre.value.strip()
-        correo_val = (correo_tf.value or "").strip()
-        telefono_val = telefono.value.strip()
-        mensaje_val = mensaje.value.strip()
+        nombre_val = (nombre_real.value or "").strip()
+        correo_val = (correo_tf_real.value or "").strip()
+        telefono_val = (telefono_real.value or "").strip()
+        mensaje_val = (mensaje_real.value or "").strip()
 
         if not nombre_val or not correo_val or not mensaje_val:
             enviando_overlay.visible = False
@@ -253,10 +360,11 @@ def create_formulario(page: ft.Page):
             await asyncio.to_thread(send_email)
 
             # limpiar campos
-            nombre.value = ""
-            correo_tf.value = ""
-            telefono.value = ""
-            mensaje.value = ""
+            nombre_real.value = ""
+            correo_tf_real.value = ""
+            telefono_real.value = ""
+            mensaje_real.value = ""
+
             enviando_overlay.visible = False
             actualizar_estado_boton()
             page.update()
@@ -274,39 +382,7 @@ def create_formulario(page: ft.Page):
             )
             page.update()
 
-    def enviar_formulario(e):
-        enviando_overlay.visible = True
-        page.update()
-        # 👇 Correcto: pasar la función async sin ejecutarla
-        page.run_task(proceso_envio)
-
-
-    boton_enviar = ft.ElevatedButton(
-        text="Enviar",
-        disabled=True,
-        color=ft.Colors.WHITE,
-        bgcolor="transparent",
-        style=ft.ButtonStyle(
-            text_style=ft.TextStyle(size=20, weight=ft.FontWeight.BOLD),
-            overlay_color="rgba(255,255,255,0.1)",
-            elevation=0,
-            shape=ft.RoundedRectangleBorder(radius=8)
-        ),
-        on_click=enviar_formulario
-    )
-
-    boton_con_gradiente = ft.Container(
-        content=boton_enviar,
-        width=ancho_responsivo(),
-        border_radius=8,
-        gradient=ft.LinearGradient(
-            begin=ft.alignment.center_left,
-            end=ft.alignment.center_right,
-            colors=["#0f2027", "#203a43", "#2c5364"]
-        ),
-        padding=0,
-        opacity=0.4
-    )
+    
 
     formulario_con_modal = ft.Stack(
         [
@@ -314,17 +390,17 @@ def create_formulario(page: ft.Page):
                 [
                     ft.Text("Contáctanos", size=28, weight=ft.FontWeight.BOLD, color="#090229"),
                     nombre,
-                    correo_tf,
+                    correo_w,
                     telefono,
                     mensaje,
-                    boton_con_gradiente
+                    boton_wrapper   
                 ],
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                 spacing=10
             ),
             modal_info,
             enviando_overlay
-        ],
+        ],alignment=ft.alignment.center,   # 👈 opcional pero ayuda
     )
 
     return formulario_con_modal

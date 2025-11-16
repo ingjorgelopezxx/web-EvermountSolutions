@@ -14,57 +14,108 @@ IMAGENES = [
 def create_carrusel(page: ft.Page, intervalo: int = 3):
     idx = [0]
     activo = [False]
-    tarea = [None]
+    tarea_rotacion = [None]
+    tarea_resize = [None]  # debounce
 
-    # --- Calcular ancho y altura inicial (16:9) ---
-    ancho = page.width
-    altura = max(200, ancho * 9 / 16)  # mínimo 200px
+    # --- Breakpoints ---
+    def get_device_class() -> str:
+        w = page.width or 0
+        if w < 600:
+            return "mobile"
+        elif w < 1020:
+            return "tablet"
+        return "desktop"
 
-    # Imagen inicial
+    def compute_size():
+        w = page.width or 360
+        cls = get_device_class()
+        if cls == "mobile":
+            h_min, h_max = 200, 420
+        elif cls == "tablet":
+            h_min, h_max = 280, 540
+        else:
+            h_min, h_max = 320, 640
+        h_calc = (w * 9) / 16
+        h = max(h_min, min(h_calc, h_max))
+        return w, h
+
+    w0, h0 = compute_size()
     imagen = ft.Image(
         src=IMAGENES[0],
         fit=ft.ImageFit.FILL,
-        width=ancho,
-        height=altura,
+        width=w0,
+        height=h0,
     )
-
-    # Contenedor expansible
     contenedor = ft.Container(
         content=imagen,
-        expand=True,
+        expand=False,
+        width=w0,
+        height=h0,
     )
 
-    # --- Ajustar altura al redimensionar ---
-    def ajustar_altura(e=None):
-        ancho_nuevo = page.width
-        altura_nueva = max(200, ancho_nuevo * 9 / 16)
-        imagen.width = ancho_nuevo
-        imagen.height = altura_nueva
-        page.update()  # refresca todo
+    # --- Resize con debounce sobre on_resize ---
+    async def _resize_debounced():
+        await asyncio.sleep(0.06)
+        # Si aún no está montado, no actualizamos
+        if getattr(imagen, "page", None) is None or getattr(contenedor, "page", None) is None:
+            return
+        w, h = compute_size()
+        imagen.width = w
+        imagen.height = h
+        contenedor.width = w
+        contenedor.height = h
+        imagen.update()
+        contenedor.update()
 
-    # Conectar al evento on_resize
-    page.on_resize = ajustar_altura
+    def _on_resize_local(e=None):
+        if tarea_resize[0] is not None:
+            try:
+                tarea_resize[0].cancel()
+            except Exception:
+                pass
+            finally:
+                tarea_resize[0] = None
+        tarea_resize[0] = page.run_task(_resize_debounced)
+
+    # Encadenar con un handler previo (si existía)
+    prev_on_resize = getattr(page, "on_resize", None)
+    def _on_resize_chain(e):
+        _on_resize_local(e)
+        if callable(prev_on_resize):
+            prev_on_resize(e)
+    page.on_resize = _on_resize_chain
 
     # --- Rotación automática ---
     async def _rotar():
         try:
             while activo[0]:
-                imagen.src = IMAGENES[idx[0] % len(IMAGENES)]
-                page.update()
-                idx[0] = (idx[0] + 1) % len(IMAGENES)
+                # Evita actualizar si aún no está montado
+                if getattr(imagen, "page", None) is not None:
+                    imagen.src = IMAGENES[idx[0] % len(IMAGENES)]
+                    imagen.update()
+                    idx[0] = (idx[0] + 1) % len(IMAGENES)
                 await asyncio.sleep(intervalo)
         except asyncio.CancelledError:
             pass
 
     def start_carrusel():
-        if tarea[0] is None:
+        # Ajuste inicial seguro (si ya está montado)
+        page.run_task(_resize_debounced)
+        if tarea_rotacion[0] is None:
             activo[0] = True
-            tarea[0] = page.run_task(_rotar)
+            tarea_rotacion[0] = page.run_task(_rotar)
 
     def stop_carrusel():
         activo[0] = False
-        if tarea[0] is not None:
-            tarea[0].cancel()
-            tarea[0] = None
+        if tarea_rotacion[0] is not None:
+            try:
+                tarea_rotacion[0].cancel()
+            except Exception:
+                pass
+            finally:
+                tarea_rotacion[0] = None
+
+    # Primer ajuste (no falla si aún no está montado gracias a la guarda)
+    page.run_task(_resize_debounced)
 
     return contenedor, start_carrusel, stop_carrusel

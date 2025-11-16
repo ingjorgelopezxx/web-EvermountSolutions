@@ -2,11 +2,10 @@ import flet as ft
 
 def create_historia(page: ft.Page):
     COLOR_TITULO = "#0D2943"  # azul oscuro corporativo
-    TEXTO_SIZE = 14
-    SUBTITULO_SIZE = 18
-    ICON_SIZE = 40
+    TEXTO_SIZE = 14           # móvil
+    SUBTITULO_SIZE = 18       # móvil
 
-    # --- Subtítulo ---
+    # --- Subtítulo 1 ---
     subtitulo = ft.Text(
         "Compromiso y Trabajo en Equipo",
         size=SUBTITULO_SIZE,
@@ -34,19 +33,31 @@ def create_historia(page: ft.Page):
         color=COLOR_TITULO,
     )
 
-    # --- Lista de viñetas ---
+    # --- Lista de viñetas (creamos los Text por separado para guardarlos) ---
+    bullet1 = ft.Text(
+        "•  Somos una empresa certificada y en constante actualización.",
+        size=TEXTO_SIZE,
+        color=ft.Colors.BLACK87,
+    )
+    bullet2 = ft.Text(
+        "•  Cada cliente es tratado como si fuera parte de nuestra familia.",
+        size=TEXTO_SIZE,
+        color=ft.Colors.BLACK87,
+    )
+    bullet3 = ft.Text(
+        "•  Actuamos con transparencia, eficacia y puntualidad.",
+        size=TEXTO_SIZE,
+        color=ft.Colors.BLACK87,
+    )
+
     lista_diferencias = ft.Column(
         [
-            ft.Text("•  Somos una empresa certificada y en constante actualización.",
-                    size=TEXTO_SIZE, color=ft.Colors.BLACK87),
-            ft.Text("•  Cada cliente es tratado como si fuera parte de nuestra familia.",
-                    size=TEXTO_SIZE, color=ft.Colors.BLACK87),
-            ft.Text("•  Actuamos con transparencia, eficacia y puntualidad.",
-                    size=TEXTO_SIZE, color=ft.Colors.BLACK87),
+            bullet1,
+            bullet2,
+            bullet3,
         ],
         spacing=5
     )
-
 
     # --- Contenedor principal ---
     contenedor = ft.Container(
@@ -65,5 +76,12 @@ def create_historia(page: ft.Page):
         width=page.width
     )
 
-    return contenedor
+    # Guardamos referencias para poder cambiar tamaños desde main.py
+    contenedor.data = {
+        "sub1": subtitulo,
+        "texto": texto_principal,
+        "sub2": subtitulo2,
+        "bullets": [bullet1, bullet2, bullet3],
+    }
 
+    return contenedor

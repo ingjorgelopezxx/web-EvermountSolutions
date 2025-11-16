@@ -200,21 +200,30 @@ def _img_height_for(page: ft.Page) -> int:
     else:
         return 320
 
-def _bullet_line(p: str) -> ft.Row:
+def _bullet_line(p: str, font_size: int) -> ft.Row:
     if ":" in p:
         head, body = p.split(":", 1)
     else:
         head, body = p, ""
     rich_text = ft.Text(
         spans=[
-            ft.TextSpan(f"{head.strip()}: ", ft.TextStyle(weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK)),
+            ft.TextSpan(
+                f"{head.strip()}: ",
+                ft.TextStyle(
+                    weight=ft.FontWeight.BOLD,
+                    color=ft.Colors.BLACK,
+                ),
+            ),
             ft.TextSpan(body.strip(), ft.TextStyle(color=ft.Colors.BLACK)),
         ],
-        size=14,
+        size=font_size,
         text_align=ft.TextAlign.JUSTIFY,
     )
     return ft.Row(
-        controls=[ft.Text("•", size=18, color=ft.Colors.BLACK), ft.Container(rich_text, expand=True)],
+        controls=[
+            ft.Text("•", size=font_size + 4, color=ft.Colors.BLACK),
+            ft.Container(rich_text, expand=True),
+        ],
         spacing=6,
         vertical_alignment=ft.CrossAxisAlignment.START,
     )
@@ -229,11 +238,11 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
     contenedor.padding = 0
     contenedor.spacing = 0
 
-    # 1) Helpers responsive
+    # ---- Métricas responsive para el Grid ----
     def _grid_metrics(page: ft.Page) -> tuple[int, float, int, int]:
         w = page.width
         if w < 480:            # Celular
-            return (120, 0.86, 6, 8)     # max_extent, aspect_ratio, spacing, run_spacing
+            return (120, 0.86, 6, 8)
         elif w < 768:          # Tablet
             return (160, 0.86, 8, 10)
         elif w < 1200:         # Laptop
@@ -241,15 +250,15 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
         else:                  # Desktop
             return (240, 0.9, 12, 14)
 
-    # 2) Crea el GridView usando esos parámetros
     mx, ar, sp, rsp = _grid_metrics(page)
+
     grid = ft.GridView(
-        expand=True,
         max_extent=mx,
         child_aspect_ratio=ar,
         spacing=sp,
         run_spacing=rsp,
     )
+
     def _apply_grid_metrics():
         mx, ar, sp, rsp = _grid_metrics(page)
         grid.max_extent = mx
@@ -260,7 +269,7 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
     def _tile(idx: int, item: dict, page: ft.Page) -> ft.Container:
         nombre = item.get("especie") or item.get("titulo", f"Item {idx+1}")
         img = item.get("imagen", "")
-
+        is_big = (page.width or 0) >= 600  # tablet / PC
         return ft.Container(
             bgcolor=ft.Colors.WHITE,
             border_radius=12,
@@ -285,65 +294,83 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
                         alignment=ft.alignment.center,
                         padding=ft.padding.symmetric(horizontal=6, vertical=4),
                         content=ft.Text(
-                            nombre,
-                            size=14,
-                            weight=ft.FontWeight.BOLD,
-                            text_align=ft.TextAlign.CENTER,
-                            max_lines=2,
-                            overflow=ft.TextOverflow.ELLIPSIS,
-                            color=ft.Colors.BLACK,
+                        nombre,
+                        size=18 if is_big else 14,
+                        weight=ft.FontWeight.BOLD,
+                        text_align=ft.TextAlign.CENTER,
+                        max_lines=2,
+                        overflow=ft.TextOverflow.ELLIPSIS,
+                        color=ft.Colors.BLACK,
                         ),
                     ),
                 ],
             ),
         )
 
+    # ---- Vista de grilla ----
     def show_grid():
-        contenedor.controls.clear()
+        # Limpieza SEGURA del contenedor (evita errores de remove en Flet)
+        while len(contenedor.controls) > 0:
+            try:
+                contenedor.controls.pop()
+            except Exception:
+                break
 
-        header = ft.Container(
-            alignment=ft.alignment.center,
-            padding=ft.padding.symmetric(vertical=4),
-            content=ft.Column(
-                alignment=ft.MainAxisAlignment.CENTER,
-                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                spacing=2,
-                controls=[
-                    ft.Text(
-                        "Seleccionar Especie",
-                        size=20,
-                        weight=ft.FontWeight.BOLD,
-                        color=ft.Colors.BLACK,
-                        text_align=ft.TextAlign.CENTER,
-                        font_family="Comic Sans MS",
-                    ),
-                    ft.Divider(color=ft.Colors.BLACK26, thickness=1),
-                ],
-            ),
-        )
+            is_big = (page.width or 0) >= 600  # tablet y PC
+            header = ft.Container(
+                alignment=ft.alignment.center,
+                padding=ft.padding.symmetric(vertical=4),
+                content=ft.Column(
+                    alignment=ft.MainAxisAlignment.CENTER,
+                    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                    spacing=2,
+                    controls=[
+                        ft.Text(
+                            "Seleccionar Especie",
+                            size=24 if is_big else 20,
+                            weight=ft.FontWeight.BOLD,
+                            color=ft.Colors.BLACK,
+                            text_align=ft.TextAlign.CENTER,
+                            font_family="Comic Sans MS",
+                        ),
+                        ft.Divider(color=ft.Colors.BLACK26, thickness=1),
+                    ],
+                ),
+            )
+
 
         grid.controls.clear()
         for i, it in enumerate(data):
             grid.controls.append(_tile(i, it, page))
 
-        # Ajusta métricas justo antes de pintar
         try:
             _apply_grid_metrics()
         except Exception:
             pass
 
+        sabiasque_column = ft.Column(
+            controls=[header, grid],
+            spacing=2,
+        )
+
         contenedor.controls.append(
-            ft.Column(
-                controls=[header, grid],
-                expand=True,
-                spacing=2,
+            ft.Container(
+                content=sabiasque_column,
+                padding=ft.padding.only(top=4, bottom=8),
             )
         )
-        page.update()
+        # 👈 NO llamamos page.update aquí; se hace en el router
 
+    # ---- Vista de detalle ----
     def show_detail(index: int):
         d = data[index]
         img_h = _img_height_for(page)
+
+        # 👇 tablet y PC → títulos 24, texto 18
+        is_big = (page.width or 0) >= 600
+        title_size = 24 if is_big else 18
+        text_size = 18 if is_big else 15
+        bullet_size = 18 if is_big else 14
 
         bloque = ft.Container(
             bgcolor=ft.Colors.WHITE,
@@ -356,7 +383,7 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
                 controls=[
                     ft.Text(
                         d.get("titulo", d.get("especie", "Detalle")),
-                        size=18,
+                        size=title_size,
                         weight=ft.FontWeight.BOLD,
                         color=ft.Colors.BLACK,
                         text_align=ft.TextAlign.CENTER,
@@ -367,45 +394,65 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
                         bgcolor=ft.Colors.WHITE,
                         border_radius=8,
                         clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
-                        content=ft.Image(src=d.get("imagen", ""), fit=ft.ImageFit.CONTAIN, opacity=1.0),
+                        content=ft.Image(
+                            src=d.get("imagen", ""),
+                            fit=ft.ImageFit.CONTAIN,
+                            opacity=1.0,
+                        ),
                     ),
-                    ft.Text(d.get("texto", ""), size=15, color=ft.Colors.BLACK, text_align=ft.TextAlign.JUSTIFY),
-                    ft.Column(controls=[_bullet_line(p) for p in d.get("extra", [])], spacing=4),
+                    ft.Text(
+                        d.get("texto", ""),
+                        size=text_size,
+                        color=ft.Colors.BLACK,
+                        text_align=ft.TextAlign.JUSTIFY,
+                    ),
+                    ft.Column(
+                        controls=[_bullet_line(p, bullet_size) for p in d.get("extra", [])],
+                        spacing=4,
+                    ),
                 ],
             ),
         )
 
         detail_view = ft.ListView(
-            expand=True,
             spacing=8,
             controls=[bloque],
+            auto_scroll=False,
         )
 
-        contenedor.controls.clear()
-        contenedor.controls.append(detail_view)
-        page.update()
-    
+        # Limpieza segura
+        while len(contenedor.controls) > 0:
+            try:
+                contenedor.controls.pop()
+            except Exception:
+                break
+
+        contenedor.controls.append(
+            ft.Container(
+                content=detail_view,
+                padding=ft.padding.only(top=4, bottom=8),
+            )
+        )
+        # 👈 NO llamamos page.update aquí; se hace en el router
+
+    # ---- Router interno de Sabías que ----
     def on_route_change(e: ft.RouteChangeEvent):
-            route = (e.route or "/sabiasque").strip()
-            if route.startswith("/sabiasque/"):
-                try:
-                    idx = int(route.split("/")[-1])
-                except ValueError:
-                    idx = 0
-                show_detail(idx)
-            else:
-                show_grid()
+        route = (e.route or "/sabiasque").strip()
+        if route.startswith("/sabiasque/"):
+            try:
+                idx = int(route.split("/")[-1])
+            except ValueError:
+                idx = 0
+            show_detail(idx)
+        else:
+            show_grid()
 
     def _reset_to_grid():
-        page.route = "/sabiasque"   # fija ruta sin push
-        show_grid()                 # pinta la grilla directamente
-        page.update()
+        page.route = "/sabiasque"   
+        show_grid()
 
-    # Exponer helpers para usarlos desde main
+    # Exponer helpers al page para usarlos desde main.py
     setattr(page, "_sabiasque_reset_to_grid", _reset_to_grid)
     setattr(page, "_sabiasque_router", on_route_change)
     setattr(page, "_sabiasque_show_grid", show_grid)
-    setattr(page, "_sabiasque_show_detail", show_detail)   # opcional
-
-
-
+    setattr(page, "_sabiasque_show_detail", show_detail)

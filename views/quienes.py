@@ -1,14 +1,14 @@
 import flet as ft
 
 def create_quienes(page: ft.Page):
-    COLOR_TITULO = "#0D2943"  # azul oscuro corporativo
+    COLOR_TITULO = "#0D2943"  
     TEXTO_SIZE = 14
     SUBTITULO_SIZE = 18
-    ICON_SIZE = 40
 
     # --- Subtítulo ---
     subtitulo = ft.Text(
         "Evermount Solutions - Pest Defense",
+        key="quienes_subtitulo",
         size=SUBTITULO_SIZE,
         weight=ft.FontWeight.BOLD,
         color=COLOR_TITULO,
@@ -22,6 +22,7 @@ def create_quienes(page: ft.Page):
         "efectivas, responsables y personalizadas.\n\n"
         "Confía en nosotros para mantener tus espacios seguros, limpios y libres de plagas, con tecnología avanzada y atención profesional.\n\n"
         "🛡️ Confianza familiar, protección garantizada.",
+        key="quienes_texto",
         size=TEXTO_SIZE,
         color=ft.Colors.BLACK87,
         text_align=ft.TextAlign.JUSTIFY,
@@ -42,7 +43,10 @@ def create_quienes(page: ft.Page):
         width=page.width
     )
 
+    # Guardar referencias para modificar tamaños desde main.py
+    contenedor.data = {
+        "subtitulo": subtitulo,
+        "texto": texto_principal
+    }
+
     return contenedor
-
-
-
