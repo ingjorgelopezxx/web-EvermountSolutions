@@ -16,6 +16,9 @@ def validar_correo(email: str) -> bool:
     return re.match(patron, email) is not None
 
 def create_formulario(page: ft.Page):
+    def safe_update(ctrl: ft.Control):
+        if getattr(ctrl, "page", None) is not None:
+            ctrl.update()
 
     # --- Overlay enviando ---
     enviando_overlay = ft.Container(
@@ -87,8 +90,18 @@ def create_formulario(page: ft.Page):
 
     def cerrar_modal():
         modal_info.visible = False
-        page.update()
-        correo_tf.focus()
+
+        # ✅ solo intenta focus si el control está montado
+        if getattr(correo_tf, "page", None) is not None:
+            try:
+                correo_tf.focus()
+            except Exception:
+                pass
+
+        # ✅ mejor: actualiza solo si la page existe
+        if getattr(page, "session_id", None) is not None:
+            page.update()
+
 
     ALTURA_CAMPOS = 56
 
@@ -144,8 +157,9 @@ def create_formulario(page: ft.Page):
         boton_enviar.disabled = not habilitar
         boton_con_gradiente.opacity = 1.0 if habilitar else 0.4
 
-        boton_con_gradiente.update()
-        boton_enviar.update()
+        safe_update(boton_con_gradiente)
+        safe_update(boton_enviar)
+
 
 
     # --- Validaciones en vivo ---
@@ -157,26 +171,32 @@ def create_formulario(page: ft.Page):
             v = v.replace("  ", " ")
         if v != e.control.value:
             e.control.value = v
-            e.control.update()
+            safe_update(e.control)   # ✅
         actualizar_estado_boton()
+
 
     def solo_numeros_y_mas(e):
         v = (e.control.value or "")
         nuevo = re.sub(r"[^0-9+]", "", v)
         if nuevo != v:
             e.control.value = nuevo
-            e.control.update()
+            safe_update(e.control)   # ✅ en vez de e.control.update()
         actualizar_estado_boton()
+
 
     def on_correo_change(e):
         v = (e.control.value or "")
         nuevo = v.replace(" ", "")
         if nuevo != v:
             e.control.value = nuevo
+
         warning_icon.visible = (nuevo != "" and not validar_correo(nuevo))
-        e.control.update()
-        warning_icon.update()
+
+        safe_update(e.control)       # ✅
+        safe_update(warning_icon)    # ✅
         actualizar_estado_boton()
+
+
 
         # --- Breakpoint por ancho: PC/Tablet (>=700) vs Teléfono (<700) ---
     BREAKPOINT_TABLET = 700
@@ -184,7 +204,7 @@ def create_formulario(page: ft.Page):
     def es_pc_o_tablet():
         # page.width existe en Flet (no window_width)
         return (page.width or 0) >= BREAKPOINT_TABLET
-
+        
     def label_color_actual():
         return ft.Colors.BLACK if es_pc_o_tablet() else ft.Colors.BLACK54
 
@@ -280,11 +300,18 @@ def create_formulario(page: ft.Page):
     )
     boton_wrapper = ft.Container(
         content=boton_con_gradiente,
-        padding=ft.padding.symmetric(horizontal=padding_horizontal_actual())
+        padding=ft.padding.symmetric(horizontal=padding_horizontal_actual()),
+        margin=ft.margin.only(top=0)  # se ajusta en resize
     )
+    ESPACIO_BOTON_PC = 32   # puedes cambiarlo (24, 32, etc)
     # --- Ajuste responsivo en resize (ancho + estilos) ---
     def ajustar_responsivo(e=None):
         w = ancho_responsivo()
+        # --- Espacio extra arriba del botón solo en PC ---
+        if es_pc_o_tablet():   # o solo PC si quieres
+            boton_wrapper.margin = ft.margin.only(top=ESPACIO_BOTON_PC)
+        else:
+            boton_wrapper.margin = ft.margin.only(top=0)
 
         for tf in (nombre_real, correo_tf_real, telefono_real, mensaje_real):
             tf.width = w
@@ -309,7 +336,19 @@ def create_formulario(page: ft.Page):
 
     # Llama a una primera vez y engánchalo al evento
     ajustar_responsivo()
-    page.on_resize = ajustar_responsivo
+
+    prev_on_resized = page.on_resized  # puede ser None
+
+    def _chain_resized(e):
+        try:
+            if prev_on_resized:
+                prev_on_resized(e)
+        except Exception:
+            pass
+        ajustar_responsivo(e)
+
+    page.on_resized = _chain_resized
+
 
 
     async def proceso_envio():
@@ -377,9 +416,11 @@ def create_formulario(page: ft.Page):
         except Exception as ex:
             enviando_overlay.visible = False
             mostrar_modal(
-            f"Error al enviar la información: {ex}",
-            ft.Colors.RED_400
+                "Error al enviar la información",
+                str(ex),
+                ft.Colors.RED_400
             )
+
             page.update()
 
     

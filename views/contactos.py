@@ -34,10 +34,10 @@ def create_contactos_row(page: ft.Page) -> ft.Container:
     # 🔠 Tamaños más grandes
     size_text_mobile = 14
     size_text_tablet = 18
-    size_text_pc = 20
+    size_text_pc = 16
     size_icon_mobile = 22
     size_icon_tablet = 30
-    size_icon_pc = 32
+    size_icon_pc = 26
 
     size_text = (
         size_text_mobile if cls == "mobile"
@@ -77,11 +77,11 @@ def create_contactos_row(page: ft.Page) -> ft.Container:
                         txt_tel,
                     ],
                     vertical_alignment=ft.CrossAxisAlignment.CENTER,
-                    spacing=8,
+                    spacing=4,
                 ),
                 on_click=abrir_llamada,
                 ink=True,
-                padding=6,
+                padding=2,
             ),
             ft.Container(
                 content=ft.Row(
@@ -90,11 +90,11 @@ def create_contactos_row(page: ft.Page) -> ft.Container:
                         txt_mail,
                     ],
                     vertical_alignment=ft.CrossAxisAlignment.CENTER,
-                    spacing=8,
+                    spacing=4,
                 ),
                 on_click=abrir_correo,
                 ink=True,
-                padding=6,
+                padding=2,
             ),
             ft.Container(
                 content=ft.Row(
@@ -103,15 +103,15 @@ def create_contactos_row(page: ft.Page) -> ft.Container:
                         txt_loc,
                     ],
                     vertical_alignment=ft.CrossAxisAlignment.CENTER,
-                    spacing=8,
+                    spacing=4,
                 ),
                 on_click=abrir_maps,
                 ink=True,
-                padding=6,
+                padding=2,
             ),
         ],
         alignment=ft.MainAxisAlignment.END,
-        spacing=25,
+        spacing=15,
         key="fila_iconos",
     )
 

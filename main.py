@@ -1,4 +1,5 @@
 import json
+from flet import Ref
 import time
 import flet as ft
 import asyncio
@@ -40,8 +41,10 @@ def main(page: ft.Page):
     "¿Podrían orientarme, por favor?"]   # 👈 ahora es lista de un solo valor
 
     youtube_webview = WebView(
-        url="https://www.youtube.com/embed/En49PmGEfLs?autoplay=1&mute=1&controls=1", 
-        expand=True
+        url="https://www.youtube.com/embed/En49PmGEfLs?autoplay=0&mute=1&controls=1", 
+    )
+    youtube_webview2 = WebView(
+        url="https://youtube.com/embed/eedRkoI9poE?autoplay=0&mute=1&controls=1", 
     )
 
     video_card = ft.Container(
@@ -59,6 +62,21 @@ def main(page: ft.Page):
         ),
     )
 
+    video_card2 = ft.Container(
+        border_radius=20,                    # 🔥 Bordes redondeados estilo carrusel
+        clip_behavior=ft.ClipBehavior.ANTI_ALIAS,  
+        bgcolor="transparent",               # Sin fondo
+        shadow=ft.BoxShadow(1, 4, ft.Colors.BLACK26, offset=ft.Offset(2, 2)),  
+        padding=0,                           # Sin marco blanco
+        width=263,
+        height=360,
+        content=ft.Container(
+            border_radius=20,                # 🔥 Recorte interno redondeado
+            clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
+            content=youtube_webview2
+        ),
+    )
+
     # Contactos Redes Sociales
     numero_whatsapp = "+56999724454"
     contacto_whatsapp = f"https://wa.me/{numero_whatsapp}?text={WHATSAPP_MSG}"
@@ -67,13 +85,14 @@ def main(page: ft.Page):
    
     # Crear carrusel vertical
     carrusel_vertical, start_vertical, stop_vertical = create_vertical_carousel(page, intervalo=3)
+
     valores_section = create_valores(page)
     # --- Zona multimedia: carrusel + video (layout se ajusta en ajustar_tamanos) ---
     zona_multimedia = ft.Container(
         content=carrusel_vertical,
-        alignment=ft.alignment.center,
     )
-    
+    COLOR_SEPARADOR_PC = "#203a43"  # similar al gradiente desactivado
+    COLOR_SEPARADOR_MOBILE = "#0D2943"
     def crear_separador(page: ft.Page, texto: str) -> ft.Container:
         return ft.Container(
             bgcolor="#0D2943",  # azul oscuro
@@ -146,6 +165,10 @@ def main(page: ft.Page):
         visible=False,
         alignment=ft.alignment.center_right,  # alineado a la derecha
     )
+    slot_tabs_header = ft.Container(
+        visible=False,
+        alignment=ft.alignment.center,
+    )
 
     separador_servicios = crear_separador(page, "🪳🦟SERVICIOS🐀🐜")
     separador_servicios.key = "servicios_menu"
@@ -157,9 +180,20 @@ def main(page: ft.Page):
     separador_historia.key = "historia"  # 👈 clave única
     separador_quienes = crear_separador(page, "Quiénes Somos", ft.Icons.PEOPLE)
     separador_quienes.key = "quienes_somos"
-    separador_final = crear_firma(page, "Desarrollo por Ing. Jorge Lopez con Tecnología Flet & Python\n Contacto: +56937539304 Instagram: jorgelopezsilva\n2025 Todos los Derechos Reservados")
+    separador_final = crear_firma(page, "🛠 Desarrollo por Ing. Jorge Lopez con ⚡Tecnología Flet & 🐍Python\n 📞: +56937539304        📸: jorgelopezsilva\n2025 ©️Todos los Derechos Reservados")
+    separador_final.bgcolor = "#B9B8B8"        # gris corporativo claro
+    separador_final.content.color = "#202325" # texto gris oscuro elegante
+    separador_final.content.size = 8
+
     separador_sanitizacion = crear_separador(page, "🏠 Sanitización de Ambientes")
     #insectos
+    separador_servicios.data = {"bg_mobile": COLOR_SEPARADOR_MOBILE}
+    separador_programas.data = {"bg_mobile": COLOR_SEPARADOR_MOBILE}
+    separador_VMS.data = {"bg_mobile": COLOR_SEPARADOR_MOBILE}
+    separador_historia.data = {"bg_mobile": COLOR_SEPARADOR_MOBILE}
+    separador_quienes.data = {"bg_mobile": COLOR_SEPARADOR_MOBILE}
+    separador_sanitizacion.data = {"bg_mobile": COLOR_SEPARADOR_MOBILE}
+
     modal_insecto, mostrar_info_insecto, start_anim_insectos, stop_anim_insectos = create_insectos_support(page)
     # --- Carrusel ---
     pantalla_inicial, start_carrusel, stop_carrusel  = create_carrusel(page)
@@ -176,48 +210,176 @@ def main(page: ft.Page):
         # porque dentro de _rotar() ya esperas a que imagen.page no sea None
         start_vertical()
 
-
     # --- Formulario ---
     formulario = create_formulario(page)
     menu_servicios_container = ft.Column(spacing=10)  # 👈 aquí pondremos el menú
 
-    # --- WRAPPERS para no reutilizar los mismos controles en varios padres ---
-    cont_pantalla = ft.Container(
-        content=pantalla_inicial,
-        border_radius=0,
-        padding=0,
-        key= "cont_pantalla"
-    )
-
-    cont_form = ft.Container(
+    # 1) Crear wrappers
+    cont_pantalla = ft.Container(content=pantalla_inicial, border_radius=0, padding=0, key="cont_pantalla")
+    cont_form     = ft.Container(content=formulario,       border_radius=0, padding=0)
+    ANCHO_FORM_PC = 380
+    # 2) Crear ResponsiveRow
+    col_pantalla = ft.Container(content=cont_pantalla, col={"xs": 12, "md": 10, "lg": 10})
+    col_form = ft.Container(
+    content=ft.Container(
         content=formulario,
-        border_radius=0,
-        padding=0,
+        width=ANCHO_FORM_PC,
+        padding=20,
+        bgcolor="rgba(255,255,255,0.95)",  # blanco ligeramente opaco en PC
+        border_radius=16,
+    ),
+    col={"xs": 12, "md": 12, "lg": 4},
+    alignment=ft.alignment.center_right,
+)
+
+    col_spacer = ft.Container(col={"xs": 12, "md": 10, "lg": 10}, expand=True)
+
+    imagen_logo_empresa = ft.Image(
+    src="https://i.postimg.cc/rFxRRS5D/logo-72x72.png",
+    fit=ft.ImageFit.COVER,   # llena el círculo sin dejar bordes
+    )
+    imagen_logo_empresa2 = ft.Image(
+    src="https://i.postimg.cc/sDPWTSk5/lll.jpg",
+    fit=ft.ImageFit.FILL,   # llena el círculo sin dejar bordes
     )
 
-    # --- Fila/Columna responsiva: móvil apilado, tablet/PC 65% / 35% ---
     inicio_responsive = ft.ResponsiveRow(
-        controls=[
-            ft.Container(content=cont_pantalla, col={"xs": 12, "md": 8, "lg": 8}),
-            ft.Container(content=cont_form,     col={"xs": 12, "md": 4, "lg": 4}),
-        ],
-        columns=12, 
-        run_spacing=10,   # espacio vertical entre filas cuando se apila
-        spacing=10,       # espacio horizontal entre columnas
-        key = "inicio_responsive"
+        controls=[col_pantalla, col_form],
+        columns=12,
+        run_spacing=10,
+        spacing=10,
+        key="inicio_responsive",
     )
+
+    imagen_banner_form = ft.Image(
+        src="https://i.postimg.cc/htB3zLB6/Imagen7.png",  # cambia si quieres
+        fit=ft.ImageFit.COVER,
+        border_radius=16,
+    )
+    enlace_correo2 = "mailto:operaciones@evermountsolutions.cl?subject=Consulta&body=Hola, quisiera más información"
+    def crear_boton_cotiza(page: ft.Page):
+        COLOR_NORMAL = ft.Colors.WHITE
+        COLOR_HOVER  = "#D8E6EC"
+        TEXTO_COLOR  = "#203a43"
+
+        texto = ft.Text(
+            "Cotiza ahora",
+            size=22,
+            weight=ft.FontWeight.BOLD,
+            color=TEXTO_COLOR,
+        )
+
+        btn = ft.Container(
+            content=texto,
+            bgcolor=COLOR_NORMAL,
+            border_radius=14,
+            padding=ft.padding.symmetric(horizontal=26, vertical=16),
+            alignment=ft.alignment.center,
+            ink=True,
+            on_click=lambda e: page.launch_url(enlace_correo2),
+        )
+
+        def _hover(e):
+            btn.bgcolor = COLOR_HOVER if e.data == "true" else COLOR_NORMAL
+            btn.update()
+
+        btn.on_hover = _hover
+        return btn
+
+    
+    ALTO_INICIO_PC = 580  # opcional: altura fija del bloque en PC (puedes poner None)
+    banner_pc = ft.Container(
+        key="banner_pc",
+        expand=True,
+        height=ALTO_INICIO_PC,
+        padding=ft.padding.symmetric(horizontal=60, vertical=40),
+        gradient=ft.LinearGradient(
+            begin=ft.alignment.top_left,
+            end=ft.alignment.bottom_right,
+            colors=["#0f2027", "#203a43", "#2c5364"],
+        ),
+        content=ft.Row(
+            [
+                ft.Column(
+                        [
+                            ft.Row(
+                                [
+                                    # Logo
+                                    ft.Container(
+                                        content=imagen_logo_empresa2,
+                                        width=200,
+                                        height=200,
+                                        border_radius=999,
+                                        clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
+                                    ),
+
+                                    # Textos
+                                    ft.Column(
+                                        [
+                                            ft.Text(
+                                                "Evermount Solutions",
+                                                size=64,
+                                                weight=ft.FontWeight.BOLD,
+                                                color=ft.Colors.WHITE,
+                                            ),
+                                            ft.Text(
+                                                "Pest Defense",
+                                                size=64,
+                                                weight=ft.FontWeight.BOLD,
+                                                color=ft.Colors.WHITE70,
+                                            ),
+                                        ],
+                                        spacing=2,
+                                    ),
+                                ],
+                                spacing=16,
+                                vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                            ),
+
+                            ft.Text(
+                                "Control profesional de plagas para hogares y empresas.\n"
+                                "Programas mensuales, trimestrales y anuales con garantía.",
+                                size=28,
+                                color=ft.Colors.WHITE,
+                            ),
+
+                            crear_boton_cotiza(page),
+                            
+                        ],
+                        spacing=20,
+                        alignment=ft.MainAxisAlignment.CENTER,
+                    ),
+               
+                # --- Spacer ---
+                ft.Container(expand=True),
+                # --- Columna derecha ---
+                imagen_banner_form,
+                # --- Formulario a la derecha ---
+                col_form,
+            ],
+            vertical_alignment=ft.CrossAxisAlignment.CENTER,
+        )
+    )
+
+    # Wrapper que se usa en el contenido
+    inicio_bg = ft.Container(
+        content=inicio_responsive,
+        expand=True,
+        width=float("inf"),
+    )
+    
 
     def render_inicio():
         contenido.controls.clear()
         contenido.controls.extend([
-           inicio_responsive,separador_servicios,menu_servicios_container,separador_programas,zona_multimedia,separador_VMS,valores_section,separador_sanitizacion,separador_quienes,quienes_section,separador_historia,historia_section,separador_final])
+           inicio_bg,separador_servicios,menu_servicios_container,separador_programas,zona_multimedia,separador_VMS,valores_section,separador_sanitizacion,separador_quienes,quienes_section,separador_historia,historia_section,separador_final])
         contenido.update()
         page.update()
         
 
     # Contenido central mutable
     contenido = ft.Column(
-        [inicio_responsive,separador_servicios,menu_servicios_container,separador_programas,zona_multimedia,separador_VMS,valores_section,separador_sanitizacion,separador_quienes,quienes_section,separador_historia,historia_section,separador_final],
+        [inicio_bg,separador_servicios,menu_servicios_container,separador_programas,zona_multimedia,separador_VMS,valores_section,separador_sanitizacion,separador_quienes,quienes_section,separador_historia,historia_section,separador_final],
         expand=True,
         alignment=ft.MainAxisAlignment.CENTER,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
@@ -415,22 +577,15 @@ def main(page: ft.Page):
             # 🔥 Scroll automático SOLO en tablet/PC
             if (page.width or 0) >= 600:
                 # Dar un pequeño tiempo para permitir que el contenido se reconstruya
-                async def _scroll_after_load():
-                    await asyncio.sleep(0.05)
-                    try:
-                        page.scroll_to(key="inicio_responsive", duration=200)
-                    except Exception:
-                        pass
+                async def _scroll():
+                    await asyncio.sleep(0.5)  # deja que el layout se monte
+                    if (page.width or 0) >= 1020:   # PC
+                        page.scroll_to(key="banner_pc", duration=400)
+                    else:
+                        page.scroll_to(key="inicio_responsive", duration=300)
 
-                page.run_task(_scroll_after_load)
+                page.run_task(_scroll)
             else: page.scroll_to(key="cont_pantalla", duration=200)
-
-
-
-    imagen_logo_empresa = ft.Image(
-    src="https://i.postimg.cc/rFxRRS5D/logo-72x72.png",
-    fit=ft.ImageFit.COVER,   # llena el círculo sin dejar bordes
-    )
 
     inner = ft.Container(
         content=imagen_logo_empresa ,
@@ -528,13 +683,20 @@ def main(page: ft.Page):
         right=5,
     )
 
-    # --- Barra superior con botón Empresa y Titulo ---
+    # --- Barra superior con Titulo (solo móvil) ---
     texto_titulo = ft.Stack([
-        ft.Text("EvermountSolutions – Pest Defense",
-                 weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK45, top=1, left=1),
-        ft.Text("EvermountSolutions – Pest Defense",
-                 weight=ft.FontWeight.BOLD, color=ft.Colors.WHITE),
+        ft.Text("EvermountSolutions – Pest Defense",
+                weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK45, top=1, left=1),
+        ft.Text("EvermountSolutions – Pest Defense",
+                weight=ft.FontWeight.BOLD, color=ft.Colors.WHITE),
     ])
+
+    wrap_titulo = ft.Container(
+        content=texto_titulo,
+        expand=True,
+        alignment=ft.alignment.center_left,
+        visible=True,   # se controla en ajustar_tamanos()
+    )
 
     barra_superior = ft.Container(
         gradient=ft.LinearGradient(
@@ -543,7 +705,8 @@ def main(page: ft.Page):
         ),
         content=ft.Row([
             container_logo_empresa, 
-            ft.Container(content=texto_titulo, expand=True, alignment=ft.alignment.center_left),
+            wrap_titulo,
+            slot_tabs_header,
             slot_iconos_header,
             container_boton_empresa 
         ], vertical_alignment=ft.CrossAxisAlignment.CENTER)
@@ -665,20 +828,15 @@ def main(page: ft.Page):
         show_intro_once()
     page.on_connect = on_connect
 
-    # Cuando se monte la página, iniciar carrusel imagenes verticales
-    async def iniciar():
-        await asyncio.sleep(0)
-    page.run_task(iniciar)
-
     page.add(
         ft.Container(
             content=stack_raiz,
             expand=True,           # 👈 asegura ocupar todo el viewport
         )
     )
-    page.run_task(marquee_loop)
     # Inicia carruseles tras montar el árbol
     page.run_task(_kick_carruseles)
+    page.run_task(marquee_loop)
     # Esto inyecta el grid de servicios en el contenedor vacío
     render_menu_servicios(page, menu_servicios_container)
     # Fallback: en el próximo tick, intenta mostrar el intro una vez
@@ -725,15 +883,53 @@ def main(page: ft.Page):
             )
             contenido.update()
 
+    def create_top_tabs(show_info_callback, es_desktop=False):
+        tabs = []
+        for text, icon in menu_data:
+            # ❌ ocultar en PC
+            if es_desktop and text in ("Contactos", "Historia"):
+                continue
+
+            tab = ft.Container(
+                content=ft.Text(
+                    text,
+                    size=16,
+                    weight=ft.FontWeight.BOLD,
+                    color=ft.Colors.WHITE,
+                ),
+                padding=ft.padding.symmetric(horizontal=12, vertical=6),
+                margin=ft.margin.symmetric(horizontal=4),   
+                border_radius=8,
+                bgcolor="transparent",
+                ink=True,
+                on_click=lambda e, t=text: show_info_callback(t),
+            )
+            tabs.append(tab)
+
+        return ft.Row(
+            controls=tabs,
+            spacing=4,
+            alignment=ft.MainAxisAlignment.CENTER,
+            vertical_alignment=ft.CrossAxisAlignment.CENTER,
+        )
+
+
     # --- Responsive: texto + ancho automático para WhatsApp ---
     def ajustar_tamanos(e=None):
         a = page.width
-
-        # --- Escala del título ---
-        s = 15 if a < 480 else 24 if a < 900 else 28
-        texto_titulo.controls[0].size = s
-        texto_titulo.controls[1].size = s
-        texto_titulo.update()
+        def aplicar_color_separadores(pc: bool):
+            for sep in [
+                separador_servicios,
+                separador_programas,
+                separador_VMS,
+                separador_historia,
+                separador_quienes,
+                separador_sanitizacion,
+            ]:
+                if pc:
+                    sep.bgcolor = COLOR_SEPARADOR_PC
+                else:
+                    sep.bgcolor = sep.data.get("bg_mobile", COLOR_SEPARADOR_MOBILE)
 
         # tamaño del botón empresa (icono + área táctil) + Logo empresa
         if a < 600:   # móviles
@@ -747,10 +943,10 @@ def main(page: ft.Page):
             logo_size = 54
             dropdown.top = 40
         else:         # desktop
-            icon_size = 38
-            btn_size = 52
-            logo_size = 66
-            dropdown.top = 45
+            icon_size = 12
+            btn_size = 26
+            logo_size = 40
+            dropdown.top = 35
 
         # 1) tamaño del contenedor (área clickeable visual)
         container_boton_empresa.width = btn_size
@@ -779,16 +975,39 @@ def main(page: ft.Page):
         es_tablet = 600 <= a < 1020
 
         if es_tablet or es_desktop:
+            aplicar_color_separadores(True)
+            # MOSTRAR PESTAÑAS EN PC
+            if not slot_tabs_header.visible:
+                slot_tabs_header.content = create_top_tabs(show_info, es_desktop=es_desktop)
+                slot_tabs_header.visible = True
+                slot_tabs_header.update()
+
+            # esconder menú hamburguesa
+            container_boton_empresa.visible = False
+            col_form.bgcolor = ft.Colors.GREY_300
+            col_form.border_radius = 16
+            col_form.padding = 12
+            col_form.shadow = ft.BoxShadow(2, 8, ft.Colors.BLACK12, offset=ft.Offset(0, 4))
+            inicio_responsive.controls.clear()
+            inicio_bg.content = banner_pc
+            inicio_bg.height = ALTO_INICIO_PC
+
+            contenido.spacing = 0
+            # 👇 PC/Tablet: “espacio vacío” + formulario a la derecha
+            inicio_responsive.controls.extend([col_spacer, col_form])
+            inicio_responsive.alignment = ft.MainAxisAlignment.START
+ 
+            separador_servicios.margin = ft.margin.only(top=0)
             # --- Ajustar tamaños de textos para Tablet y PC ---
             try:
                 if valores_section.data:
                     if es_tablet or es_desktop:
                         # TITULOS tamaño 24
                         for t in valores_section.data["titulos"]:
-                            t.size = 24
+                            t.size = 14
                         # TEXTOS tamaño 18
                         for t in valores_section.data["textos"]:
-                            t.size = 18
+                            t.size = 14
                     else:
                         # Móvil valores originales
                         for t in valores_section.data["titulos"]:
@@ -802,8 +1021,8 @@ def main(page: ft.Page):
             try:
                 if quienes_section.data:
                     if es_tablet or es_desktop:
-                        quienes_section.data["subtitulo"].size = 24
-                        quienes_section.data["texto"].size = 18
+                        quienes_section.data["subtitulo"].size = 14
+                        quienes_section.data["texto"].size = 14
                     else:
                         quienes_section.data["subtitulo"].size = 18
                         quienes_section.data["texto"].size = 14
@@ -814,11 +1033,11 @@ def main(page: ft.Page):
             try:
                 if historia_section.data:
                     if es_tablet or es_desktop:
-                        historia_section.data["sub1"].size = 24
-                        historia_section.data["sub2"].size = 24
-                        historia_section.data["texto"].size = 18
+                        historia_section.data["sub1"].size = 14
+                        historia_section.data["sub2"].size = 14
+                        historia_section.data["texto"].size = 14
                         for b in historia_section.data["bullets"]:
-                            b.size = 18
+                            b.size = 14
                     else:
                         historia_section.data["sub1"].size = 18
                         historia_section.data["sub2"].size = 18
@@ -830,38 +1049,30 @@ def main(page: ft.Page):
 
             # Tamaño del video en PC/Tablet
             video_card.width = 263
-            video_card.height = 350
+            video_card.height = 360
+
 
             # ⚠️ Importante: asegurarnos que video_card NO esté suelto en contenido
             safe_remove(video_card, contenido.controls)
 
             # 👉 PC/TABLET: también eliminamos el separador de sanitización del contenido
             safe_remove(separador_sanitizacion, contenido.controls)
+            safe_remove(separador_historia, contenido.controls)
 
-            # PC/TABLET → carrusel + video juntos en zona_multimedia
+            
+            # PC/TABLET → carrusel + DOS videos juntos
+            # PC/TABLET → carrusel + 2 videos, cada uno en su “columna”
             zona_multimedia.content = ft.Row(
                 [
-                    ft.Container(
-                        content=video_card,
-                        alignment=ft.alignment.center,
-                        margin=ft.margin.only(left=20, right=20),
-                    ),
-                    ft.Container(
-                        content=carrusel_vertical,
-                        expand=True,
-                        alignment=ft.alignment.center,
-                    ),
-                    
+                   carrusel_vertical,video_card,video_card2
                 ],
-                alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-                vertical_alignment=ft.CrossAxisAlignment.CENTER,
             )
+
             zona_multimedia.update()
 
             # modo tablet / PC → sin saltos de línea la firma
             separador_final.content.value = separador_final.data["oneline_text"]
-            separador_final.content.size = 22
-            separador_final.bgcolor = separador_final.data["mobile_bg"]
+            separador_final.content.size = 12
 
             # fila_iconos va al header
             safe_remove(fila_iconos, contenido.controls)
@@ -871,11 +1082,39 @@ def main(page: ft.Page):
 
             # mostrar promo
             promo_stack.visible = True
+            # 👇 NUEVO: asegurar que el carrusel vertical está activo
+            try:
+                start_vertical()
+            except Exception:
+                pass
+
+            # ==== REORDENAR HEADER: tabs al lado del logo SOLO en PC ====
+            try:
+                top_row = barra_superior.content  # ft.Row
+                if isinstance(top_row, ft.Row):
+                    if es_desktop:
+                        # PC: Logo + Tabs juntos, luego espacio, luego iconos + (hamburguesa oculta por tu lógica)
+                        top_row.controls = [
+                            container_logo_empresa,
+                            slot_tabs_header,          # 👈 al lado del logo SOLO PC
+                            ft.Container(expand=True),
+                            slot_iconos_header,
+                            container_boton_empresa,
+                        ]
+                    else:
+                        # Móvil/Tablet: Logo + Título (solo móvil), espacio, luego lo demás
+                        top_row.controls = [
+                            container_logo_empresa,
+                            wrap_titulo,               # 👈 solo visible en móvil
+                            slot_tabs_header,          # 👈 oculto fuera de PC por el bloque anterior
+                            slot_iconos_header,
+                            container_boton_empresa,
+                        ]
+                    top_row.update()
+            except Exception:
+                pass
 
         else:
-            # MÓVIL → solo carrusel en zona_multimedia
-            zona_multimedia.content = carrusel_vertical
-            zona_multimedia.update()
             barra_inferior.alignment = ft.MainAxisAlignment.END
             # 👇 Asegurarnos de que separador_sanitizacion EXISTE en contenido
             if separador_sanitizacion not in contenido.controls:
@@ -900,28 +1139,6 @@ def main(page: ft.Page):
                 contenido.controls.insert(idx + 1, video_card)
             except ValueError:
                 contenido.controls.append(video_card)
-
-            # Firma con saltos de línea
-            separador_final.content.value = separador_final.data["raw_text"]
-            separador_final.bgcolor = separador_final.data["mobile_bg"]
-
-            # iconos vuelven al contenido (móvil)
-            slot_iconos_header.content = None
-            slot_iconos_header.visible = False
-            slot_iconos_header.update()
-
-            if fila_iconos not in contenido.controls:
-                contenido.controls.insert(0, fila_iconos)
-
-            promo_stack.visible = False
-            separador_final.update()
-
-        # Ajuste adaptativo extra de la fila de iconos
-        try:
-            if hasattr(fila_iconos, "data") and callable(fila_iconos.data.get("apply_style_adaptativo")):
-                fila_iconos.data["apply_style_adaptativo"]()
-        except Exception:
-            pass
 
         page.update()
 

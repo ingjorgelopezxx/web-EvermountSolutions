@@ -6,26 +6,16 @@ IMAGENES = [
     "https://i.postimg.cc/RZwyW5pc/imagen2.jpg",
     "https://i.postimg.cc/BvgzC50b/imagen3.jpg",
     "https://i.postimg.cc/FRCnM91Q/imagen4.jpg",
+    "https://i.postimg.cc/9FN0WFkY/Whats-App-Image-2025-11-17-at-5-58-09-PM.jpg",
+    "https://i.postimg.cc/Xq5W44BD/Whats-App-Image-2025-11-17-at-5-58-10-PM.jpg",
 ]
 
 def create_vertical_carousel(page: ft.Page, intervalo=3):
-    # === breakpoints ===
-    ancho = page.width or 0
-    es_pc = ancho >= 1020          # 👈 SOLO PC
-    es_tablet = 600 <= ancho < 1020
-    es_movil = ancho < 600
-
-    # tamaños según dispositivo
-    if es_pc:
-        img_w, img_h = 300, 350    # 👈 igual que video_card en PC
-    elif es_tablet:
-        img_w, img_h = 300, 350
-    else:  # móvil
-        img_w, img_h = 220, 320
-
-    TITLE_SIZE = 24 if (es_pc or es_tablet) else 24
-    BODY_SIZE = 18 if (es_pc or es_tablet) else 18
-    PLAN_SIZE = 18 if (es_pc or es_tablet) else 18
+    # === definimos breakpoint PC/Tablet vs móvil ===
+    es_pc_tablet = (page.width or 0) >= 700
+    TITLE_SIZE = 18 if es_pc_tablet else 22
+    BODY_SIZE = 14 if es_pc_tablet else 14
+    PLAN_SIZE = 12 if es_pc_tablet else 14
 
     # Índice actual
     idx = [0]
@@ -35,15 +25,15 @@ def create_vertical_carousel(page: ft.Page, intervalo=3):
     imagen = ft.Image(
         src=IMAGENES[idx[0]],
         fit=ft.ImageFit.COVER,
-        width=img_w,          # 👈 usa tamaño calculado
-        height=img_h,         # 👈 usa tamaño calculado
-        border_radius=ft.border_radius.all(12),
+        width=263,
+        height=360,
+        border_radius=ft.border_radius.all(12)
     )
 
     tarjeta = ft.Container(
         content=imagen,
-        width=img_w,          # 👈 igual que image
-        height=img_h,
+        width=263,
+        height=360,
         bgcolor=ft.Colors.WHITE,
         border_radius=12,
         shadow=ft.BoxShadow(1, 4, ft.Colors.BLACK26, offset=ft.Offset(2, 2)),
@@ -53,28 +43,18 @@ def create_vertical_carousel(page: ft.Page, intervalo=3):
     carrusel_control = ft.Container(
         content=tarjeta,
         alignment=ft.alignment.center,
-        padding=10,
+        padding=10
     )
 
     async def _rotar():
         try:
             while activo[0]:
-                # Si la imagen aún no está añadida al árbol de la página,
-                # esperamos un poquito y volvemos a intentar.
-                if getattr(imagen, "page", None) is None:
-                    await asyncio.sleep(0.1)
-                    continue
-
                 imagen.src = IMAGENES[idx[0] % len(IMAGENES)]
-                # 👇 Usamos page.update(), NO imagen.update()
                 page.update()
-
                 idx[0] = (idx[0] + 1) % len(IMAGENES)
                 await asyncio.sleep(intervalo)
         except asyncio.CancelledError:
-            # cuando se llama stop() y se cancela la tarea
             pass
-
 
     def start():
         if tarea[0] is None:
@@ -91,7 +71,6 @@ def create_vertical_carousel(page: ft.Page, intervalo=3):
     texto_presentacion = ft.Container(
         bgcolor=ft.Colors.WHITE,
         padding=10,
-        expand=True,
         content=ft.Column(
             [
                 ft.Text(
@@ -123,7 +102,7 @@ def create_vertical_carousel(page: ft.Page, intervalo=3):
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         ),
     )
-
+    
     planes_col1 = [
         ("Restaurantes", ft.Icons.RESTAURANT),
         ("Bodegas", ft.Icons.WAREHOUSE),
@@ -146,61 +125,53 @@ def create_vertical_carousel(page: ft.Page, intervalo=3):
                         ft.Text(texto, size=PLAN_SIZE, color=ft.Colors.BLACK87),
                     ],
                     vertical_alignment=ft.CrossAxisAlignment.CENTER,
-                    spacing=8,
                 )
             )
-        return ft.Column(items, spacing=4)
+        return ft.Column(items)
 
+    # 👉 dos columnas lado a lado
     lista_planes = ft.Row(
         [
             ft.Container(
                 content=build_col(planes_col1),
-                expand=True,
                 alignment=ft.alignment.top_right,
+                margin=ft.margin.only(left=10), 
             ),
             ft.Container(
                 content=build_col(planes_col2),
-                expand=True,
                 alignment=ft.alignment.top_left,
             ),
         ],
         alignment=ft.MainAxisAlignment.SPACE_EVENLY,
-        vertical_alignment=ft.CrossAxisAlignment.START,
+        vertical_alignment=ft.CrossAxisAlignment.CENTER,
     )
 
-    if es_pc or es_tablet:
+    # --- Layout: izquierda texto + lista, derecha carrusel (PC/Tablet) ---
+    if es_pc_tablet:
         contenedor_completo = ft.Row(
             [
                 ft.Container(
                     content=ft.Column(
                         [texto_presentacion, lista_planes],
-                        spacing=10,
-                        horizontal_alignment=ft.CrossAxisAlignment.START,
-                    ),
-                    expand=True,
+                        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                    ),width=400
                 ),
                 ft.Container(
                     content=carrusel_control,
                     alignment=ft.alignment.center,
                 ),
             ],
-            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
             vertical_alignment=ft.CrossAxisAlignment.START,
         )
     else:
         contenedor_completo = ft.Column(
             [
                 texto_presentacion,
+                lista_planes,
+                carrusel_control,
             ],
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
             spacing=20,
         )
-
-    # guardamos para posibles ajustes futuros si quieres
-    contenedor_completo.data = {
-        "imagen": imagen,
-        "tarjeta": tarjeta,
-        "activo": activo   # 👈 ESTA ES LA BANDERA QUE FALTABA
-    }
 
     return contenedor_completo, start, stop

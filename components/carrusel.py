@@ -34,7 +34,7 @@ def create_carrusel(page: ft.Page, intervalo: int = 3):
         elif cls == "tablet":
             h_min, h_max = 280, 540
         else:
-            h_min, h_max = 320, 640
+            h_min, h_max = 200, 420
         h_calc = (w * 9) / 16
         h = max(h_min, min(h_calc, h_max))
         return w, h
