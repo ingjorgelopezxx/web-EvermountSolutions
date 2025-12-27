@@ -1,19 +1,25 @@
 import flet as ft
-import smtplib
-from email.message import EmailMessage
 import re
-from email.header import Header
 import asyncio
+import os
+import json
+import urllib.request
+from email.header import Header
 
-SMTP_SERVER = "smtp.gmail.com"
-SMTP_PORT = 587
-EMAIL_USER = "evermountsolutions@gmail.com"
-EMAIL_PASS = "oiesfqyg afvluloa"
-EMAIL_DESTINO = "operaciones@evermountsolutions.cl"
+# =========================
+#  ENV (Render)
+# =========================
+SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY")
+EMAIL_DESTINO = os.getenv("EMAIL_DESTINO", "operaciones@evermountsolutions.cl")
+EMAIL_FROM = os.getenv("EMAIL_FROM", "evermountsolutions@gmail.com")  # puede ser tu gmail mientras completas verificación/dominio
+
+SENDGRID_ENDPOINT = "https://api.sendgrid.com/v3/mail/send"
+
 
 def validar_correo(email: str) -> bool:
     patron = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
     return re.match(patron, email) is not None
+
 
 def create_formulario(page: ft.Page):
     def safe_update(ctrl: ft.Control):
@@ -24,7 +30,7 @@ def create_formulario(page: ft.Page):
     enviando_overlay = ft.Container(
         visible=False,
         left=0, top=0, right=0, bottom=0,
-        bgcolor="rgba(0,0,0,0.8)",  # semitransparente
+        bgcolor="rgba(0,0,0,0.8)",
         alignment=ft.alignment.center,
         content=ft.Container(
             width=300,
@@ -90,57 +96,47 @@ def create_formulario(page: ft.Page):
 
     def cerrar_modal():
         modal_info.visible = False
-
-        # ✅ solo intenta focus si el control está montado
         if getattr(correo_tf, "page", None) is not None:
             try:
                 correo_tf.focus()
             except Exception:
                 pass
-
-        # ✅ mejor: actualiza solo si la page existe
         if getattr(page, "session_id", None) is not None:
             page.update()
-
 
     ALTURA_CAMPOS = 56
 
     def on_warning_click(e):
-        # 1) Forzar pérdida de foco cerrando el teclado
         correo_tf.disabled = True
         page.update()
 
         async def _restore():
-            # dar un tick (o 50ms) y re-habilitar
             await asyncio.sleep(0.05)
             correo_tf.disabled = False
-            # no re-enfocamos el campo para que el teclado NO vuelva
             page.update()
 
         page.run_task(_restore)
 
-        # 2) Mostrar tu modal de aviso
         mostrar_modal(
             "Correo inválido",
             "Ingresa un correo con formato correcto (ejemplo: usuario@dominio.com).",
             ft.Colors.RED_400
         )
 
-    # --- Icono alerta ---
     warning_icon = ft.IconButton(
         icon=ft.Icons.WARNING_AMBER_ROUNDED,
         icon_color=ft.Colors.RED,
-        icon_size=20,               # tamaño del icono
+        icon_size=20,
         visible=False,
         tooltip="Correo electrónico inválido",
         style=ft.ButtonStyle(
-            padding=ft.padding.all(0),            # 👈 sin padding interno
+            padding=ft.padding.all(0),
             shape=ft.RoundedRectangleBorder(radius=0)
         ),
-        width=40, height=ALTURA_CAMPOS,        # 👈 alto y ancho fijo del botón
-        on_click=on_warning_click,  # 👈 aquí
+        width=40, height=ALTURA_CAMPOS,
+        on_click=on_warning_click,
     )
-    
+
     def ancho_responsivo():
         return page.width * 0.85
 
@@ -160,8 +156,6 @@ def create_formulario(page: ft.Page):
         safe_update(boton_con_gradiente)
         safe_update(boton_enviar)
 
-
-
     # --- Validaciones en vivo ---
     def on_mensaje_nombre_change(e):
         v = e.control.value or ""
@@ -171,18 +165,16 @@ def create_formulario(page: ft.Page):
             v = v.replace("  ", " ")
         if v != e.control.value:
             e.control.value = v
-            safe_update(e.control)   # ✅
+            safe_update(e.control)
         actualizar_estado_boton()
-
 
     def solo_numeros_y_mas(e):
         v = (e.control.value or "")
         nuevo = re.sub(r"[^0-9+]", "", v)
         if nuevo != v:
             e.control.value = nuevo
-            safe_update(e.control)   # ✅ en vez de e.control.update()
+            safe_update(e.control)
         actualizar_estado_boton()
-
 
     def on_correo_change(e):
         v = (e.control.value or "")
@@ -191,32 +183,26 @@ def create_formulario(page: ft.Page):
             e.control.value = nuevo
 
         warning_icon.visible = (nuevo != "" and not validar_correo(nuevo))
-
-        safe_update(e.control)       # ✅
-        safe_update(warning_icon)    # ✅
+        safe_update(e.control)
+        safe_update(warning_icon)
         actualizar_estado_boton()
 
-
-
-        # --- Breakpoint por ancho: PC/Tablet (>=700) vs Teléfono (<700) ---
     BREAKPOINT_TABLET = 700
 
     def es_pc_o_tablet():
-        # page.width existe en Flet (no window_width)
         return (page.width or 0) >= BREAKPOINT_TABLET
-        
+
     def label_color_actual():
         return ft.Colors.BLACK if es_pc_o_tablet() else ft.Colors.BLACK54
 
     def padding_horizontal_actual():
         return 20 if es_pc_o_tablet() else 0
-    
+
     def enviar_formulario(e):
         enviando_overlay.visible = True
         page.update()
-        # 👇 Correcto: pasar la función async sin ejecutarla
         page.run_task(proceso_envio)
-  
+
     boton_enviar = ft.ElevatedButton(
         text="Enviar",
         disabled=True,
@@ -230,9 +216,7 @@ def create_formulario(page: ft.Page):
         ),
         on_click=enviar_formulario
     )
-    # Conserva tu warning_icon / handlers tal como los tienes...
 
-    # --- Creamos los TextField "reales" (referencias a TF puros) ---
     correo_tf_real = ft.TextField(
         label="Correo electrónico",
         label_style=ft.TextStyle(color=label_color_actual()),
@@ -271,21 +255,19 @@ def create_formulario(page: ft.Page):
         on_change=on_mensaje_nombre_change
     )
 
-    # 👇 Mantén tu variable correo_tf apuntando al TF real si la usas en otras funciones
     correo_tf = correo_tf_real
-      # --- Helper: envolver un TextField con padding lateral dinámico ---
+
     def wrap_con_padding(tf):
         return ft.Container(
             content=tf,
             padding=ft.padding.symmetric(horizontal=padding_horizontal_actual()),
-            alignment=ft.alignment.center,   # 👈 centra el TextField dentro del contenedor
+            alignment=ft.alignment.center,
         )
-    
-    # --- Envolvemos con padding dinámico (solo PC/Tablet) ---
-    nombre   = wrap_con_padding(nombre_real)
+
+    nombre = wrap_con_padding(nombre_real)
     correo_w = wrap_con_padding(correo_tf_real)
     telefono = wrap_con_padding(telefono_real)
-    mensaje  = wrap_con_padding(mensaje_real)
+    mensaje = wrap_con_padding(mensaje_real)
 
     boton_con_gradiente = ft.Container(
         content=boton_enviar,
@@ -298,20 +280,19 @@ def create_formulario(page: ft.Page):
         ),
         opacity=0.4
     )
+
     boton_wrapper = ft.Container(
         content=boton_con_gradiente,
         padding=ft.padding.symmetric(horizontal=padding_horizontal_actual()),
-        margin=ft.margin.only(top=0)  # se ajusta en resize
+        margin=ft.margin.only(top=0)
     )
-    ESPACIO_BOTON_PC = 32   # puedes cambiarlo (24, 32, etc)
-    # --- Ajuste responsivo en resize (ancho + estilos) ---
+
+    ESPACIO_BOTON_PC = 32
+
     def ajustar_responsivo(e=None):
         w = ancho_responsivo()
-        # --- Espacio extra arriba del botón solo en PC ---
-        if es_pc_o_tablet():   # o solo PC si quieres
-            boton_wrapper.margin = ft.margin.only(top=ESPACIO_BOTON_PC)
-        else:
-            boton_wrapper.margin = ft.margin.only(top=0)
+
+        boton_wrapper.margin = ft.margin.only(top=ESPACIO_BOTON_PC) if es_pc_o_tablet() else ft.margin.only(top=0)
 
         for tf in (nombre_real, correo_tf_real, telefono_real, mensaje_real):
             tf.width = w
@@ -322,22 +303,17 @@ def create_formulario(page: ft.Page):
         for tf in (nombre_real, correo_tf_real, telefono_real, mensaje_real):
             tf.label_style = ft.TextStyle(color=lc)
 
-        # contenedores de campos (con padding lateral)
         for cont in (nombre, correo_w, telefono, mensaje):
             cont.padding = ft.padding.symmetric(horizontal=ph)
 
-        # ancho del gradiente (contenido real)
         boton_con_gradiente.width = w
-        # 👇 padding externo va en el wrapper
         boton_wrapper.padding = ft.padding.symmetric(horizontal=ph)
 
         page.update()
 
-
-    # Llama a una primera vez y engánchalo al evento
     ajustar_responsivo()
 
-    prev_on_resized = page.on_resized  # puede ser None
+    prev_on_resized = page.on_resized
 
     def _chain_resized(e):
         try:
@@ -349,7 +325,44 @@ def create_formulario(page: ft.Page):
 
     page.on_resized = _chain_resized
 
+    # =========================
+    #  SENDGRID - envío (API)
+    # =========================
+    def send_via_sendgrid(subject: str, content: str):
+        if not SENDGRID_API_KEY:
+            raise RuntimeError("Falta SENDGRID_API_KEY en variables de entorno (Render).")
+        if not EMAIL_DESTINO:
+            raise RuntimeError("Falta EMAIL_DESTINO en variables de entorno (Render).")
+        if not EMAIL_FROM:
+            raise RuntimeError("Falta EMAIL_FROM en variables de entorno (Render).")
 
+        payload = {
+            "personalizations": [{"to": [{"email": EMAIL_DESTINO}]}],
+            "from": {"email": EMAIL_FROM, "name": "Evermount Solutions"},
+            "subject": subject,
+            "content": [{"type": "text/plain", "value": content}],
+        }
+
+        data = json.dumps(payload).encode("utf-8")
+        req = urllib.request.Request(
+            SENDGRID_ENDPOINT,
+            data=data,
+            method="POST",
+            headers={
+                "Authorization": f"Bearer {SENDGRID_API_KEY}",
+                "Content-Type": "application/json",
+            },
+        )
+
+        try:
+            with urllib.request.urlopen(req, timeout=20) as resp:
+                # SendGrid normalmente responde 202 Accepted
+                status = resp.status
+        except Exception as e:
+            raise RuntimeError(f"SendGrid error: {e}")
+
+        if status not in (200, 202):
+            raise RuntimeError(f"SendGrid respondió status {status}")
 
     async def proceso_envio():
         nombre_val = (nombre_real.value or "").strip()
@@ -357,12 +370,13 @@ def create_formulario(page: ft.Page):
         telefono_val = (telefono_real.value or "").strip()
         mensaje_val = (mensaje_real.value or "").strip()
 
-        if not nombre_val or not correo_val or not mensaje_val:
+        # ✅ requerimos todos, porque tu botón también lo exige
+        if not nombre_val or not correo_val or not telefono_val or not mensaje_val:
             enviando_overlay.visible = False
             mostrar_modal(
-            "Por favor completar todos los campos!",
-            "asi se enviara la informacion correctamente",
-            ft.Colors.RED_400
+                "Por favor completar todos los campos!",
+                "Así se enviará la información correctamente.",
+                ft.Colors.RED_400
             )
             page.update()
             return
@@ -370,33 +384,29 @@ def create_formulario(page: ft.Page):
         if not validar_correo(correo_val):
             enviando_overlay.visible = False
             mostrar_modal(
-            "Correo inválido",
-            "Ingresa un correo con formato correcto (ejemplo: usuario@dominio.com).",
-            ft.Colors.RED_400
+                "Correo inválido",
+                "Ingresa un correo con formato correcto (ejemplo: usuario@dominio.com).",
+                ft.Colors.RED_400
             )
             page.update()
             return
 
         try:
-            # enviar email en thread aparte
-            def send_email():
-                msg = EmailMessage()
-                msg["Subject"] = str(Header(f"Nuevo mensaje de {nombre_val}", "utf-8"))
-                msg["From"] = EMAIL_USER
-                msg["To"] = EMAIL_DESTINO
-                msg.set_content(
-                    f"Nombre: {nombre_val}\n"
-                    f"Correo: {correo_val}\n"
-                    f"Teléfono: {telefono_val}\n\n"
-                    f"Mensaje:\n{mensaje_val}",
-                    charset="utf-8"
-                )
-                with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
-                    server.starttls()
-                    server.login(EMAIL_USER, EMAIL_PASS)
-                    server.send_message(msg)
+            subject = str(Header(f"Nuevo mensaje de {nombre_val}", "utf-8"))
+            body = (
+                f"Nombre: {nombre_val}\n"
+                f"Correo: {correo_val}\n"
+                f"Teléfono: {telefono_val}\n\n"
+                f"Mensaje:\n{mensaje_val}"
+            )
 
-            await asyncio.to_thread(send_email)
+            # Logs útiles para Render (aparecen en Logs)
+            print("📩 Formulario recibido:", {"nombre": nombre_val, "correo": correo_val})
+            print("✉️ Enviando con SendGrid...")
+
+            await asyncio.to_thread(send_via_sendgrid, subject, body)
+
+            print("✅ Enviado OK")
 
             # limpiar campos
             nombre_real.value = ""
@@ -413,17 +423,16 @@ def create_formulario(page: ft.Page):
                 "Gracias por preferirnos. Nos pondremos en contacto pronto.",
                 ft.Colors.BLUE
             )
+
         except Exception as ex:
+            print("🔥 ERROR al enviar:", str(ex))
             enviando_overlay.visible = False
             mostrar_modal(
                 "Error al enviar la información",
                 str(ex),
                 ft.Colors.RED_400
             )
-
             page.update()
-
-    
 
     formulario_con_modal = ft.Stack(
         [
@@ -434,14 +443,15 @@ def create_formulario(page: ft.Page):
                     correo_w,
                     telefono,
                     mensaje,
-                    boton_wrapper   
+                    boton_wrapper
                 ],
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                 spacing=10
             ),
             modal_info,
             enviando_overlay
-        ],alignment=ft.alignment.center,   # 👈 opcional pero ayuda
+        ],
+        alignment=ft.alignment.center,
     )
 
     return formulario_con_modal
