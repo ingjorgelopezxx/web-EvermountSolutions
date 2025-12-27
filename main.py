@@ -1145,7 +1145,7 @@ def main(page: ft.Page):
 
     page.on_resized = ajustar_tamanos
     page.on_window_event = lambda e: ajustar_tamanos() if e.data=="shown" else None
-        # Iniciar animaciones
+        # Iniciar animaciones   
     animacion_empresa_task[0] = start_pulso_empresa()
     animacion_redes_task[0] = start_bounce()
     # Overlay oculto para cerrar el menu al hacer clic fuera de el

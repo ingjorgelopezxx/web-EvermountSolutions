@@ -53,19 +53,34 @@ def create_carrusel(page: ft.Page, intervalo: int = 3):
         height=h0,
     )
 
-    # --- Resize con debounce sobre on_resize ---
+    # --- Resize con debounce ---
     async def _resize_debounced():
-        await asyncio.sleep(0.06)
-        # Si aún no está montado, no actualizamos
-        if getattr(imagen, "page", None) is None or getattr(contenedor, "page", None) is None:
+        try:
+            await asyncio.sleep(0.06)
+
+            # si no está montado, no hacemos nada
+            if getattr(contenedor, "page", None) is None or getattr(imagen, "page", None) is None:
+                return
+
+            w, h = compute_size()
+            imagen.width = w
+            imagen.height = h
+            contenedor.width = w
+            contenedor.height = h
+
+            # re-check justo antes de update (evita carreras)
+            if getattr(contenedor, "page", None) is None:
+                return
+
+            try:
+                contenedor.update()
+            except AssertionError:
+                return
+
+        except asyncio.CancelledError:
             return
-        w, h = compute_size()
-        imagen.width = w
-        imagen.height = h
-        contenedor.width = w
-        contenedor.height = h
-        imagen.update()
-        contenedor.update()
+        except Exception:
+            return
 
     def _on_resize_local(e=None):
         if tarea_resize[0] is not None:
@@ -77,29 +92,32 @@ def create_carrusel(page: ft.Page, intervalo: int = 3):
                 tarea_resize[0] = None
         tarea_resize[0] = page.run_task(_resize_debounced)
 
-    # Encadenar con un handler previo (si existía)
-    prev_on_resize = getattr(page, "on_resize", None)
-    def _on_resize_chain(e):
+    # ✅ encadenar con on_resized (no on_resize)
+    prev_on_resized = getattr(page, "on_resized", None)
+
+    def _on_resized_chain(e):
         _on_resize_local(e)
-        if callable(prev_on_resize):
-            prev_on_resize(e)
-    page.on_resize = _on_resize_chain
+        if callable(prev_on_resized):
+            prev_on_resized(e)
+
+    page.on_resized = _on_resized_chain
 
     # --- Rotación automática ---
     async def _rotar():
         try:
             while activo[0]:
-                # Evita actualizar si aún no está montado
                 if getattr(imagen, "page", None) is not None:
                     imagen.src = IMAGENES[idx[0] % len(IMAGENES)]
-                    imagen.update()
+                    try:
+                        imagen.update()
+                    except AssertionError:
+                        return
                     idx[0] = (idx[0] + 1) % len(IMAGENES)
                 await asyncio.sleep(intervalo)
         except asyncio.CancelledError:
             pass
 
     def start_carrusel():
-        # Ajuste inicial seguro (si ya está montado)
         page.run_task(_resize_debounced)
         if tarea_rotacion[0] is None:
             activo[0] = True
@@ -107,6 +125,7 @@ def create_carrusel(page: ft.Page, intervalo: int = 3):
 
     def stop_carrusel():
         activo[0] = False
+
         if tarea_rotacion[0] is not None:
             try:
                 tarea_rotacion[0].cancel()
@@ -115,7 +134,16 @@ def create_carrusel(page: ft.Page, intervalo: int = 3):
             finally:
                 tarea_rotacion[0] = None
 
-    # Primer ajuste (no falla si aún no está montado gracias a la guarda)
+        # ✅ cancelar debounce resize también
+        if tarea_resize[0] is not None:
+            try:
+                tarea_resize[0].cancel()
+            except Exception:
+                pass
+            finally:
+                tarea_resize[0] = None
+
+    # Primer ajuste (seguro)
     page.run_task(_resize_debounced)
 
     return contenedor, start_carrusel, stop_carrusel
