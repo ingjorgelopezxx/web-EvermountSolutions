@@ -220,19 +220,16 @@ def main(page: ft.Page):
     ANCHO_FORM_PC = 380
     # 2) Crear ResponsiveRow
     col_pantalla = ft.Container(content=cont_pantalla, col={"xs": 12, "md": 10, "lg": 10})
-    col_form = ft.Container(
-    content=ft.Container(
-        content=formulario,
-        width=ANCHO_FORM_PC,
-        padding=20,
-        bgcolor="rgba(255,255,255,0.95)",  # blanco ligeramente opaco en PC
-        border_radius=16,
-    ),
-    col={"xs": 12, "md": 12, "lg": 4},
-    alignment=ft.alignment.center_right,
-)
+    ANCHO_FORM_MAX = 380
+    ANCHO_FORM_MIN = 260
 
-    col_spacer = ft.Container(col={"xs": 12, "md": 10, "lg": 10}, expand=True)
+    form_card = ft.Container(
+        content=formulario,
+        width=ANCHO_FORM_MAX,
+        padding=5,
+        bgcolor="rgba(255,255,255,0.95)",
+        border_radius=16,
+    )
 
     imagen_logo_empresa = ft.Image(
     src="https://i.postimg.cc/rFxRRS5D/logo-72x72.png",
@@ -244,7 +241,7 @@ def main(page: ft.Page):
     )
 
     inicio_responsive = ft.ResponsiveRow(
-        controls=[col_pantalla, col_form],
+        controls=[col_pantalla, form_card],
         columns=12,
         run_spacing=10,
         spacing=10,
@@ -253,9 +250,15 @@ def main(page: ft.Page):
 
     imagen_banner_form = ft.Image(
         src="https://i.postimg.cc/htB3zLB6/Imagen7.png",  # cambia si quieres
-        fit=ft.ImageFit.COVER,
+        fit=ft.ImageFit.FILL,
         border_radius=16,
     )
+    banner_img_box = ft.Container(
+        content=imagen_banner_form,
+        border_radius=16,
+        clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
+    )
+
     enlace_correo2 = "mailto:operaciones@evermountsolutions.cl?subject=Consulta&body=Hola, quisiera más información"
     def crear_boton_cotiza(page: ft.Page):
         COLOR_NORMAL = ft.Colors.WHITE
@@ -273,11 +276,13 @@ def main(page: ft.Page):
             content=texto,
             bgcolor=COLOR_NORMAL,
             border_radius=14,
-            padding=ft.padding.symmetric(horizontal=26, vertical=16),
+            width=220,  # ✅ ancho fijo (ajusta a gusto)
+            height=52,  # ✅ alto fijo
             alignment=ft.alignment.center,
             ink=True,
             on_click=lambda e: page.launch_url(enlace_correo2),
         )
+
 
         def _hover(e):
             btn.bgcolor = COLOR_HOVER if e.data == "true" else COLOR_NORMAL
@@ -285,14 +290,31 @@ def main(page: ft.Page):
 
         btn.on_hover = _hover
         return btn
+    boton_cotiza = crear_boton_cotiza(page)
+    titulo1 = ft.Text("Evermount Solutions", size=64, weight=ft.FontWeight.BOLD, color=ft.Colors.WHITE)
+    titulo2 = ft.Text("Pest Defense", size=64, weight=ft.FontWeight.BOLD, color=ft.Colors.WHITE70)
 
-    
-    ALTO_INICIO_PC = 580  # opcional: altura fija del bloque en PC (puedes poner None)
+    desc_banner = ft.Text(
+        "Control profesional de plagas para hogares y empresas.\n"
+        "Programas mensuales, trimestrales y anuales con garantía.",
+        size=28,
+        color=ft.Colors.WHITE,
+    )
+    logo_box = ft.Container(
+        content=imagen_logo_empresa2,
+        width=200,
+        height=200,
+        border_radius=999,
+        clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
+    )
+    form_card_host = ft.Column(
+        tight=True,
+        controls=[form_card],
+    )
+
     banner_pc = ft.Container(
         key="banner_pc",
-        expand=True,
-        height=ALTO_INICIO_PC,
-        padding=ft.padding.symmetric(horizontal=60, vertical=40),
+        padding=ft.padding.symmetric(horizontal=30, vertical=18),
         gradient=ft.LinearGradient(
             begin=ft.alignment.top_left,
             end=ft.alignment.bottom_right,
@@ -301,70 +323,35 @@ def main(page: ft.Page):
         content=ft.Row(
             [
                 ft.Column(
-                        [
-                            ft.Row(
-                                [
-                                    # Logo
-                                    ft.Container(
-                                        content=imagen_logo_empresa2,
-                                        width=200,
-                                        height=200,
-                                        border_radius=999,
-                                        clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
-                                    ),
+                    [
+                        ft.Row(
+                            [
+                                logo_box,
+                                ft.Column([titulo1, titulo2], spacing=2),
+                            ],
+                            spacing=16,
+                            vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                        ),
+                        desc_banner,
+                        boton_cotiza,
+                    ],
+                    spacing=14,
+                    alignment=ft.MainAxisAlignment.CENTER,
+                ),
 
-                                    # Textos
-                                    ft.Column(
-                                        [
-                                            ft.Text(
-                                                "Evermount Solutions",
-                                                size=64,
-                                                weight=ft.FontWeight.BOLD,
-                                                color=ft.Colors.WHITE,
-                                            ),
-                                            ft.Text(
-                                                "Pest Defense",
-                                                size=64,
-                                                weight=ft.FontWeight.BOLD,
-                                                color=ft.Colors.WHITE70,
-                                            ),
-                                        ],
-                                        spacing=2,
-                                    ),
-                                ],
-                                spacing=16,
-                                vertical_alignment=ft.CrossAxisAlignment.CENTER,
-                            ),
-
-                            ft.Text(
-                                "Control profesional de plagas para hogares y empresas.\n"
-                                "Programas mensuales, trimestrales y anuales con garantía.",
-                                size=28,
-                                color=ft.Colors.WHITE,
-                            ),
-
-                            crear_boton_cotiza(page),
-                            
-                        ],
-                        spacing=20,
-                        alignment=ft.MainAxisAlignment.CENTER,
-                    ),
-               
-                # --- Spacer ---
-                ft.Container(expand=True),
-                # --- Columna derecha ---
-                imagen_banner_form,
-                # --- Formulario a la derecha ---
-                col_form,
+                banner_img_box,
+                form_card_host,
             ],
+            spacing=0,
             vertical_alignment=ft.CrossAxisAlignment.CENTER,
-        )
+            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+        ),
     )
+
 
     # Wrapper que se usa en el contenido
     inicio_bg = ft.Container(
         content=inicio_responsive,
-        expand=True,
         width=float("inf"),
     )
     
@@ -381,7 +368,7 @@ def main(page: ft.Page):
     contenido = ft.Column(
         [inicio_bg,separador_servicios,menu_servicios_container,separador_programas,zona_multimedia,separador_VMS,valores_section,separador_sanitizacion,separador_quienes,quienes_section,separador_historia,historia_section,separador_final],
         expand=True,
-        alignment=ft.MainAxisAlignment.CENTER,
+        alignment=ft.MainAxisAlignment.START,   # ✅ pega todo arriba
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         scroll="auto",
     )
@@ -391,6 +378,12 @@ def main(page: ft.Page):
         try:
             if control in controls_list:
                 controls_list.remove(control)
+        except Exception:
+            pass
+    def safe_update(ctrl):
+        try:
+            if getattr(ctrl, "page", None) is not None:
+                ctrl.update()
         except Exception:
             pass
 
@@ -839,6 +832,7 @@ def main(page: ft.Page):
     page.run_task(marquee_loop)
     # Esto inyecta el grid de servicios en el contenedor vacío
     render_menu_servicios(page, menu_servicios_container)
+
     # Fallback: en el próximo tick, intenta mostrar el intro una vez
     async def _first_paint_intro():
         await asyncio.sleep(0)
@@ -913,7 +907,74 @@ def main(page: ft.Page):
             vertical_alignment=ft.CrossAxisAlignment.CENTER,
         )
 
+    def clamp(v, mn, mx):
+                return max(mn, min(mx, v))
 
+    def ajustar_banner_pc():
+        w = page.width or 1200
+
+       # Escalado fluido base
+        t1 = int(w * 0.035)
+        t2 = int(w * 0.032)
+        td = int(w * 0.015)
+
+        logo = int(w * 0.10)
+
+        # 🔻 Reducción adicional si la pantalla es menor a 1300
+        if w < 1300:
+            factor = clamp((w - 900) / (1300 - 900), 0.7, 1.0)
+            # 900px -> 0.7   |   1300px -> 1.0
+
+            t1 = int(t1 * factor)
+            t2 = int(t2 * factor)
+            td = int(td * factor)
+            logo = int(logo * factor)
+
+        # Clamp final
+        t1 = clamp(t1, 22, 64)
+        t2 = clamp(t2, 20, 58)
+        td = clamp(td, 12, 28)
+        logo = clamp(logo, 90, 200)
+
+        titulo1.size = t1
+        titulo2.size = t2
+        desc_banner.size = td
+
+        logo_box.width = logo
+        logo_box.height = logo
+
+        print("ANCHO:", w, "t1:", t1, "t2:", t2, "logo:", logo)
+
+
+        img_w = clamp(int(w * 0.18), 180, 340)
+
+        base_h = int(w * 0.22)
+
+        # factor va de 1.30 (w=1200) a 1.00 (w=1600)
+        if w < 1600:
+            t = (1600 - w) / (1600 - 1200)   # 0..1
+            factor = 1.0 + 0.30 * max(0, min(1, t))
+        else:
+            factor = 1.0
+
+        img_h = int(base_h * factor)
+        img_h = clamp(img_h, 260, 520)
+
+        banner_img_box.width = img_w
+        banner_img_box.height = img_h
+
+
+        # Form width
+        form_w = clamp(int(w * 0.22), ANCHO_FORM_MIN, ANCHO_FORM_MAX)
+        form_card.width = form_w
+
+        # Actualiza solo contenedores grandes
+        safe_update(banner_pc)
+        page.update()
+
+
+
+         
     # --- Responsive: texto + ancho automático para WhatsApp ---
     def ajustar_tamanos(e=None):
         a = page.width
@@ -984,18 +1045,13 @@ def main(page: ft.Page):
 
             # esconder menú hamburguesa
             container_boton_empresa.visible = False
-            col_form.bgcolor = ft.Colors.GREY_300
-            col_form.border_radius = 16
-            col_form.padding = 12
-            col_form.shadow = ft.BoxShadow(2, 8, ft.Colors.BLACK12, offset=ft.Offset(0, 4))
-            inicio_responsive.controls.clear()
+            form_card.bgcolor = ft.Colors.GREY_300
+            form_card.border_radius = 16
+            form_card.padding = 12
+            form_card.shadow = ft.BoxShadow(2, 8, ft.Colors.BLACK12, offset=ft.Offset(0, 4))
             inicio_bg.content = banner_pc
-            inicio_bg.height = ALTO_INICIO_PC
 
             contenido.spacing = 0
-            # 👇 PC/Tablet: “espacio vacío” + formulario a la derecha
-            inicio_responsive.controls.extend([col_spacer, col_form])
-            inicio_responsive.alignment = ft.MainAxisAlignment.START
  
             separador_servicios.margin = ft.margin.only(top=0)
             # --- Ajustar tamaños de textos para Tablet y PC ---
@@ -1114,6 +1170,7 @@ def main(page: ft.Page):
             except Exception:
                 pass
 
+            ajustar_banner_pc()                
         else:
             barra_inferior.alignment = ft.MainAxisAlignment.END
             # 👇 Asegurarnos de que separador_sanitizacion EXISTE en contenido
@@ -1139,6 +1196,13 @@ def main(page: ft.Page):
                 contenido.controls.insert(idx + 1, video_card)
             except ValueError:
                 contenido.controls.append(video_card)
+        # ✅ Recalcular tarjetas servicios al cambiar tamaño
+        try:
+            rebuild = (menu_servicios_container.data or {}).get("rebuild")
+            if rebuild:
+                rebuild()
+        except Exception:
+            pass
 
         page.update()
 

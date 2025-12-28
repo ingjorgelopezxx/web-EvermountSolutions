@@ -16,21 +16,36 @@ def render_menu_servicios(page: ft.Page, contenedor: ft.Column):
     Encabezado superior: 'Seleccionar Servicio'.
     """
 
+    def clamp(v, mn, mx):
+        return max(mn, min(mx, v))
+
     def _sizes():
         w = page.width or 800
+
         if w < 480:    # 📱 móvil
             return dict(
                 max_extent=160, aspect=0.60, spacing=8, run=10,
                 title_sz=13, heading_sz=24,
                 img_pct=60, txt_pct=40
             )
+
         elif w < 900:  # 📲 tablet
             return dict(
                 max_extent=240, aspect=0.78, spacing=10, run=12,
                 title_sz=16, heading_sz=28,
                 img_pct=70, txt_pct=30
             )
-        else:          # 💻 desktop
+
+        elif w < 1600:  # 💻 PC pequeña ✅ (NUEVO)
+            # aquí bajamos bastante
+            return dict(
+                max_extent=200, aspect=0.82, spacing=10, run=12,
+                title_sz=14, heading_sz=28,
+                img_pct=72, txt_pct=28
+            )
+
+        else:          # 💻 desktop grande
+            # puedes dejarlo como lo tenías
             return dict(
                 max_extent=280, aspect=0.88, spacing=12, run=14,
                 title_sz=18, heading_sz=34,
@@ -145,10 +160,8 @@ def render_menu_servicios(page: ft.Page, contenedor: ft.Column):
 
     # primera construcción
     _build_grid()
+    # ✅ expón una función para que main.py la pueda llamar
+    contenedor.data = contenedor.data or {}
+    contenedor.data["rebuild"] = _build_grid
 
-    # volver a calcular cuando cambie el tamaño
-    def on_resize(e):
-        _build_grid()
-
-    # OJO: si ya usas page.on_resized en otra parte, haz un wrapper central allí
-    page.on_resized = on_resize
+   

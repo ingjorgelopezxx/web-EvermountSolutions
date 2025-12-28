@@ -137,8 +137,16 @@ def create_formulario(page: ft.Page):
         on_click=on_warning_click,
     )
 
+    MAX_FORM_WIDTH = 560   # en PC que no pase esto
+    MIN_FORM_WIDTH = 280
+
     def ancho_responsivo():
-        return page.width * 0.85
+        w = page.width or 360  # fallback seguro si aún no existe
+        # en móvil casi todo el ancho, en PC limita y evita overflow
+        if es_pc_o_tablet():
+            return max(MIN_FORM_WIDTH, min(MAX_FORM_WIDTH, w * 0.60))
+        return max(MIN_FORM_WIDTH, min(w * 0.92, MAX_FORM_WIDTH))
+
 
     def actualizar_estado_boton():
         campos_llenos = (
@@ -196,7 +204,7 @@ def create_formulario(page: ft.Page):
         return ft.Colors.BLACK if es_pc_o_tablet() else ft.Colors.BLACK54
 
     def padding_horizontal_actual():
-        return 20 if es_pc_o_tablet() else 0
+        return 0 if es_pc_o_tablet() else 0
 
     def enviar_formulario(e):
         enviando_overlay.visible = True
@@ -311,7 +319,9 @@ def create_formulario(page: ft.Page):
 
         page.update()
 
-    ajustar_responsivo()
+    if getattr(page, "session_id", None) is not None:
+        page.update()
+
 
     prev_on_resized = page.on_resized
 
@@ -434,24 +444,30 @@ def create_formulario(page: ft.Page):
             )
             page.update()
 
-    formulario_con_modal = ft.Stack(
-        [
-            ft.Column(
-                [
-                    ft.Text("Contáctanos", size=28, weight=ft.FontWeight.BOLD, color="#090229"),
-                    nombre,
-                    correo_w,
-                    telefono,
-                    mensaje,
-                    boton_wrapper
-                ],
-                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                spacing=10
-            ),
-            modal_info,
-            enviando_overlay
-        ],
+    formulario_con_modal = ft.Container(
         alignment=ft.alignment.center,
+        content=ft.Stack(
+            [
+                ft.Column(
+                    tight=True,  # ✅ aquí sí sirve
+                    controls=[
+                        ft.Text("Contáctanos", size=28, weight=ft.FontWeight.BOLD, color="#090229"),
+                        nombre,
+                        correo_w,
+                        telefono,
+                        mensaje,
+                        boton_wrapper
+                    ],
+                    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                    spacing=10
+                ),
+                modal_info,
+                enviando_overlay
+            ],
+            alignment=ft.alignment.center
+        )
+
     )
+
 
     return formulario_con_modal
