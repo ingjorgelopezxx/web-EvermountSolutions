@@ -22,29 +22,35 @@ def create_vertical_carousel(page: ft.Page, intervalo=3):
     activo = [False]
     tarea = [None]
 
+    CARD_W = 263
+    CARD_H = 360
+
     imagen = ft.Image(
         src=IMAGENES[idx[0]],
-        fit=ft.ImageFit.COVER,
-        width=263,
-        height=360,
-        border_radius=ft.border_radius.all(12)
+        fit=ft.ImageFit.FILL,   # ✅ MUESTRA COMPLETA (no recorta)
+        width=CARD_W,              # ✅ fuerza tamaño
+        height=CARD_H,             # ✅ fuerza tamaño
     )
 
     tarjeta = ft.Container(
         content=imagen,
-        width=263,
-        height=360,
-        bgcolor=ft.Colors.WHITE,
+        width=CARD_W,
+        height=CARD_H,
+        bgcolor=ft.Colors.BLACK12,  # ✅ fondo para que no se vea “blanco vacío”
         border_radius=12,
-        shadow=ft.BoxShadow(1, 4, ft.Colors.BLACK26, offset=ft.Offset(2, 2)),
+        clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
         alignment=ft.alignment.center,
     )
+
 
     carrusel_control = ft.Container(
         content=tarjeta,
         alignment=ft.alignment.center,
-        padding=10
+        padding=0,                         # ✅ antes tenías 10 (achicaba el carrusel)
     )
+    carrusel_control.data = {"tarjeta": tarjeta, "imagen": imagen}
+
+
 
     async def _rotar():
         try:
@@ -147,31 +153,16 @@ def create_vertical_carousel(page: ft.Page, intervalo=3):
     )
 
     # --- Layout: izquierda texto + lista, derecha carrusel (PC/Tablet) ---
-    if es_pc_tablet:
-        contenedor_completo = ft.Row(
-            [
-                ft.Container(
-                    content=ft.Column(
-                        [texto_presentacion, lista_planes],
-                        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                    ),width=400
-                ),
-                ft.Container(
-                    content=carrusel_control,
-                    alignment=ft.alignment.center,
-                ),
-            ],
-            vertical_alignment=ft.CrossAxisAlignment.START,
-        )
-    else:
-        contenedor_completo = ft.Column(
-            [
-                texto_presentacion,
-                lista_planes,
-                carrusel_control,
-            ],
+    bloque_texto = ft.Container(
+        content=ft.Column(
+            [texto_presentacion, lista_planes],
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-            spacing=20,
-        )
+        ),
+        width=420,
+    )
 
-    return contenedor_completo, start, stop
+    # Carrusel solo (sin texto)
+    bloque_carrusel = carrusel_control
+
+    return bloque_texto, bloque_carrusel, start, stop
+

@@ -102,15 +102,21 @@ def render_menu_servicios(page: ft.Page, contenedor: ft.Column):
 
     # Grid de servicios
     grid = ft.GridView(
-        expand=True,   # se expandirá SOLO dentro del wrapper (que tiene ancho limitado)
+        expand=False,   # se expandirá SOLO dentro del wrapper (que tiene ancho limitado)
     )
 
-    # Column interna que contiene heading + grid
+    grid_holder = ft.Container(
+        alignment=ft.alignment.center,
+        content=grid,
+        width=None,
+    )
+
     inner_column = ft.Column(
-        controls=[heading, grid],
+        controls=[heading, grid_holder],
         spacing=10,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
     )
+
 
     # wrapper que vamos a centrar y limitar de ancho
     wrapper = ft.Container(
@@ -130,22 +136,57 @@ def render_menu_servicios(page: ft.Page, contenedor: ft.Column):
         sz = _sizes()
         w = page.width or 800
 
-        # ajustar heading
         heading.content.size = sz["heading_sz"]
 
-        # ajustar grid
-        grid.max_extent = sz["max_extent"]
-        grid.child_aspect_ratio = sz["aspect"]
-        grid.spacing = sz["spacing"]
-        grid.run_spacing = sz["run"]
-
-        # ancho del wrapper:
-        # - móvil: ocupa todo
-        # - tablet / desktop: máx 900 px y centrado
+        # wrapper width
         if w < 480:
             wrapper.width = None
         else:
             wrapper.width = min(w * 0.9, 1600)
+
+        # -------------------------
+        # ✅ AJUSTE: centrado real en PC sin saltar de línea
+        # -------------------------
+        n = len(SERVICIOS)
+        spacing = sz["spacing"]
+
+        # base: usa tu tamaño por breakpoint
+        cell = sz["max_extent"]
+
+        # Si estamos en PC (ajusta el umbral si quieres)
+        if w >= 1020:
+            # ancho disponible dentro del wrapper
+            avail = wrapper.width or w
+
+            # 🔥 queremos que entren las 6 tarjetas en una sola fila
+            # calculamos el max_extent necesario para que quepan
+            max_cell_to_fit = (avail - (n - 1) * spacing) / n
+            cell = min(cell, max_cell_to_fit)
+
+            # evitar que quede demasiado pequeño
+            cell = max(180, cell)   # ajusta este mínimo si quieres
+
+        # aplicar al grid
+        grid.max_extent = cell
+        grid.child_aspect_ratio = sz["aspect"]
+        grid.spacing = spacing
+        grid.run_spacing = sz["run"]
+
+        # ✅ ancho real del grid (para centrarlo)
+        # en PC queremos 1 fila completa (n columnas)
+        if w >= 1020:
+            grid_real_width = n * cell + (n - 1) * spacing
+        else:
+            # tablet/móvil: centrado aproximado
+            # (o puedes calcular columnas como antes si quieres)
+            grid_real_width = None
+
+        # 👇 Importante: poner el grid dentro de un holder centrado
+        # Si no lo tienes, créalo (ver bloque más abajo)
+        try:
+            grid_holder.width = grid_real_width
+        except NameError:
+            pass
 
         # reconstruir cards
         grid.controls.clear()
@@ -157,6 +198,7 @@ def render_menu_servicios(page: ft.Page, contenedor: ft.Column):
         heading.update()
         contenedor.update()
         page.update()
+
 
     # primera construcción
     _build_grid()

@@ -103,8 +103,30 @@ def create_formulario(page: ft.Page):
                 pass
         if getattr(page, "session_id", None) is not None:
             page.update()
+    
+    # ✅ Compacto solo cuando ancho < 700
+    BREAKPOINT_COMPACT = 800
 
-    ALTURA_CAMPOS = 56
+    def es_compacto():
+        return (page.width or 0) < BREAKPOINT_COMPACT
+
+    def altura_campos_actual():
+        return 44 if es_compacto() else 56
+
+    def titulo_size_actual():
+        return 22 if es_compacto() else 28
+
+    def spacing_actual():
+        return 6 if es_compacto() else 10
+
+    def min_lines_mensaje_actual():
+        return 2 if es_compacto() else 3
+
+    def boton_text_size_actual():
+        return 16 if es_compacto() else 20
+
+
+    ALTURA_CAMPOS = altura_campos_actual()
 
     def on_warning_click(e):
         correo_tf.disabled = True
@@ -133,7 +155,7 @@ def create_formulario(page: ft.Page):
             padding=ft.padding.all(0),
             shape=ft.RoundedRectangleBorder(radius=0)
         ),
-        width=40, height=ALTURA_CAMPOS,
+        width=40, height=altura_campos_actual(),
         on_click=on_warning_click,
     )
 
@@ -230,7 +252,8 @@ def create_formulario(page: ft.Page):
         label_style=ft.TextStyle(color=label_color_actual()),
         color=ft.Colors.BLACK,
         width=ancho_responsivo(),
-        height=ALTURA_CAMPOS,
+        height=altura_campos_actual(),
+
         suffix=warning_icon,
         on_change=on_correo_change
     )
@@ -239,7 +262,8 @@ def create_formulario(page: ft.Page):
         label="Nombre",
         label_style=ft.TextStyle(color=label_color_actual()),
         width=ancho_responsivo(),
-        height=ALTURA_CAMPOS,
+        height=altura_campos_actual(),
+
         color=ft.Colors.BLACK,
         on_change=on_mensaje_nombre_change
     )
@@ -248,7 +272,7 @@ def create_formulario(page: ft.Page):
         label="Teléfono",
         label_style=ft.TextStyle(color=label_color_actual()),
         width=ancho_responsivo(),
-        height=ALTURA_CAMPOS,
+        height=altura_campos_actual(),
         color=ft.Colors.BLACK,
         on_change=solo_numeros_y_mas
     )
@@ -257,7 +281,7 @@ def create_formulario(page: ft.Page):
         label="Mensaje",
         label_style=ft.TextStyle(color=label_color_actual()),
         multiline=True,
-        min_lines=3,
+        min_lines=min_lines_mensaje_actual(),
         width=ancho_responsivo(),
         color=ft.Colors.BLACK,
         on_change=on_mensaje_nombre_change
@@ -300,10 +324,31 @@ def create_formulario(page: ft.Page):
     def ajustar_responsivo(e=None):
         w = ancho_responsivo()
 
-        boton_wrapper.margin = ft.margin.only(top=ESPACIO_BOTON_PC) if es_pc_o_tablet() else ft.margin.only(top=0)
+        # ✅ menos margen arriba del botón en compacto
+        if es_compacto():
+            boton_wrapper.margin = ft.margin.only(top=8)
+        else:
+            boton_wrapper.margin = ft.margin.only(top=ESPACIO_BOTON_PC) if es_pc_o_tablet() else ft.margin.only(top=0)
 
         for tf in (nombre_real, correo_tf_real, telefono_real, mensaje_real):
             tf.width = w
+
+        # ✅ alturas dinámicas al redimensionar
+        for tf in (nombre_real, correo_tf_real, telefono_real):
+            tf.height = altura_campos_actual()
+
+        warning_icon.height = altura_campos_actual()
+
+        # ✅ líneas del mensaje dinámicas
+        mensaje_real.min_lines = min_lines_mensaje_actual()
+
+        # ✅ tamaño del texto del botón dinámico
+        boton_enviar.style = ft.ButtonStyle(
+            text_style=ft.TextStyle(size=boton_text_size_actual(), weight=ft.FontWeight.BOLD),
+            overlay_color="rgba(255,255,255,0.1)",
+            elevation=0,
+            shape=ft.RoundedRectangleBorder(radius=8)
+        )
 
         lc = label_color_actual()
         ph = padding_horizontal_actual()
@@ -319,9 +364,8 @@ def create_formulario(page: ft.Page):
 
         page.update()
 
-    if getattr(page, "session_id", None) is not None:
-        page.update()
-
+        if getattr(page, "session_id", None) is not None:
+            page.update()
 
     prev_on_resized = page.on_resized
 
@@ -449,9 +493,9 @@ def create_formulario(page: ft.Page):
         content=ft.Stack(
             [
                 ft.Column(
-                    tight=True,  # ✅ aquí sí sirve
+                    tight=True,
                     controls=[
-                        ft.Text("Contáctanos", size=28, weight=ft.FontWeight.BOLD, color="#090229"),
+                        ft.Text("Contáctanos", size=titulo_size_actual(), weight=ft.FontWeight.BOLD, color="#090229"),
                         nombre,
                         correo_w,
                         telefono,
@@ -459,8 +503,9 @@ def create_formulario(page: ft.Page):
                         boton_wrapper
                     ],
                     horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                    spacing=10
+                    spacing=spacing_actual()
                 ),
+
                 modal_info,
                 enviando_overlay
             ],
