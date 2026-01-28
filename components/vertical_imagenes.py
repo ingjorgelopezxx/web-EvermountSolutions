@@ -165,4 +165,3 @@ def create_vertical_carousel(page: ft.Page, intervalo=3):
     bloque_carrusel = carrusel_control
 
     return bloque_texto, bloque_carrusel, start, stop
-

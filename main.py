@@ -23,7 +23,6 @@ from components.carrusel import create_carrusel
 from components.formulario import create_formulario
 from components.vertical_imagenes import create_vertical_carousel
 from components.valores import create_valores
-from flet_webview import WebView   # 👈 ahora desde aquí
 
 def main(page: ft.Page):
     # Inicializamos las propiedades de la pagina
@@ -802,7 +801,7 @@ def main(page: ft.Page):
     Botones_agregar = ft.Row([boton_sabiasque,boton_facebook,boton_instagram,boton_whatsapp],alignment=ft.MainAxisAlignment.END,vertical_alignment=ft.CrossAxisAlignment.END)
     # --- TEXTO PROMOCIONAL (solo visible en tablet/PC) ---
     promo_text = ft.Text(
-        "🔥 Promoción especial: 20% de descuento en programas mensuales y anuales de control de plagas. ¡Cotiza hoy mismo! 🔥",
+        "⚡ Atención rápida | 🧪 Insumos certificados | ✔️ Respuesta inmediata | 🥇 Técnicos especializados | 🏠 Hogar y empresas",
         size=20,
         weight=ft.FontWeight.BOLD,
         color=ft.Colors.BLACK,
@@ -1648,4 +1647,9 @@ def main(page: ft.Page):
     # Overlay oculto para cerrar el menu al hacer clic fuera de el
     page.update()
     ajustar_tamanos()
-ft.app(target=main, view=ft.WEB_BROWSER, port=int(os.environ.get("PORT", 8080)))
+ft.app(
+    target=main,
+    view=ft.WEB_BROWSER,
+    port=int(os.environ.get("PORT", 8080)),
+    assets_dir="assets",
+)
