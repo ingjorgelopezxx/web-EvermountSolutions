@@ -1,65 +1,58 @@
-# components/menu_servicios.py
 import flet as ft
 
+
 SERVICIOS = [
-    {"titulo": "Roedores", "imagen": "https://i.postimg.cc/4NLHX4nH/Chat-GPT-Image-26-ago-2025-03-08-53-p-m.png","ruta": "/servicios/roedores"},
-    {"titulo": "Desinfección y Sanitización", "imagen": "https://i.postimg.cc/zGfdKtvL/desinfeccion-Photoroom-Photoroom.png","ruta": "/servicios/sanitizacion"},
-    {"titulo": "Insectos Voladores", "imagen": "https://i.postimg.cc/V6hZkjmS/white-Photoroom-Photoroom.png","ruta": "/servicios/voladores"},
-    {"titulo": "Insectos Rastreros", "imagen": "https://i.postimg.cc/D0zscS8F/Chat-GPT-Image-26-ago-2025-03-18-37-p-m.png","ruta": "/servicios/rastreros"},
-    {"titulo": "Tratamiento Termitas", "imagen": "https://i.postimg.cc/3JTQW24P/Chat-GPT-Image-26-ago-2025-03-13-04-p-m.png","ruta": "/servicios/termitas"},
-    {"titulo": "Aves Urbanas", "imagen": "https://i.postimg.cc/HnWjCFgt/Chat-GPT-Image-26-ago-2025-03-09-31-p-m.png","ruta": "/servicios/aves"},
+    {"titulo": "Roedores", "imagen": "https://i.postimg.cc/cLvXDbLz/Chat-GPT-Image-26-ago-2025-03-08-53-p-m-Photoroom.png", "ruta": "/servicios/roedores"},
+    {"titulo": "Desinfección y Sanitización", "imagen": "https://i.postimg.cc/zGfdKtvL/desinfeccion-Photoroom-Photoroom.png", "ruta": "/servicios/sanitizacion"},
+    {"titulo": "Insectos Voladores", "imagen": "https://i.postimg.cc/V6hZkjmS/white-Photoroom-Photoroom.png", "ruta": "/servicios/voladores"},
+    {"titulo": "Insectos Rastreros", "imagen": "https://i.postimg.cc/Kzx7yqmM/Chat-GPT-Image-26-ago-2025-03-18-37-p-m-Photoroom.png", "ruta": "/servicios/rastreros"},
+    {"titulo": "Tratamiento Termitas", "imagen": "https://i.postimg.cc/rpLxSn0R/Chat-GPT-Image-26-ago-2025-03-13-04-p-m-Photoroom.png", "ruta": "/servicios/termitas"},
+    {"titulo": "Aves Urbanas", "imagen": "https://i.postimg.cc/wjzDN4sJ/Chat-GPT-Image-26-ago-2025-03-09-31-p-m-Photoroom.png", "ruta": "/servicios/aves"},
 ]
 
-def render_menu_servicios(page: ft.Page, contenedor: ft.Column):
-    """
-    Menú responsivo con tarjetas usando porcentajes al estilo 'Sabías que'.
-    Encabezado superior: 'Seleccionar Servicio'.
-    """
 
-    def clamp(v, mn, mx):
-        return max(mn, min(mx, v))
+def render_menu_servicios(page: ft.Page, contenedor: ft.Column):
+    async def _push_route_async(route: str):
+        await page.push_route(route)
+
+    def push_route(route: str):
+        page.run_task(_push_route_async, route)
 
     def _sizes():
         w = page.width or 800
 
-        if w < 480:    # 📱 móvil
+        if w < 480:
             return dict(
                 max_extent=160, aspect=0.60, spacing=8, run=10,
                 title_sz=13, heading_sz=24,
                 img_pct=60, txt_pct=40
             )
-
-        elif w < 900:  # 📲 tablet
+        if w < 900:
             return dict(
                 max_extent=240, aspect=0.78, spacing=10, run=12,
                 title_sz=16, heading_sz=28,
                 img_pct=70, txt_pct=30
             )
-
-        elif w < 1600:  # 💻 PC pequeña ✅ (NUEVO)
-            # aquí bajamos bastante
+        if w < 1600:
             return dict(
                 max_extent=200, aspect=0.82, spacing=10, run=12,
                 title_sz=14, heading_sz=28,
                 img_pct=72, txt_pct=28
             )
-
-        else:          # 💻 desktop grande
-            # puedes dejarlo como lo tenías
-            return dict(
-                max_extent=280, aspect=0.88, spacing=12, run=14,
-                title_sz=18, heading_sz=34,
-                img_pct=75, txt_pct=25
-            )
+        return dict(
+            max_extent=280, aspect=0.88, spacing=12, run=14,
+            title_sz=18, heading_sz=34,
+            img_pct=75, txt_pct=25
+        )
 
     def _card(item: dict, sz: dict) -> ft.Container:
         return ft.Container(
             bgcolor=ft.Colors.WHITE,
             border_radius=12,
             clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
-            shadow=ft.BoxShadow(1, 4, ft.Colors.BLACK26, offset=ft.Offset(2, 2)),
+            shadow=ft.BoxShadow(1, 4, ft.Colors.BLACK_26, offset=ft.Offset(2, 2)),
             ink=True,
-            on_click=lambda e: page.go(item["ruta"]),
+            on_click=lambda e: push_route(item["ruta"]),
             content=ft.Column(
                 expand=True,
                 spacing=0,
@@ -68,12 +61,12 @@ def render_menu_servicios(page: ft.Page, contenedor: ft.Column):
                     ft.Container(
                         expand=sz["img_pct"],
                         alignment=ft.alignment.center,
-                        content=ft.Image(src=item["imagen"], fit=ft.ImageFit.COVER),
+                        content=ft.Image(src=item["imagen"], fit=ft.BoxFit.COVER),
                     ),
                     ft.Container(
                         expand=sz["txt_pct"],
                         alignment=ft.alignment.center,
-                        padding=ft.padding.symmetric(horizontal=8, vertical=8),
+                        padding=ft.Padding.symmetric(horizontal=8, vertical=8),
                         content=ft.Text(
                             item["titulo"],
                             size=sz["title_sz"],
@@ -88,7 +81,6 @@ def render_menu_servicios(page: ft.Page, contenedor: ft.Column):
             ),
         )
 
-    # --- Heading ---
     heading = ft.Container(
         alignment=ft.alignment.center,
         content=ft.Text(
@@ -97,13 +89,10 @@ def render_menu_servicios(page: ft.Page, contenedor: ft.Column):
             text_align=ft.TextAlign.CENTER,
             color="#0F3D47",
             size=24,
-        )
+        ),
     )
 
-    # Grid de servicios
-    grid = ft.GridView(
-        expand=False,   # se expandirá SOLO dentro del wrapper (que tiene ancho limitado)
-    )
+    grid = ft.GridView(expand=False)
 
     grid_holder = ft.Container(
         alignment=ft.alignment.center,
@@ -117,15 +106,12 @@ def render_menu_servicios(page: ft.Page, contenedor: ft.Column):
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
     )
 
-
-    # wrapper que vamos a centrar y limitar de ancho
     wrapper = ft.Container(
         content=inner_column,
         alignment=ft.alignment.center,
-        width=None,   # se ajusta en _build_grid según ancho de pantalla
+        width=None,
     )
 
-    # metemos solo el wrapper en el contenedor que viene de main
     contenedor.controls.clear()
     contenedor.controls.append(wrapper)
     contenedor.horizontal_alignment = ft.CrossAxisAlignment.CENTER
@@ -138,57 +124,31 @@ def render_menu_servicios(page: ft.Page, contenedor: ft.Column):
 
         heading.content.size = sz["heading_sz"]
 
-        # wrapper width
         if w < 480:
             wrapper.width = None
         else:
             wrapper.width = min(w * 0.9, 1600)
 
-        # -------------------------
-        # ✅ AJUSTE: centrado real en PC sin saltar de línea
-        # -------------------------
         n = len(SERVICIOS)
         spacing = sz["spacing"]
-
-        # base: usa tu tamaño por breakpoint
         cell = sz["max_extent"]
 
-        # Si estamos en PC (ajusta el umbral si quieres)
         if w >= 1020:
-            # ancho disponible dentro del wrapper
             avail = wrapper.width or w
-
-            # 🔥 queremos que entren las 6 tarjetas en una sola fila
-            # calculamos el max_extent necesario para que quepan
             max_cell_to_fit = (avail - (n - 1) * spacing) / n
             cell = min(cell, max_cell_to_fit)
+            cell = max(180, cell)
 
-            # evitar que quede demasiado pequeño
-            cell = max(180, cell)   # ajusta este mínimo si quieres
-
-        # aplicar al grid
         grid.max_extent = cell
         grid.child_aspect_ratio = sz["aspect"]
         grid.spacing = spacing
         grid.run_spacing = sz["run"]
 
-        # ✅ ancho real del grid (para centrarlo)
-        # en PC queremos 1 fila completa (n columnas)
         if w >= 1020:
-            grid_real_width = n * cell + (n - 1) * spacing
+            grid_holder.width = n * cell + (n - 1) * spacing
         else:
-            # tablet/móvil: centrado aproximado
-            # (o puedes calcular columnas como antes si quieres)
-            grid_real_width = None
+            grid_holder.width = None
 
-        # 👇 Importante: poner el grid dentro de un holder centrado
-        # Si no lo tienes, créalo (ver bloque más abajo)
-        try:
-            grid_holder.width = grid_real_width
-        except NameError:
-            pass
-
-        # reconstruir cards
         grid.controls.clear()
         for it in SERVICIOS:
             grid.controls.append(_card(it, sz))
@@ -199,11 +159,6 @@ def render_menu_servicios(page: ft.Page, contenedor: ft.Column):
         contenedor.update()
         page.update()
 
-
-    # primera construcción
     _build_grid()
-    # ✅ expón una función para que main.py la pueda llamar
     contenedor.data = contenedor.data or {}
     contenedor.data["rebuild"] = _build_grid
-
-   

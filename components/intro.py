@@ -1,26 +1,44 @@
-# components/intro.py
 import flet as ft
 
+
 def create_intro_overlay(page: ft.Page):
+    def texto_info_actual() -> str:
+        if (page.width or 0) >= 600:
+            return (
+                "Si deseas obtener mas informacion referente a la empresa, "
+                "has clic en las pestañas ubicadas en la parte superior izquierda."
+            )
+        return (
+            "Si deseas obtener mas informacion referente a la empresa, "
+            "haz clic sobre el menu ubicado en la esquina superior derecha."
+        )
+
     imagen_logo = ft.Container(
         content=ft.Image(
             src="https://i.postimg.cc/8PvSgg5x/logo-mobile-dark.png",
-            fit=ft.ImageFit.COVER,
+            fit=ft.BoxFit.COVER,
         ),
-        width=256, height=128,
+        width=256,
+        height=128,
         clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
         bgcolor=ft.Colors.WHITE,
         alignment=ft.alignment.top_center,
     )
 
-    # Tarjeta del modal (clicks aquí NO cierran el modal)
+    texto_info = ft.Text(
+        texto_info_actual(),
+        weight=ft.FontWeight.BOLD,
+        color=ft.Colors.BLUE_900,
+        text_align=ft.TextAlign.CENTER,
+    )
+
     modal_card = ft.Container(
         width=350,
         height=430,
         bgcolor=ft.Colors.WHITE,
         border_radius=10,
         padding=20,
-        on_click=lambda e: None,  # "consume" el click para que no cierre el overlay
+        on_click=lambda e: None,
         content=ft.Column(
             [
                 ft.Row(
@@ -34,35 +52,39 @@ def create_intro_overlay(page: ft.Page):
                     ]
                 ),
                 imagen_logo,
-                ft.Text("¡Bienvenidos!", size=20, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
                 ft.Text(
-                    "Aquí encontrarás todo lo referente al control de plagas profesional "
-                    "navega por la página y usa los botones para contactarte.",
-                    color=ft.Colors.BLACK
-                ),
-                ft.Text(
-                    "Si deseas obtener más información referente a la empresa "
-                    "haz clic sobre ☰ menú ubicado en la esquina superior derecha.",
+                    "Bienvenidos!",
+                    size=20,
                     weight=ft.FontWeight.BOLD,
-                    color=ft.Colors.BLUE_900
+                    color=ft.Colors.BLACK,
                 ),
+                ft.Text(
+                    "Aqui encontraras todo lo referente al control de plagas profesional. "
+                    "Navega por la pagina y usa los botones para contactarte.",
+                    color=ft.Colors.BLACK,
+                    text_align=ft.TextAlign.CENTER,
+                ),
+                texto_info,
             ],
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
             spacing=12,
         ),
     )
 
-    # Overlay de pantalla completa (posición absoluta en Stack)
     intro = ft.Container(
-        left=0, top=0, right=0, bottom=0,     # 👈 ocupa todo el viewport dentro del Stack
+        left=0,
+        top=0,
+        right=0,
+        bottom=0,
         visible=False,
-        bgcolor=ft.Colors.BLACK54,            # fondo semitransparente
+        bgcolor=ft.Colors.BLACK_54,
         alignment=ft.alignment.center,
-        on_click=lambda e: hide_intro(),      # clic fuera de la tarjeta cierra
+        on_click=lambda e: hide_intro(),
         content=modal_card,
     )
 
     def show_intro():
+        texto_info.value = texto_info_actual()
         intro.visible = True
         page.update()
 

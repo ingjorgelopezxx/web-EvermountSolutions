@@ -27,16 +27,16 @@ def create_vertical_carousel(page: ft.Page, intervalo=3):
 
     imagen = ft.Image(
         src=IMAGENES[idx[0]],
-        fit=ft.ImageFit.FILL,   # ✅ MUESTRA COMPLETA (no recorta)
-        width=CARD_W,              # ✅ fuerza tamaño
-        height=CARD_H,             # ✅ fuerza tamaño
+        fit=ft.BoxFit.FILL,   # âœ… MUESTRA COMPLETA (no recorta)
+        width=CARD_W,              # âœ… fuerza tamaÃ±o
+        height=CARD_H,             # âœ… fuerza tamaÃ±o
     )
 
     tarjeta = ft.Container(
         content=imagen,
         width=CARD_W,
         height=CARD_H,
-        bgcolor=ft.Colors.BLACK12,  # ✅ fondo para que no se vea “blanco vacío”
+        bgcolor=ft.Colors.BLACK_12,  # âœ… fondo para que no se vea â€œblanco vacÃ­oâ€
         border_radius=12,
         clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
         alignment=ft.alignment.center,
@@ -46,7 +46,7 @@ def create_vertical_carousel(page: ft.Page, intervalo=3):
     carrusel_control = ft.Container(
         content=tarjeta,
         alignment=ft.alignment.center,
-        padding=0,                         # ✅ antes tenías 10 (achicaba el carrusel)
+        padding=0,                         # âœ… antes tenÃ­as 10 (achicaba el carrusel)
     )
     carrusel_control.data = {"tarjeta": tarjeta, "imagen": imagen}
 
@@ -89,11 +89,11 @@ def create_vertical_carousel(page: ft.Page, intervalo=3):
                 ft.Text(
                     "Ofrecemos planes de mantenimiento diseñados para mantener tus espacios protegidos durante todo el año. "
                     "Nos adaptamos a tus necesidades y tipo de actividad (residencial, comercial o industrial).\n\n"
-                    "📆 Visitas programadas con seguimiento\n"
-                    "📊 Informes técnicos y certificados de aplicación\n"
-                    "🛡️ Control integral de plagas todo el año",
+                    "- Visitas programadas con seguimiento\n"
+                    "- Informes técnicos y certificados de aplicación\n"
+                    "- Control integral de plagas todo el año",
                     size=BODY_SIZE,
-                    color=ft.Colors.BLACK87,
+                    color=ft.Colors.BLACK_87,
                     text_align=ft.TextAlign.JUSTIFY,
                 ),
                 ft.Text(
@@ -128,20 +128,20 @@ def create_vertical_carousel(page: ft.Page, intervalo=3):
                 ft.Row(
                     [
                         ft.Icon(icono, color="#0D2943", size=20),
-                        ft.Text(texto, size=PLAN_SIZE, color=ft.Colors.BLACK87),
+                        ft.Text(texto, size=PLAN_SIZE, color=ft.Colors.BLACK_87),
                     ],
                     vertical_alignment=ft.CrossAxisAlignment.CENTER,
                 )
             )
         return ft.Column(items)
 
-    # 👉 dos columnas lado a lado
+    # ðŸ‘‰ dos columnas lado a lado
     lista_planes = ft.Row(
         [
             ft.Container(
                 content=build_col(planes_col1),
                 alignment=ft.alignment.top_right,
-                margin=ft.margin.only(left=10), 
+                margin=ft.Margin.only(left=10), 
             ),
             ft.Container(
                 content=build_col(planes_col2),
@@ -165,3 +165,4 @@ def create_vertical_carousel(page: ft.Page, intervalo=3):
     bloque_carrusel = carrusel_control
 
     return bloque_texto, bloque_carrusel, start, stop
+

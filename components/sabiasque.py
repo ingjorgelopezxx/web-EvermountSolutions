@@ -27,7 +27,7 @@ SABIASQUE_ITEMS = [
     {
         "especie": "Ratas",
         "titulo": "¿Sabías que una sola rata puede producir hasta 2,000 descendientes en un año si no se controla su población?",
-        "imagen": "https://i.postimg.cc/X7Dt0Tf1/istockphoto-1413873422-612x612.jpg",
+        "imagen": "https://i.postimg.cc/yNKpkNv3/istockphoto-1413873422-612x612-Photoroom.png",
         "texto": (
             "Las ratas tienen gran capacidad reproductiva y, sin control, se convierten rápidamente en una infestación. "
             "Además de daños materiales, son portadoras de enfermedades peligrosas."
@@ -48,7 +48,7 @@ SABIASQUE_ITEMS = [
     {
         "especie": "Ratones",
         "titulo": "¿Sabías que los ratones pueden vivir hasta tres años en condiciones favorables?",
-        "imagen": "https://i.postimg.cc/FsrS6xC9/raton-campo-mus-musculus-768x576.jpg",
+        "imagen": "https://i.postimg.cc/Xqgd1VwZ/raton-campo-mus-musculus-768x576-Photoroom.png",
         "texto": (
             "Excelentes trepadores y nadadores; saltan hasta 30 cm. Pueden roer cemento y vidrio. "
             "Reproducción prolífica desde las 6 semanas. Transmiten enfermedades y contaminan alimentos y superficies."
@@ -57,7 +57,7 @@ SABIASQUE_ITEMS = [
             "Agilidad y acrobacias: Trepan por diversas superficies y caminan sobre cables.",
             "Roedores versátiles: Roen cemento, vidrio y aluminio.",
             "Comportamiento social: Pueden imitar hábitos alimenticios de otros ratones.",
-            "Reproducción rápida: Hasta 15 camadas al año; crías fértiles a las 5–6 semanas.",
+            "Reproducción rápida: Hasta 15 camadas al año; crías fértiles a las 5-6 semanas.",
             "Transmisión de enfermedades: Salmonelosis, hantavirus, etc.",
             "Parásitos: Portan pulgas, garrapatas y piojos.",
             "Adaptación: Pueden obtener agua de los alimentos.",
@@ -90,7 +90,7 @@ SABIASQUE_ITEMS = [
     {
         "especie": "Hormigas",
         "titulo": "¿Sabías que un nido de hormigas puede contener cientos de miles de individuos?",
-        "imagen": "https://i.postimg.cc/QCGM3jqL/hormiga-eliminar-plaga.jpg",
+        "imagen": "https://i.postimg.cc/Yq95H8Sg/hormiga-eliminar-plaga-Photoroom.png",
         "texto": (
             "Plagas comunes en hogares y jardines. Encuentran comida/agua con facilidad, construyen nidos en lugares inesperados y pueden dañar madera (carpinteras)."
         ),
@@ -110,7 +110,7 @@ SABIASQUE_ITEMS = [
     {
         "especie": "Palomas",
         "titulo": "¿Sabías que las palomas pueden reconocer rostros humanos?",
-        "imagen": "https://a.files.bbci.co.uk/worldservice/live/assets/images/2015/11/20/151120130815_paloma2_624x351_thinkstock_nocredit.jpg",
+        "imagen": "https://i.postimg.cc/qBZm8rkj/151120130815-paloma2-624x351-thinkstock-nocredit-Photoroom.png",
         "texto": (
             "Comunes en ciudades; pueden ser plaga por daños y enfermedades. Nidos y excrementos afectan estructuras y atraen parásitos."
         ),
@@ -130,14 +130,14 @@ SABIASQUE_ITEMS = [
     {
         "especie": "Chinches",
         "titulo": "¿Sabías que las chinches pueden sobrevivir meses sin alimentarse?",
-        "imagen": "https://i.postimg.cc/7YPC9MmS/chinche-cimex-lectularius.jpg",
+        "imagen": "https://i.postimg.cc/MHcmscWv/chinche-cimex-lectularius-Photoroom.png",
         "texto": (
             "Parásitos de sangre; causan picor e irritación. Se esconden en grietas, colchones y muebles. Su control requiere tratamiento especializado."
         ),
         "extra": [
             "Ayuno: Meses sin comer.",
             "Nocturnas: Se alimentan de noche.",
-            "Hematófagas: Detectan calor y CO₂.",
+            "Hematófagas: Detectan calor y CO2.",
             "Difíciles de ver: Tamaño pequeño y mucho escondite.",
             "Reproducción: Cientos de huevos por hembra.",
             "Dispersión: Viajan en ropa y equipaje.",
@@ -150,7 +150,7 @@ SABIASQUE_ITEMS = [
     {
         "especie": "Pulgas",
         "titulo": "¿Sabías que el 50% de las picaduras de pulgas pueden causar reacciones alérgicas?",
-        "imagen": "https://www.gardentech.com/-/media/project/oneweb/gardentech/images/pest-id/alt-bug/flea.jpg",
+        "imagen": "https://i.postimg.cc/C12jfFjF/flea-Photoroom.png",
         "texto": (
             "Pequeños parásitos de mamíferos y aves. Picaduras con picor intenso. Pueden transmitir enfermedades y parásitos; se reproducen rápido."
         ),
@@ -175,7 +175,7 @@ SABIASQUE_ITEMS = [
             "Comunes pero riesgosas para la salud pública. Se alimentan de materia en descomposición y contaminan alimentos al posarse."
         ),
         "extra": [
-            "Ciclo corto: 7–10 días a adulto.",
+            "Ciclo corto: 7-10 días a adulto.",
             "Prolíficas: ~500 huevos por hembra.",
             "Enfermedades: Salmonelosis, disentería, cólera.",
             "Alimentación: Enzimas sobre alimentos antes de ingerir.",
@@ -190,6 +190,37 @@ SABIASQUE_ITEMS = [
 ]
 
 # --------- Helpers ----------
+def _species_theme(especie: str) -> dict:
+    themes = {
+        "Cucarachas": {"icon": ft.Icons.BUG_REPORT, "accent": "#7B3F00", "soft": "#F7E7D6"},
+        "Ratas": {"icon": ft.Icons.PEST_CONTROL_RODENT, "accent": "#5B4A3F", "soft": "#EEE7E1"},
+        "Ratones": {"icon": ft.Icons.PEST_CONTROL_RODENT, "accent": "#6B5A4A", "soft": "#EFEAE4"},
+        "Termitas": {"icon": ft.Icons.HOME_WORK, "accent": "#8A5A2B", "soft": "#F5E8DA"},
+        "Hormigas": {"icon": ft.Icons.HUB, "accent": "#8B4513", "soft": "#F5E7DB"},
+        "Palomas": {"icon": ft.Icons.CRUELTY_FREE, "accent": "#3F5F7A", "soft": "#E5EEF5"},
+        "Chinches": {"icon": ft.Icons.BED, "accent": "#7A2F4B", "soft": "#F5E2EA"},
+        "Pulgas": {"icon": ft.Icons.PETS, "accent": "#6E3D2A", "soft": "#F3E6DE"},
+        "Moscas": {"icon": ft.Icons.AIR, "accent": "#41616F", "soft": "#E3EFF3"},
+    }
+    return themes.get(especie, {"icon": ft.Icons.INFO, "accent": "#0F3D47", "soft": "#E7F0F2"})
+
+
+def _summary_metrics(item: dict) -> list[tuple[str, str]]:
+    especie = (item.get("especie") or "").lower()
+    metrics_by_species = {
+        "cucarachas": [("1 sem", "Sin cabeza"), ("40 min", "Sin respirar"), ("Nocturnas", "Actividad")],
+        "ratas": [("80", "Crías/año"), ("0.5 m", "Salto vertical"), ("1 m", "Salto largo")],
+        "ratones": [("3 años", "Vida útil"), ("15", "Camadas/año"), ("30 cm", "Salto vertical")],
+        "termitas": [("Miles", "Huevos/día"), ("24/7", "Actividad"), ("Alta", "Daño oculto")],
+        "hormigas": [("50x", "Su peso"), ("Miles", "Por colonia"), ("Años", "Reina longeva")],
+        "palomas": [("100s km", "Orientación"), ("15+", "Años"), ("Todo año", "Cría")],
+        "chinches": [("Meses", "Sin comer"), ("Noche", "Actividad"), ("100s", "Huevos")],
+        "pulgas": [("200x", "Longitud de salto"), ("50/día", "Huevos"), ("2 sem", "Ciclo rápido")],
+        "moscas": [("60+", "Enfermedades"), ("500", "Huevos"), ("7-10 días", "De huevo a adulto")],
+    }
+    return metrics_by_species.get(especie, [("Alta", "Adaptación"), ("Riesgo", "Sanitario"), ("Clave", "Prevención")])
+
+
 def _img_height_for(page: ft.Page) -> int:
     if page.width < 480:
         return 160
@@ -217,7 +248,7 @@ def _bullet_line(p: str, font_size: int) -> ft.Row:
             ft.TextSpan(body.strip(), ft.TextStyle(color=ft.Colors.BLACK)),
         ],
         size=font_size,
-        text_align=ft.TextAlign.JUSTIFY,
+        text_align=ft.TextAlign.LEFT,
     )
     return ft.Row(
         controls=[
@@ -234,6 +265,12 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
     """
     Muestra una CUADRÍCULA de especies; al seleccionar una tarjeta, muestra el DETALLE.
     """
+    async def _push_route_async(route: str):
+        await page.push_route(route)
+
+    def push_route(route: str):
+        page.run_task(_push_route_async, route)
+
     data = items or SABIASQUE_ITEMS
     contenedor.padding = 0
     contenedor.spacing = 0
@@ -274,9 +311,9 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
             bgcolor=ft.Colors.WHITE,
             border_radius=12,
             clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
-            shadow=ft.BoxShadow(1, 8, ft.Colors.BLACK12, offset=ft.Offset(2, 2)),
+            shadow=ft.BoxShadow(1, 8, ft.Colors.BLACK_12, offset=ft.Offset(2, 2)),
             ink=True,
-            on_click=lambda e, i=idx: page.go(f"/sabiasque/{i}"),
+            on_click=lambda e, i=idx: push_route(f"/sabiasque/{i}"),
             padding=0,
             content=ft.Column(
                 expand=True,
@@ -287,12 +324,12 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
                         expand=75,
                         alignment=ft.alignment.center,
                         padding=6,
-                        content=ft.Image(src=img, fit=ft.ImageFit.CONTAIN),
+                        content=ft.Image(src=img, fit=ft.BoxFit.CONTAIN),
                     ),
                     ft.Container(  # texto 25%
                         expand=25,
                         alignment=ft.alignment.center,
-                        padding=ft.padding.symmetric(horizontal=6, vertical=4),
+                        padding=ft.Padding.symmetric(horizontal=6, vertical=4),
                         content=ft.Text(
                         nombre,
                         size=18 if is_big else 14,
@@ -319,7 +356,7 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
             is_big = (page.width or 0) >= 600  # tablet y PC
             header = ft.Container(
                 alignment=ft.alignment.center,
-                padding=ft.padding.symmetric(vertical=4),
+                padding=ft.Padding.symmetric(vertical=4),
                 content=ft.Column(
                     alignment=ft.MainAxisAlignment.CENTER,
                     horizontal_alignment=ft.CrossAxisAlignment.CENTER,
@@ -333,7 +370,7 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
                             text_align=ft.TextAlign.CENTER,
                             font_family="Comic Sans MS",
                         ),
-                        ft.Divider(color=ft.Colors.BLACK26, thickness=1),
+                        ft.Divider(color=ft.Colors.BLACK_26, thickness=1),
                     ],
                 ),
             )
@@ -356,61 +393,290 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
         contenedor.controls.append(
             ft.Container(
                 content=sabiasque_column,
-                padding=ft.padding.only(top=4, bottom=8),
+                padding=ft.Padding.only(top=4, bottom=8),
             )
         )
-        # 👈 NO llamamos page.update aquí; se hace en el router
+        # ðŸ‘ˆ NO llamamos page.update aquÃ­; se hace en el router
 
     # ---- Vista de detalle ----
     def show_detail(index: int):
         d = data[index]
         img_h = _img_height_for(page)
+        theme = _species_theme(d.get("especie", ""))
+        metricas = _summary_metrics(d)
 
-        # 👇 tablet y PC → títulos 24, texto 18
-        is_big = (page.width or 0) >= 600
-        title_size = 24 if is_big else 18
-        text_size = 18 if is_big else 15
-        bullet_size = 18 if is_big else 14
+        w = page.width or 0
+        is_tablet = 600 <= w < 980
+        is_desktop = w >= 980
+        is_big = w >= 600
+        title_size = 33 if is_desktop else (28 if is_tablet else 21)
+        subtitle_size = 15 if is_big else 13
+        text_size = 17 if is_desktop else (16 if is_tablet else 15)
+        bullet_size = 16 if is_big else 14
+
+        badge = ft.Container(
+            bgcolor=theme["soft"],
+            border_radius=999,
+            padding=ft.Padding.symmetric(horizontal=14, vertical=8),
+            content=ft.Row(
+                spacing=8,
+                tight=True,
+                controls=[
+                    ft.Icon(theme["icon"], size=18, color=theme["accent"]),
+                    ft.Text(d.get("especie", "Especie"), size=subtitle_size, weight=ft.FontWeight.BOLD, color=theme["accent"]),
+                ],
+            ),
+        )
+
+        titulo = ft.Text(
+            d.get("titulo", d.get("especie", "Detalle")),
+            size=title_size,
+            weight=ft.FontWeight.BOLD,
+            color="#122531",
+            text_align=ft.TextAlign.CENTER,
+        )
+
+        resumen = ft.Container(
+            bgcolor="#F5F8FA",
+            border_radius=18,
+            padding=ft.Padding.symmetric(horizontal=18, vertical=16),
+            content=ft.Text(
+                d.get("texto", ""),
+                size=text_size,
+                color=ft.Colors.BLACK_87,
+                text_align=ft.TextAlign.LEFT,
+            ),
+        )
+
+        tablet_intro = ft.Container(
+            bgcolor=theme["soft"],
+            border_radius=16,
+            padding=ft.Padding.symmetric(horizontal=14, vertical=12),
+            content=ft.Column(
+                spacing=6,
+                controls=[
+                    ft.Row(
+                        spacing=8,
+                        controls=[
+                            ft.Icon(ft.Icons.NEWSPAPER, size=16, color=theme["accent"]),
+                            ft.Text("Dato destacado", size=subtitle_size, weight=ft.FontWeight.BOLD, color=theme["accent"]),
+                        ],
+                    ),
+                    ft.Text(
+                        (d.get("extra", [""])[0].split(":", 1)[1].strip() if d.get("extra") and ":" in d.get("extra", [""])[0] else d.get("texto", ""))[:130] + "...",
+                        size=bullet_size - 1,
+                        color=ft.Colors.BLACK_87,
+                        text_align=ft.TextAlign.LEFT,
+                    ),
+                ],
+            ),
+        )
+
+        metric_cards = []
+        for valor, label in metricas:
+            metric_cards.append(
+                ft.Container(
+                    col={"xs": 12, "sm": 4},
+                    bgcolor=ft.Colors.WHITE,
+                    border_radius=18,
+                    padding=ft.Padding.symmetric(horizontal=12, vertical=14),
+                    shadow=ft.BoxShadow(1, 8, ft.Colors.BLACK_12, offset=ft.Offset(0, 3)),
+                    content=ft.Column(
+                        spacing=4,
+                        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                        controls=[
+                            ft.Text(valor, size=20 if is_big else 18, weight=ft.FontWeight.BOLD, color=theme["accent"], text_align=ft.TextAlign.CENTER),
+                            ft.Text(label, size=subtitle_size, color=ft.Colors.BLACK_87, text_align=ft.TextAlign.CENTER),
+                        ],
+                    ),
+                )
+            )
+
+        stats = ft.ResponsiveRow(columns=12, spacing=10, run_spacing=10, controls=metric_cards)
+
+        destacados = d.get("extra", [])[:3]
+        resto = d.get("extra", [])[3:]
+
+        highlight_cards = []
+        for texto in destacados:
+            head = texto.split(":", 1)[0].strip()
+            body = texto.split(":", 1)[1].strip() if ":" in texto else texto
+            highlight_cards.append(
+                ft.Container(
+                    col={"xs": 12, "md": 4},
+                    bgcolor=theme["soft"],
+                    border_radius=18,
+                    padding=ft.Padding.symmetric(horizontal=14, vertical=14),
+                    content=ft.Column(
+                        spacing=6,
+                        controls=[
+                            ft.Row(
+                                spacing=8,
+                                controls=[
+                                    ft.Icon(theme["icon"], size=16, color=theme["accent"]),
+                                    ft.Text(head, size=subtitle_size, weight=ft.FontWeight.BOLD, color=theme["accent"]),
+                                ],
+                            ),
+                            ft.Text(body, size=bullet_size, color=ft.Colors.BLACK_87, text_align=ft.TextAlign.LEFT),
+                        ],
+                    ),
+                )
+            )
+
+        hallazgos = ft.Container(
+            bgcolor=ft.Colors.WHITE,
+            border_radius=20,
+            padding=ft.Padding.symmetric(horizontal=18, vertical=18),
+            shadow=ft.BoxShadow(1, 8, ft.Colors.BLACK_12, offset=ft.Offset(0, 3)),
+            content=ft.Column(
+                spacing=12,
+                controls=[
+                    ft.Row(
+                        spacing=8,
+                        controls=[
+                            ft.Icon(ft.Icons.LIGHTBULB, size=18, color=theme["accent"]),
+                            ft.Text("Hallazgos clave", size=subtitle_size + 1, weight=ft.FontWeight.BOLD, color=theme["accent"]),
+                        ],
+                    ),
+                    ft.ResponsiveRow(columns=12, spacing=12, run_spacing=12, controls=highlight_cards),
+                    ft.Column(
+                        controls=[_bullet_line(p, bullet_size) for p in resto],
+                        spacing=6,
+                    ),
+                ],
+            ),
+        )
+
+        image_card = ft.Container(
+            bgcolor="#FBFCFD",
+            border_radius=22,
+            padding=ft.Padding.symmetric(horizontal=20, vertical=16),
+            alignment=ft.alignment.center,
+            content=ft.Image(
+                src=d.get("imagen", ""),
+                fit=ft.BoxFit.CONTAIN,
+                height=img_h if not is_big else (img_h if is_tablet else img_h + 30),
+                opacity=1.0,
+            ),
+        )
+
+        tablet_side_facts = []
+        for texto in (d.get("extra", [])[:2] if d.get("extra") else []):
+            head = texto.split(":", 1)[0].strip()
+            body = texto.split(":", 1)[1].strip() if ":" in texto else texto
+            tablet_side_facts.append(
+                ft.Container(
+                    bgcolor=theme["soft"],
+                    border_radius=16,
+                    padding=ft.Padding.symmetric(horizontal=12, vertical=12),
+                    content=ft.Column(
+                        spacing=6,
+                        controls=[
+                            ft.Row(
+                                spacing=8,
+                                controls=[
+                                    ft.Icon(theme["icon"], size=15, color=theme["accent"]),
+                                    ft.Text(head, size=subtitle_size, weight=ft.FontWeight.BOLD, color=theme["accent"]),
+                                ],
+                            ),
+                            ft.Text(body, size=bullet_size - 1, color=ft.Colors.BLACK_87, text_align=ft.TextAlign.LEFT),
+                        ],
+                    ),
+                )
+            )
+
+        tablet_side_panel = ft.Container(
+            bgcolor=ft.Colors.WHITE,
+            border_radius=20,
+            padding=ft.Padding.symmetric(horizontal=14, vertical=14),
+            shadow=ft.BoxShadow(1, 8, ft.Colors.BLACK_12, offset=ft.Offset(0, 3)),
+            content=ft.Column(
+                spacing=10,
+                controls=[
+                    ft.Row(
+                        spacing=8,
+                        controls=[
+                            ft.Icon(ft.Icons.ARTICLE, size=18, color=theme["accent"]),
+                            ft.Text("Perfil rapido", size=subtitle_size + 1, weight=ft.FontWeight.BOLD, color=theme["accent"]),
+                        ],
+                    ),
+                    *tablet_side_facts,
+                ],
+            ),
+        )
+
+        if is_desktop:
+            top_section = ft.Row(
+                spacing=24,
+                vertical_alignment=ft.CrossAxisAlignment.START,
+                controls=[
+                    ft.Container(
+                        expand=7,
+                        content=ft.Column(
+                            spacing=16,
+                            horizontal_alignment=ft.CrossAxisAlignment.START,
+                            controls=[badge, titulo, resumen, stats],
+                        ),
+                    ),
+                    ft.Container(expand=5, content=image_card),
+                ],
+            )
+        elif is_tablet:
+            top_section = ft.Column(
+                spacing=16,
+                controls=[
+                    ft.Row(
+                        spacing=18,
+                        vertical_alignment=ft.CrossAxisAlignment.START,
+                        controls=[
+                            ft.Container(
+                                expand=6,
+                                content=ft.Column(
+                                    spacing=12,
+                                    horizontal_alignment=ft.CrossAxisAlignment.START,
+                                    controls=[badge, titulo, tablet_intro],
+                                ),
+                            ),
+                            ft.Container(
+                                expand=4,
+                                content=image_card,
+                            ),
+                        ],
+                    ),
+                    ft.Row(
+                        spacing=18,
+                        vertical_alignment=ft.CrossAxisAlignment.START,
+                        controls=[
+                            ft.Container(
+                                expand=6,
+                                content=ft.Column(
+                                    spacing=14,
+                                    controls=[resumen, stats],
+                                ),
+                            ),
+                            ft.Container(
+                                expand=4,
+                                content=tablet_side_panel,
+                            ),
+                        ],
+                    ),
+                ],
+            )
+        else:
+            top_section = ft.Column(
+                spacing=14,
+                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                controls=[badge, titulo, image_card, resumen, stats],
+            )
 
         bloque = ft.Container(
             bgcolor=ft.Colors.WHITE,
-            border_radius=12,
-            padding=12,
-            shadow=ft.BoxShadow(1, 8, ft.Colors.BLACK12, offset=ft.Offset(2, 2)),
+            border_radius=18,
+            padding=20,
+            shadow=ft.BoxShadow(1, 10, ft.Colors.BLACK_12, offset=ft.Offset(0, 4)),
             content=ft.Column(
-                spacing=10,
-                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                controls=[
-                    ft.Text(
-                        d.get("titulo", d.get("especie", "Detalle")),
-                        size=title_size,
-                        weight=ft.FontWeight.BOLD,
-                        color=ft.Colors.BLACK,
-                        text_align=ft.TextAlign.CENTER,
-                    ),
-                    ft.Container(
-                        height=img_h,
-                        alignment=ft.alignment.center,
-                        bgcolor=ft.Colors.WHITE,
-                        border_radius=8,
-                        clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
-                        content=ft.Image(
-                            src=d.get("imagen", ""),
-                            fit=ft.ImageFit.CONTAIN,
-                            opacity=1.0,
-                        ),
-                    ),
-                    ft.Text(
-                        d.get("texto", ""),
-                        size=text_size,
-                        color=ft.Colors.BLACK,
-                        text_align=ft.TextAlign.JUSTIFY,
-                    ),
-                    ft.Column(
-                        controls=[_bullet_line(p, bullet_size) for p in d.get("extra", [])],
-                        spacing=4,
-                    ),
-                ],
+                spacing=18,
+                controls=[top_section, hallazgos],
             ),
         )
 
@@ -430,10 +696,10 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
         contenedor.controls.append(
             ft.Container(
                 content=detail_view,
-                padding=ft.padding.only(top=4, bottom=8),
+                padding=ft.Padding.only(top=4, bottom=8),
             )
         )
-        # 👈 NO llamamos page.update aquí; se hace en el router
+        # ðŸ‘ˆ NO llamamos page.update aquÃ­; se hace en el router
 
     # ---- Router interno de Sabías que ----
     def on_route_change(e: ft.RouteChangeEvent):
@@ -456,3 +722,4 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
     setattr(page, "_sabiasque_router", on_route_change)
     setattr(page, "_sabiasque_show_grid", show_grid)
     setattr(page, "_sabiasque_show_detail", show_detail)
+

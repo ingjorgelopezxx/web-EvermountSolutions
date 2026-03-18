@@ -92,10 +92,10 @@ def create_slides_controller(
                     end=ft.alignment.center_right,
                     colors=["#0f2027", "#203a43", "#2c5364"],
                 ),
-                padding=ft.padding.symmetric(vertical=8, horizontal=10),
+                padding=ft.Padding.symmetric(vertical=8, horizontal=10),
                 border_radius=8,
                 alignment=ft.alignment.center,
-                margin=ft.margin.only(bottom=8),
+                margin=ft.Margin.only(bottom=8),
             ),
         ]
 
@@ -122,13 +122,13 @@ def create_slides_controller(
 
         card = ft.Container(
             width=ancho_card,
-            padding=ft.padding.symmetric(
+            padding=ft.Padding.symmetric(
                 vertical=18,
                 horizontal=8 if page.width < 400 else 18
             ),
             bgcolor=ft.Colors.WHITE,
             border_radius=16,
-            border=ft.border.all(2, ft.Colors.BLACK),
+            border=ft.Border.all(2, ft.Colors.BLACK),
             content=contenido_slide_column,
             alignment=ft.alignment.center,
         )

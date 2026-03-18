@@ -36,7 +36,7 @@ def create_formulario(page: ft.Page):
             width=300,
             height=200,
             border_radius=8,
-            bgcolor=ft.Colors.BLACK87,
+            bgcolor=ft.Colors.BLACK_87,
             padding=20,
             content=ft.Column(
                 [
@@ -63,7 +63,7 @@ def create_formulario(page: ft.Page):
             width=300,
             height=200,
             border_radius=8,
-            bgcolor=ft.Colors.BLACK87,
+            bgcolor=ft.Colors.BLACK_87,
             padding=20,
             content=ft.Column(
                 [
@@ -104,26 +104,52 @@ def create_formulario(page: ft.Page):
         if getattr(page, "session_id", None) is not None:
             page.update()
     
-    # ✅ Compacto solo cuando ancho < 700
+    # âœ… Compacto solo cuando ancho < 700
     BREAKPOINT_COMPACT = 800
 
     def es_compacto():
         return (page.width or 0) < BREAKPOINT_COMPACT
 
+    def es_tablet_hero():
+        w = page.width or 0
+        return 700 <= w < 1020
+
     def altura_campos_actual():
+        if es_tablet_hero():
+            return 40
         return 44 if es_compacto() else 56
 
     def titulo_size_actual():
+        if es_tablet_hero():
+            return 16
         return 22 if es_compacto() else 28
 
     def spacing_actual():
+        if es_tablet_hero():
+            return 4
         return 6 if es_compacto() else 10
 
     def min_lines_mensaje_actual():
+        if es_tablet_hero():
+            return 1
         return 2 if es_compacto() else 3
 
     def boton_text_size_actual():
+        if es_tablet_hero():
+            return 14
         return 16 if es_compacto() else 20
+
+    def textfield_text_size_actual():
+        if es_tablet_hero():
+            return 13
+        return 14 if es_compacto() else 16
+
+    def textfield_content_padding_actual():
+        if es_tablet_hero():
+            return ft.Padding.only(left=12, right=10, top=10, bottom=6)
+        if es_compacto():
+            return ft.Padding.only(left=12, right=10, top=10, bottom=8)
+        return ft.Padding.only(left=14, right=12, top=14, bottom=10)
 
 
     ALTURA_CAMPOS = altura_campos_actual()
@@ -152,7 +178,7 @@ def create_formulario(page: ft.Page):
         visible=False,
         tooltip="Correo electrónico inválido",
         style=ft.ButtonStyle(
-            padding=ft.padding.all(0),
+            padding=ft.Padding.all(0),
             shape=ft.RoundedRectangleBorder(radius=0)
         ),
         width=40, height=altura_campos_actual(),
@@ -165,6 +191,8 @@ def create_formulario(page: ft.Page):
     def ancho_responsivo():
         w = page.width or 360  # fallback seguro si aún no existe
         # en móvil casi todo el ancho, en PC limita y evita overflow
+        if es_tablet_hero():
+            return max(210, min(250, w * 0.28))
         if es_pc_o_tablet():
             return max(MIN_FORM_WIDTH, min(MAX_FORM_WIDTH, w * 0.60))
         return max(MIN_FORM_WIDTH, min(w * 0.92, MAX_FORM_WIDTH))
@@ -223,7 +251,7 @@ def create_formulario(page: ft.Page):
         return (page.width or 0) >= BREAKPOINT_TABLET
 
     def label_color_actual():
-        return ft.Colors.BLACK if es_pc_o_tablet() else ft.Colors.BLACK54
+        return ft.Colors.BLACK if es_pc_o_tablet() else ft.Colors.BLACK_54
 
     def padding_horizontal_actual():
         return 0 if es_pc_o_tablet() else 0
@@ -233,8 +261,15 @@ def create_formulario(page: ft.Page):
         page.update()
         page.run_task(proceso_envio)
 
-    boton_enviar = ft.ElevatedButton(
-        text="Enviar",
+    boton_enviar_text = ft.Text(
+        "Enviar",
+        size=20,
+        weight=ft.FontWeight.BOLD,
+        color=ft.Colors.WHITE,
+    )
+
+    boton_enviar = ft.Button(
+        content=boton_enviar_text,
         disabled=True,
         color=ft.Colors.WHITE,
         bgcolor="transparent",
@@ -287,12 +322,16 @@ def create_formulario(page: ft.Page):
         on_change=on_mensaje_nombre_change
     )
 
+    for tf in (nombre_real, correo_tf_real, telefono_real, mensaje_real):
+        tf.text_size = textfield_text_size_actual()
+        tf.content_padding = textfield_content_padding_actual()
+
     correo_tf = correo_tf_real
 
     def wrap_con_padding(tf):
         return ft.Container(
             content=tf,
-            padding=ft.padding.symmetric(horizontal=padding_horizontal_actual()),
+            padding=ft.Padding.symmetric(horizontal=padding_horizontal_actual()),
             alignment=ft.alignment.center,
         )
 
@@ -315,8 +354,8 @@ def create_formulario(page: ft.Page):
 
     boton_wrapper = ft.Container(
         content=boton_con_gradiente,
-        padding=ft.padding.symmetric(horizontal=padding_horizontal_actual()),
-        margin=ft.margin.only(top=0)
+        padding=ft.Padding.symmetric(horizontal=padding_horizontal_actual()),
+        margin=ft.Margin.only(top=0)
     )
 
     ESPACIO_BOTON_PC = 32
@@ -324,25 +363,30 @@ def create_formulario(page: ft.Page):
     def ajustar_responsivo(e=None):
         w = ancho_responsivo()
 
-        # ✅ menos margen arriba del botón en compacto
-        if es_compacto():
-            boton_wrapper.margin = ft.margin.only(top=8)
+        # âœ… menos margen arriba del botÃ³n en compacto
+        if es_tablet_hero():
+            boton_wrapper.margin = ft.Margin.only(top=6)
+        elif es_compacto():
+            boton_wrapper.margin = ft.Margin.only(top=8)
         else:
-            boton_wrapper.margin = ft.margin.only(top=ESPACIO_BOTON_PC) if es_pc_o_tablet() else ft.margin.only(top=0)
+            boton_wrapper.margin = ft.Margin.only(top=ESPACIO_BOTON_PC) if es_pc_o_tablet() else ft.Margin.only(top=0)
 
         for tf in (nombre_real, correo_tf_real, telefono_real, mensaje_real):
             tf.width = w
 
-        # ✅ alturas dinámicas al redimensionar
+        # âœ… alturas dinÃ¡micas al redimensionar
         for tf in (nombre_real, correo_tf_real, telefono_real):
             tf.height = altura_campos_actual()
 
         warning_icon.height = altura_campos_actual()
 
-        # ✅ líneas del mensaje dinámicas
+        # âœ… lÃ­neas del mensaje dinÃ¡micas
         mensaje_real.min_lines = min_lines_mensaje_actual()
+        mensaje_real.max_lines = 2 if es_tablet_hero() else None
 
-        # ✅ tamaño del texto del botón dinámico
+        # âœ… tamaÃ±o del texto del botÃ³n dinÃ¡mico
+        boton_enviar_text.size = boton_text_size_actual()
+
         boton_enviar.style = ft.ButtonStyle(
             text_style=ft.TextStyle(size=boton_text_size_actual(), weight=ft.FontWeight.BOLD),
             overlay_color="rgba(255,255,255,0.1)",
@@ -355,14 +399,15 @@ def create_formulario(page: ft.Page):
 
         for tf in (nombre_real, correo_tf_real, telefono_real, mensaje_real):
             tf.label_style = ft.TextStyle(color=lc)
+            tf.text_size = textfield_text_size_actual()
+            tf.content_padding = textfield_content_padding_actual()
 
         for cont in (nombre, correo_w, telefono, mensaje):
-            cont.padding = ft.padding.symmetric(horizontal=ph)
+            cont.padding = ft.Padding.symmetric(horizontal=ph)
 
         boton_con_gradiente.width = w
-        boton_wrapper.padding = ft.padding.symmetric(horizontal=ph)
-
-        page.update()
+        boton_con_gradiente.height = 34 if es_tablet_hero() else None
+        boton_wrapper.padding = ft.Padding.symmetric(horizontal=ph)
 
         if getattr(page, "session_id", None) is not None:
             page.update()
@@ -424,7 +469,7 @@ def create_formulario(page: ft.Page):
         telefono_val = (telefono_real.value or "").strip()
         mensaje_val = (mensaje_real.value or "").strip()
 
-        # ✅ requerimos todos, porque tu botón también lo exige
+        # âœ… requerimos todos, porque tu botÃ³n tambiÃ©n lo exige
         if not nombre_val or not correo_val or not telefono_val or not mensaje_val:
             enviando_overlay.visible = False
             mostrar_modal(
@@ -455,12 +500,12 @@ def create_formulario(page: ft.Page):
             )
 
             # Logs útiles para Render (aparecen en Logs)
-            print("📩 Formulario recibido:", {"nombre": nombre_val, "correo": correo_val})
-            print("✉️ Enviando con SendGrid...")
+            print("ðŸ“© Formulario recibido:", {"nombre": nombre_val, "correo": correo_val})
+            print("âœ‰ï¸ Enviando con SendGrid...")
 
             await asyncio.to_thread(send_via_sendgrid, subject, body)
 
-            print("✅ Enviado OK")
+            print("âœ… Enviado OK")
 
             # limpiar campos
             nombre_real.value = ""
@@ -479,7 +524,7 @@ def create_formulario(page: ft.Page):
             )
 
         except Exception as ex:
-            print("🔥 ERROR al enviar:", str(ex))
+            print("ðŸ”¥ ERROR al enviar:", str(ex))
             enviando_overlay.visible = False
             mostrar_modal(
                 "Error al enviar la información",
@@ -516,3 +561,4 @@ def create_formulario(page: ft.Page):
 
 
     return formulario_con_modal
+

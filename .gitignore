@@ -1,4 +1,22 @@
-
+# Python
 __pycache__/
 *.pyc
 
+# Entorno virtual
+.venv/
+venv/
+
+# GitHub workflows (si no quieres subirlos)
+.github/
+
+# Archivos de almacenamiento (imágenes, uploads, etc.)
+storage/
+
+# Variables de entorno
+.env
+
+# Logs
+*.log
+
+# VS Code
+.vscode/

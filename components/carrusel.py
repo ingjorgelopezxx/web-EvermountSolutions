@@ -42,7 +42,7 @@ def create_carrusel(page: ft.Page, intervalo: int = 3):
     w0, h0 = compute_size()
     imagen = ft.Image(
         src=IMAGENES[0],
-        fit=ft.ImageFit.FILL,
+        fit=ft.BoxFit.FILL,
         width=w0,
         height=h0,
     )

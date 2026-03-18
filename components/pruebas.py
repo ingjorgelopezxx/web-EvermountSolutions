@@ -23,15 +23,15 @@ def pest_card(src: str) -> ft.Control:
         border_radius=10,
         clip_behavior=ft.ClipBehavior.NONE,
         bgcolor=ft.Colors.WHITE,
-        content=ft.Image(src=src, fit=ft.ImageFit.COVER),
+        content=ft.Image(src=src, fit=ft.BoxFit.COVER),
     )
 
 def pill(label: str, icon: str = "✅") -> ft.Control:
     return ft.Container(
-        padding=ft.padding.symmetric(horizontal=10, vertical=6),
+        padding=ft.Padding.symmetric(horizontal=10, vertical=6),
         border_radius=999,
         bgcolor=ft.Colors.WHITE,
-        border=ft.border.all(1, ft.Colors.with_opacity(0.12, ft.Colors.BLACK)),
+        border=ft.Border.all(1, ft.Colors.with_opacity(0.12, ft.Colors.BLACK)),
         content=ft.Row(
             spacing=6,
             tight=True,
@@ -77,7 +77,7 @@ def main(page: ft.Page):
     left_panel = ft.Container(
         width=720,
         height=H,
-        padding=ft.padding.only(left=26, right=18, top=18, bottom=18),
+        padding=ft.Padding.only(left=26, right=18, top=18, bottom=18),
         content=ft.Column(
             spacing=12,
             controls=[
@@ -90,7 +90,7 @@ def main(page: ft.Page):
                             width=140,
                             height=90,
                             alignment=ft.alignment.center,
-                            content=ft.Image(src=LOGO_PATH, fit=ft.ImageFit.CONTAIN),
+                            content=ft.Image(src=LOGO_PATH, fit=ft.BoxFit.CONTAIN),
                         ),
                         ft.Column(
                             spacing=2,
@@ -151,7 +151,7 @@ def main(page: ft.Page):
                         end=ft.alignment.center_right,
                         colors=[deep, "#0E3B66", deep],
                     ),
-                    padding=ft.padding.symmetric(horizontal=18, vertical=14),
+                    padding=ft.Padding.symmetric(horizontal=18, vertical=14),
                     content=ft.Column(
                         spacing=6,
                         controls=[
@@ -179,19 +179,19 @@ def main(page: ft.Page):
         expand=True,
         height=H,
         alignment=ft.alignment.bottom_right,
-        padding=ft.padding.only(right=18, bottom=10),
+        padding=ft.Padding.only(right=18, bottom=10),
         content=ft.Stack(
             controls=[
                 # Silueta casa (simple, opcional)
                 ft.Container(
                     alignment=ft.alignment.center_right,
-                    padding=ft.padding.only(right=65, bottom=60),
+                    padding=ft.Padding.only(right=65, bottom=60),
                     content=ft.Icon(ft.Icons.HOUSE_ROUNDED, size=170, color=ft.Colors.with_opacity(0.18, ft.Colors.WHITE)),
                 ),
                 # Técnico
                 ft.Image(
                     src=TECH_IMG,
-                    fit=ft.ImageFit.CONTAIN,
+                    fit=ft.BoxFit.CONTAIN,
                     width=320,
                     height=360,
                     opacity=1.0,
