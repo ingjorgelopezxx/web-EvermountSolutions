@@ -21,3 +21,17 @@ def apply_flet_compat() -> None:
         def _scroll_key(value: str):
             return value
         ft.ScrollKey = _scroll_key
+
+    if not hasattr(ft, "BoxFit"):
+        image_fit = getattr(ft, "ImageFit", None)
+        if image_fit is not None:
+            class _BoxFitCompat:
+                CONTAIN = getattr(image_fit, "CONTAIN", None)
+                COVER = getattr(image_fit, "COVER", None)
+                FILL = getattr(image_fit, "FILL", None)
+                FIT_HEIGHT = getattr(image_fit, "FIT_HEIGHT", None)
+                FIT_WIDTH = getattr(image_fit, "FIT_WIDTH", None)
+                NONE = getattr(image_fit, "NONE", None)
+                SCALE_DOWN = getattr(image_fit, "SCALE_DOWN", None)
+
+            ft.BoxFit = _BoxFitCompat
