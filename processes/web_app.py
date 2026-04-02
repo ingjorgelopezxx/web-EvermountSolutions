@@ -84,10 +84,11 @@ def main(page: ft.Page):
     async def _scroll_to_async(scroll_key_name: str, duration: int = 0):
         if (page.route or "/") != "/":
             await page.push_route("/")
-            await asyncio.sleep(0.35)
+            await asyncio.sleep(0.08)
 
-        for wait_time, target_duration in ((0.35, duration), (0.55, 0), (0.85, 0)):
-            await asyncio.sleep(wait_time)
+        for wait_time, target_duration in ((0.0, duration), (0.08, 0), (0.18, 0), (0.32, 0)):
+            if wait_time:
+                await asyncio.sleep(wait_time)
             try:
                 await contenido.scroll_to(
                     scroll_key=scroll_keys[scroll_key_name],
@@ -1234,8 +1235,6 @@ def main(page: ft.Page):
         dropdown.visible = False
         if animacion_empresa_task[0] is None:
             animacion_empresa_task[0] = start_pulso_empresa()
-        page.update()
-        
         if opt == "Inicio":
             mostrar_inicio_con_intro()
         elif opt == "Quiénes Somos":
@@ -1245,11 +1244,9 @@ def main(page: ft.Page):
             scroll_to_key("servicios_menu", duration=500)
             return
         elif opt == "Programas":
-            page.update()
             scroll_to_key("programas_inicio", duration=500)
             return
         elif opt == "Historia":
-            page.update()
             scroll_to_key("historia", duration=500)
             return
         elif opt == "Misión-Visión":

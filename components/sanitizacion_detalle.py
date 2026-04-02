@@ -11,6 +11,7 @@ def render_servicio_sanitizacion(
     render_service_detail(
         page,
         contenedor,
+        cache_key="servicio_sanitizacion",
         title="Desinfeccion y Sanitizacion de Ambientes",
         lead_text=(
             "Protege la salud de tu familia, empleados y clientes con nuestros servicios de sanitizacion "

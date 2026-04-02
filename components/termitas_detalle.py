@@ -11,6 +11,7 @@ def render_servicio_termitas(
     render_service_detail(
         page,
         contenedor,
+        cache_key="servicio_termitas",
         title="Tratamiento de Termitas",
         lead_text=(
             "Las termitas pueden causar danos estructurales graves en viviendas, empresas y "

@@ -11,6 +11,7 @@ def render_servicio_aves_urbanas(
     render_service_detail(
         page,
         contenedor,
+        cache_key="servicio_aves",
         title="Control de Aves Urbanas",
         lead_text=(
             "Las aves pueden convertirse en una plaga cuando anidan en techos, cornisas, galpones "

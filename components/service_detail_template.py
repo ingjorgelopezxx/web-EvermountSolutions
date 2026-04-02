@@ -10,6 +10,7 @@ def render_service_detail(
     page: ft.Page,
     contenedor: ft.Column,
     *,
+    cache_key: str | None = None,
     title: str,
     lead_text: str,
     benefits: list[str],
@@ -22,6 +23,22 @@ def render_service_detail(
     highlight_text: str,
     title_sizes: tuple[int, int, int] = (26, 32, 48),
 ):
+    if not hasattr(page, "_service_detail_cache"):
+        page._service_detail_cache = {}
+
+    cache_store = page._service_detail_cache
+    cached = cache_store.get(cache_key) if cache_key else None
+    if cached:
+        try:
+            cached["resize_fn"](None)
+        except Exception:
+            pass
+        contenedor.controls.clear()
+        contenedor.controls.append(cached["view"])
+        contenedor.update()
+        page.on_resized = cached["route_resize_handler"]
+        return
+
     def _sizes_for(p: ft.Page):
         w = p.width or 800
         if w < 420:
@@ -438,8 +455,10 @@ def render_service_detail(
         content=desktop_layout if SZ["desktop"] else mobile_layout,
     )
 
+    list_view = ft.ListView(expand=True, controls=[card], padding=0)
+
     contenedor.controls.clear()
-    contenedor.controls.append(ft.ListView(expand=True, controls=[card], padding=0))
+    contenedor.controls.append(list_view)
     contenedor.update()
 
     def _on_resize(e):
@@ -477,7 +496,8 @@ def render_service_detail(
         card.content = desktop_layout if SZ["desktop"] else mobile_layout
         card.update()
 
-    prev_on_resized = page.on_resized
+    prev_on_resized = getattr(page, "_service_detail_base_on_resized", page.on_resized)
+    page._service_detail_base_on_resized = prev_on_resized
 
     def _chain_on_resized(e):
         try:
@@ -488,3 +508,10 @@ def render_service_detail(
         _on_resize(e)
 
     page.on_resized = _chain_on_resized
+
+    if cache_key:
+        cache_store[cache_key] = {
+            "view": list_view,
+            "resize_fn": _on_resize,
+            "route_resize_handler": _chain_on_resized,
+        }

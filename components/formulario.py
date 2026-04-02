@@ -10,8 +10,8 @@ from email.header import Header
 #  ENV (Render)
 # =========================
 SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY")
-EMAIL_DESTINO = os.getenv("EMAIL_DESTINO", "operaciones@evermountsolutions.cl")
-EMAIL_FROM = os.getenv("EMAIL_FROM", "evermountsolutions@gmail.com")  # puede ser tu gmail mientras completas verificación/dominio
+EMAIL_DESTINO = os.getenv("EMAIL_DESTINO")
+EMAIL_FROM = os.getenv("EMAIL_FROM")  # puede ser tu gmail mientras completas verificación/dominio
 
 SENDGRID_ENDPOINT = "https://api.sendgrid.com/v3/mail/send"
 

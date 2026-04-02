@@ -11,6 +11,7 @@ def render_servicio_voladores(
     render_service_detail(
         page,
         contenedor,
+        cache_key="servicio_voladores",
         title="Control de Insectos Voladores",
         lead_text=(
             "Los insectos voladores afectan la comodidad y pueden transmitir enfermedades en espacios "

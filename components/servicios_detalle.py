@@ -11,6 +11,7 @@ def render_servicio_desratizacion(
     render_service_detail(
         page,
         contenedor,
+        cache_key="servicio_roedores",
         title="Desratizacion Profesional",
         lead_text=(
             "Los roedores son una de las plagas mas peligrosas por los danos estructurales que causan "

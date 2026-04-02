@@ -11,6 +11,7 @@ def render_servicio_rastreros(
     render_service_detail(
         page,
         contenedor,
+        cache_key="servicio_rastreros",
         title="Control de Insectos Rastreros",
         lead_text=(
             "Los insectos rastreros contaminan alimentos, generan molestias y pueden transmitir "
