@@ -12,9 +12,21 @@ def run_web_app() -> None:
     app_view = getattr(ft, "AppView", None)
     web_view = getattr(app_view, "WEB_BROWSER", None) if app_view else getattr(ft, "WEB_BROWSER", None)
 
-    ft.app(
-        target=web_main,
-        view=web_view,
-        port=int(os.environ.get("PORT", 8080)),
-        assets_dir="assets",
-    )
+    run_app = getattr(ft, "run", None)
+    if run_app is None:
+        run_app = ft.app
+
+    if run_app is ft.app:
+        run_app(
+            target=web_main,
+            view=web_view,
+            port=int(os.environ.get("PORT", 8080)),
+            assets_dir="assets",
+        )
+    else:
+        run_app(
+            web_main,
+            view=web_view,
+            port=int(os.environ.get("PORT", 8080)),
+            assets_dir="assets",
+        )

@@ -2,18 +2,15 @@ import flet as ft
 import re
 import asyncio
 import os
-import json
-import urllib.request
-from email.header import Header
-
+import requests
 # =========================
 #  ENV (Render)
 # =========================
-SENDGRID_API_KEY = os.getenv("backend-evermount")
+RESEND_API_KEY = os.getenv("RESEND_API_KEY")
 EMAIL_DESTINO = os.getenv("EMAIL_DESTINO")
-EMAIL_FROM = os.getenv("EMAIL_FROM")  # puede ser tu gmail mientras completas verificación/dominio
+EMAIL_FROM = os.getenv("EMAIL_FROM")
 
-SENDGRID_ENDPOINT = "https://api.sendgrid.com/v3/mail/send"
+RESEND_ENDPOINT = "https://api.resend.com/emails"
 
 
 def validar_correo(email: str) -> bool:
@@ -37,6 +34,8 @@ def correo_parece_valido(email: str) -> bool:
 
 
 def create_formulario(page: ft.Page):
+    estado_boton = {"habilitado": False}
+
     def safe_update(ctrl: ft.Control):
         if getattr(ctrl, "page", None) is not None:
             ctrl.update()
@@ -223,6 +222,10 @@ def create_formulario(page: ft.Page):
         sin_alerta = not warning_icon.visible
         habilitar = campos_llenos and sin_alerta
 
+        if estado_boton["habilitado"] == habilitar:
+            return
+
+        estado_boton["habilitado"] = habilitar
         boton_enviar.disabled = not habilitar
         boton_con_gradiente.opacity = 1.0 if habilitar else 0.4
 
@@ -254,8 +257,12 @@ def create_formulario(page: ft.Page):
         nuevo = v.replace(" ", "")
         if nuevo != v:
             e.control.value = nuevo
+            safe_update(e.control)
 
-        safe_update(e.control)
+        if warning_icon.visible and (nuevo == "" or correo_parece_valido(nuevo)):
+            warning_icon.visible = False
+            safe_update(warning_icon)
+
         actualizar_estado_boton()
 
     def on_correo_blur(e):
@@ -453,41 +460,43 @@ def create_formulario(page: ft.Page):
     # =========================
     #  SENDGRID - envío (API)
     # =========================
-    def send_via_sendgrid(subject: str, content: str):
-        if not SENDGRID_API_KEY:
-            raise RuntimeError("Falta SENDGRID_API_KEY en variables de entorno (Render).")
+    def send_via_resend(subject: str, content: str):
+        if not RESEND_API_KEY:
+            raise RuntimeError("Falta RESEND_API_KEY en variables de entorno.")
         if not EMAIL_DESTINO:
-            raise RuntimeError("Falta EMAIL_DESTINO en variables de entorno (Render).")
+            raise RuntimeError("Falta EMAIL_DESTINO en variables de entorno.")
         if not EMAIL_FROM:
-            raise RuntimeError("Falta EMAIL_FROM en variables de entorno (Render).")
+            raise RuntimeError("Falta EMAIL_FROM en variables de entorno.")
 
         payload = {
-            "personalizations": [{"to": [{"email": EMAIL_DESTINO}]}],
-            "from": {"email": EMAIL_FROM, "name": "Evermount Solutions"},
+            "from": f"Evermount Solutions <{EMAIL_FROM}>",
+            "to": [EMAIL_DESTINO],
             "subject": subject,
-            "content": [{"type": "text/plain", "value": content}],
+            "text": content,
+            "reply_to": EMAIL_FROM,
         }
 
-        data = json.dumps(payload).encode("utf-8")
-        req = urllib.request.Request(
-            SENDGRID_ENDPOINT,
-            data=data,
-            method="POST",
-            headers={
-                "Authorization": f"Bearer {SENDGRID_API_KEY}",
-                "Content-Type": "application/json",
-            },
-        )
+        headers = {
+            "Authorization": f"Bearer {RESEND_API_KEY}",
+            "Content-Type": "application/json",
+        }
 
         try:
-            with urllib.request.urlopen(req, timeout=20) as resp:
-                # SendGrid normalmente responde 202 Accepted
-                status = resp.status
-        except Exception as e:
-            raise RuntimeError(f"SendGrid error: {e}")
+            resp = requests.post(
+                RESEND_ENDPOINT,
+                json=payload,
+                headers=headers,
+                timeout=20,
+            )
 
-        if status not in (200, 202):
-            raise RuntimeError(f"SendGrid respondió status {status}")
+            print("Resend status:", resp.status_code)
+            print("Resend body:", resp.text)
+
+            if resp.status_code not in (200, 201):
+                raise RuntimeError(f"Resend respondió {resp.status_code}: {resp.text}")
+
+        except Exception as e:
+            raise RuntimeError(f"Resend error: {e}")
 
     async def proceso_envio():
         nombre_val = (nombre_real.value or "").strip()
@@ -517,7 +526,7 @@ def create_formulario(page: ft.Page):
             return
 
         try:
-            subject = str(Header(f"Nuevo mensaje de {nombre_val}", "utf-8"))
+            subject = f"Nuevo mensaje de {nombre_val}"
             body = (
                 f"Nombre: {nombre_val}\n"
                 f"Correo: {correo_val}\n"
@@ -527,11 +536,10 @@ def create_formulario(page: ft.Page):
 
             # Logs útiles para Render (aparecen en Logs)
             print("ðŸ“© Formulario recibido:", {"nombre": nombre_val, "correo": correo_val})
-            print("âœ‰ï¸ Enviando con SendGrid...")
+            print("Enviando con Resend...")
+            await asyncio.to_thread(send_via_resend, subject, body)
 
-            await asyncio.to_thread(send_via_sendgrid, subject, body)
-
-            print("âœ… Enviado OK")
+            print("Enviado OK")
 
             # limpiar campos
             nombre_real.value = ""
