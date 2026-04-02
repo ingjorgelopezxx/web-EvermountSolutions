@@ -9,9 +9,15 @@ def apply_flet_compat() -> None:
         "top_left": ft.Alignment(-1, -1),
         "top_center": ft.Alignment(0, -1),
         "top_right": ft.Alignment(1, -1),
+        "bottom_center": ft.Alignment(0, 1),
         "bottom_right": ft.Alignment(1, 1),
     }
 
     for name, value in alignment_aliases.items():
         if not hasattr(ft.alignment, name):
             setattr(ft.alignment, name, value)
+
+    if not hasattr(ft, "ScrollKey"):
+        def _scroll_key(value: str):
+            return value
+        ft.ScrollKey = _scroll_key
