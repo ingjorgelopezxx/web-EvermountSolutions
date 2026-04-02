@@ -291,7 +291,7 @@ def main(page: ft.Page):
         }
         return cont
 
-    def crear_firma_con_iconos() -> tuple[ft.Control, ft.Control]:
+    def crear_firma_con_iconos() -> tuple[ft.Control, ft.Control, ft.Control]:
         def _inline_item(icon_name, label, size=12):
             return ft.Row(
                 [
@@ -325,16 +325,36 @@ def main(page: ft.Page):
             vertical_alignment=ft.CrossAxisAlignment.CENTER,
         )
 
+        footer_tablet = ft.Row(
+            [
+                ft.Text("Desarrollo Ing. Jorge Lopez", size=9, weight=ft.FontWeight.BOLD, color="#202325"),
+                ft.Text("|", size=9, weight=ft.FontWeight.BOLD, color="#202325"),
+                _inline_item(ft.Icons.WEB, "Flet", 9),
+                ft.Text("|", size=9, weight=ft.FontWeight.BOLD, color="#202325"),
+                _inline_item(ft.Icons.CODE, "Python", 9),
+                ft.Text("|", size=9, weight=ft.FontWeight.BOLD, color="#202325"),
+                _inline_item(ft.Icons.PHONE, "+56937539304", 9),
+                ft.Text("|", size=9, weight=ft.FontWeight.BOLD, color="#202325"),
+                _inline_item(ft.Icons.CAMERA_ALT, "jorgelopezsilva", 9),
+                ft.Text("|", size=9, weight=ft.FontWeight.BOLD, color="#202325"),
+                ft.Text("2025 (c)", size=9, weight=ft.FontWeight.BOLD, color="#202325"),
+            ],
+            spacing=4,
+            wrap=False,
+            alignment=ft.MainAxisAlignment.CENTER,
+            vertical_alignment=ft.CrossAxisAlignment.CENTER,
+        )
         footer_mobile = ft.Column(
             [
-                ft.Text("Desarrollo por Ing. Jorge Lopez con tecnología", size=11, weight=ft.FontWeight.BOLD, color="#202325", text_align=ft.TextAlign.CENTER),
                 ft.Row(
                     [
+                        ft.Text("Desarrollo Ing. Jorge Lopez", size=10, weight=ft.FontWeight.BOLD, color="#202325"),
+                        ft.Text("|", size=10, weight=ft.FontWeight.BOLD, color="#202325"),
                         _inline_item(ft.Icons.WEB, "Flet", 11),
                         ft.Text("|", size=11, weight=ft.FontWeight.BOLD, color="#202325"),
                         _inline_item(ft.Icons.CODE, "Python", 11),
                     ],
-                    spacing=6,
+                    spacing=5,
                     alignment=ft.MainAxisAlignment.CENTER,
                 ),
                 ft.Row(
@@ -342,16 +362,17 @@ def main(page: ft.Page):
                         _inline_item(ft.Icons.PHONE, "+56937539304", 11),
                         ft.Text("|", size=11, weight=ft.FontWeight.BOLD, color="#202325"),
                         _inline_item(ft.Icons.CAMERA_ALT, "jorgelopezsilva", 11),
+                        ft.Text("|", size=11, weight=ft.FontWeight.BOLD, color="#202325"),
+                        ft.Text("2025 (c)", size=10, weight=ft.FontWeight.BOLD, color="#202325"),
                     ],
-                    spacing=6,
+                    spacing=5,
                     alignment=ft.MainAxisAlignment.CENTER,
                 ),
-                ft.Text("2025 (c) Todos los derechos reservados", size=11, weight=ft.FontWeight.BOLD, color="#202325", text_align=ft.TextAlign.CENTER),
             ],
             spacing=4,
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         )
-        return footer_mobile, footer_inline
+        return footer_mobile, footer_tablet, footer_inline
 
 
     video_slot_movil = ft.Container(
@@ -403,10 +424,11 @@ def main(page: ft.Page):
         "2025 (c) Todos los derechos reservados"
     )
     separador_final.bgcolor = "#B9B8B8"
-    footer_mobile, footer_inline = crear_firma_con_iconos()
+    footer_mobile, footer_tablet, footer_inline = crear_firma_con_iconos()
     separador_final.content = footer_mobile
     separador_final.data.update({
         "footer_inline": footer_inline,
+        "footer_tablet": footer_tablet,
         "footer_mobile": footer_mobile,
     })
 
@@ -1290,32 +1312,75 @@ def main(page: ft.Page):
     def ajustar_zona_multimedia():
         w = page.width or 0
 
-        # TamaÃ±o base â€œbonitoâ€ (ajÃºstalo a gusto)
-        base_w, base_h = 263, 360
+        program_data = bloque_programas.data or {}
+        top_card = program_data.get("top_card")
+        bottom_card = program_data.get("bottom_card")
+        gap_cards = program_data.get("gap", 14)
+        section_base_w, text_section_w = get_content_widths(w)
+        section_w = section_base_w or int(w * 0.94)
+        if w >= 1100:
+            section_w = min(int(w * 0.97), 1760)
 
-        # Escalado suave para pantallas grandes/compactas
-        factor = 1.0
-        if w < 1400:
-            factor = clamp((w - 900) / (1400 - 900), 0.85, 1.0)
+        if 700 <= w < 1020:
+            left_w = clamp(int(section_w * 0.31), 335, 380)
+            top_h = 372
+            bottom_h = 245
+            side_pad = 0
+        elif 1020 <= w < 1400:
+            left_w = clamp(int(section_w * 0.26), 350, 390)
+            top_h = 340
+            bottom_h = 245
+            side_pad = 0
+        else:
+            left_w = clamp(int(section_w * 0.24), 340, 390)
+            top_h = 340
+            bottom_h = 245
+            side_pad = 0
 
-        target_w = int(base_w * factor)
-        target_h = int(base_h * factor)
+        if top_card:
+            top_card.height = top_h
+            safe_update(top_card)
+        if bottom_card:
+            bottom_card.height = bottom_h
+            safe_update(bottom_card)
 
-        target_w = clamp(target_w, 230, 320)
-        target_h = clamp(target_h, 320, 460)
-        
-        # âœ… 1) Videos
+        bloque_programas.width = left_w
+        target_h = top_h + bottom_h + gap_cards
+
+        media_count = 1
+        if w >= 1120:
+            media_count += 1
+        if w >= 1500:
+            media_count += 1
+        if w >= 1820:
+            media_count += 1
+        if w >= 2140:
+            media_count += 1
+
+        controls_count = 1 + media_count
+        total_gap = 18 * max(0, controls_count - 1)
+        available_media_w = max(
+            220,
+            int((section_w - left_w - total_gap) / media_count),
+        )
+        if w < 1020:
+            target_w = clamp(available_media_w, 280, 460)
+        elif w < 1600:
+            proportional_w = int(target_h * 0.72)
+            target_w = clamp(max(available_media_w, proportional_w), 300, 500)
+        else:
+            proportional_w = int(target_h * 0.78)
+            target_w = clamp(max(available_media_w, proportional_w), 320, 540)
+
         resize_video_card(video_card, target_w, target_h)
         resize_video_card(video_card2, target_w, target_h)
         resize_video_card(video_card3, target_w, target_h)
         resize_video_card(video_card4, target_w, target_h)
-        
-        # âœ… 2) Carrusel vertical (contenedor externo + tarjeta interna)
-        try:
 
+        try:
             data = carrusel_vertical.data or {}
             tarjeta = data.get("tarjeta")
-            imagen  = data.get("imagen")
+            imagen = data.get("imagen")
 
             if tarjeta:
                 tarjeta.width = target_w
@@ -1327,21 +1392,21 @@ def main(page: ft.Page):
                 imagen.height = target_h
                 safe_update(imagen)
 
-
+            carrusel_vertical.width = target_w
+            carrusel_vertical.height = target_h
             safe_update(carrusel_vertical)
         except Exception as ex:
             print("resize carrusel_vertical error:", ex)
 
+        def box_auto(ctrl, width_value):
+            return ft.Container(
+                content=ctrl,
+                width=width_value,
+                padding=0,
+                margin=0,
+                alignment=ft.alignment.center,
+            )
 
-        def box_auto(ctrl, w):
-                return ft.Container(
-                    content=ctrl,
-                    width=w,
-                    padding=0,
-                    margin=0,
-                    alignment=ft.alignment.center,
-                )
-        # âœ… 3) Si usas box_fixed, pÃ¡sale target_w/target_h
         def box_fixed(ctrl):
             return ft.Container(
                 content=ctrl,
@@ -1352,30 +1417,50 @@ def main(page: ft.Page):
                 alignment=ft.alignment.center,
             )
 
-        # ==============================
-        # Construir lista dinámica
-        # ==============================
         controls_row = [
-            box_auto(bloque_programas, 430),
+            box_auto(bloque_programas, left_w),
             box_fixed(carrusel_vertical),
         ]
-        if w >= 946:
+        if w >= 1120:
             controls_row.append(box_fixed(video_card))
-        if w >= 1200:
+        if w >= 1500:
             controls_row.append(box_fixed(video_card2))
-        if w > 1577:
+        if w >= 1820:
             controls_row.append(box_fixed(video_card3))
-        if w > 1900:
+        if w >= 2140:
             controls_row.append(box_fixed(video_card4))
 
-        zona_multimedia.content = ft.Row(
+        content_total_w = left_w + (target_w * media_count) + (18 * max(0, len(controls_row) - 1))
+
+        contenido_programas = ft.Row(
             controls=controls_row,
             spacing=18,
-            alignment=ft.MainAxisAlignment.CENTER,
+            alignment=ft.MainAxisAlignment.START,
             vertical_alignment=ft.CrossAxisAlignment.START,
-            wrap=True,
+            wrap=False,
         )
-        
+
+        if w >= 1020:
+            zona_multimedia.padding = ft.Padding.symmetric(horizontal=side_pad, vertical=14)
+            zona_multimedia.content = ft.Container(
+                width=section_w,
+                alignment=ft.alignment.center,
+                content=ft.Row(
+                    controls=[ft.Container(width=content_total_w, content=contenido_programas)],
+                    scroll=ft.ScrollMode.AUTO,
+                    spacing=0,
+                    alignment=ft.MainAxisAlignment.START,
+                    vertical_alignment=ft.CrossAxisAlignment.START,
+                ),
+            )
+        else:
+            zona_multimedia.padding = ft.Padding.symmetric(horizontal=side_pad, vertical=14)
+            zona_multimedia.content = ft.Container(
+                width=section_w,
+                alignment=ft.alignment.center,
+                content=contenido_programas,
+            )
+
         safe_update(zona_multimedia)
 
     def ajustar_banner_pc():
@@ -1738,7 +1823,7 @@ def main(page: ft.Page):
             safe_remove(separador_sanitizacion, contenido.controls)
 
             # modo tablet / PC â†’ sin saltos de lÃ­nea la firma
-            separador_final.content = separador_final.data["footer_inline"]
+            separador_final.content = separador_final.data["footer_tablet"] if es_tablet else separador_final.data["footer_inline"]
             
             async def _apply_contactos_luego():
                 await asyncio.sleep(0)
@@ -2020,5 +2105,6 @@ def main(page: ft.Page):
     # Overlay oculto para cerrar el menu al hacer clic fuera de el
     page.update()
     ajustar_tamanos()
+
 
 

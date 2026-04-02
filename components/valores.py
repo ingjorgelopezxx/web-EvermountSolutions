@@ -4,202 +4,279 @@ import flet as ft
 
 
 def create_valores(page: ft.Page):
-    TITULO_SIZE = 20
-    TEXTO_SIZE = 14
-    ICON_SIZE = 34
-    COLOR_TITULO = "#0D2943"
-    CARD_H_MATCH = 260
+    TITLE_SIZE = 20
+    BODY_SIZE = 14
+    HEADER_COLOR = "#0D2943"
+    TEXT_COLOR = "#23313B"
+    MUTED = "#5F6E79"
+    SOFT_BG = "#F4F8FB"
+    CHIP_BG = "#E6F0F5"
+    CARD_H = 330
 
-    def card_3d_anim(
-        header_row: ft.Control,
-        body: ft.Control,
-        fixed_h: int | None = None,
-        scroll_body: bool = False,
-    ):
+    def info_chip(icon_name: str, label: str, value: str):
+        return ft.Container(
+            bgcolor=CHIP_BG,
+            border_radius=14,
+            padding=ft.Padding.symmetric(horizontal=12, vertical=10),
+            content=ft.Row(
+                [
+                    ft.Icon(icon_name, size=16, color=HEADER_COLOR),
+                    ft.Column(
+                        [
+                            ft.Text(value, size=13, weight=ft.FontWeight.BOLD, color=HEADER_COLOR),
+                            ft.Text(label, size=11, color=MUTED),
+                        ],
+                        spacing=1,
+                        tight=True,
+                    ),
+                ],
+                spacing=8,
+                tight=True,
+            ),
+        )
+
+    def bullet(icon_name: str, title: str, text: str):
+        return ft.Row(
+            [
+                ft.Container(
+                    width=28,
+                    height=28,
+                    border_radius=14,
+                    bgcolor=CHIP_BG,
+                    alignment=ft.alignment.center,
+                    content=ft.Icon(icon_name, size=15, color=HEADER_COLOR),
+                ),
+                ft.Column(
+                    [
+                        ft.Text(title, size=13, weight=ft.FontWeight.BOLD, color=HEADER_COLOR),
+                        ft.Text(text, size=12, color=TEXT_COLOR, text_align=ft.TextAlign.LEFT),
+                    ],
+                    spacing=2,
+                    expand=True,
+                ),
+            ],
+            spacing=10,
+            vertical_alignment=ft.CrossAxisAlignment.START,
+        )
+
+    def valor_item(icon_name: str, title: str, text: str):
+        return ft.Container(
+            bgcolor="#F7F9FB",
+            border_radius=14,
+            padding=ft.Padding.symmetric(horizontal=12, vertical=10),
+            content=ft.Row(
+                [
+                    ft.Icon(icon_name, size=18, color=HEADER_COLOR),
+                    ft.Column(
+                        [
+                            ft.Text(title, size=13, weight=ft.FontWeight.BOLD, color=HEADER_COLOR),
+                            ft.Text(text, size=12, color=TEXT_COLOR, text_align=ft.TextAlign.LEFT),
+                        ],
+                        spacing=2,
+                        expand=True,
+                    ),
+                ],
+                spacing=10,
+                vertical_alignment=ft.CrossAxisAlignment.START,
+            ),
+        )
+
+    def make_card(icon_name: str, title: str, summary: str, bullets: list[ft.Control], chips: list[ft.Control], fixed_h: int):
         normal_shadow = ft.BoxShadow(
             blur_radius=16,
             spread_radius=1,
             color=ft.Colors.BLACK_26,
             offset=ft.Offset(3, 4),
         )
-        hover_shadow = ft.BoxShadow(
-            blur_radius=28,
-            spread_radius=2,
-            color=ft.Colors.BLACK_38,
-            offset=ft.Offset(6, 12),
+        detail_body = ft.Column(
+            [
+                ft.Column(bullets, spacing=10),
+                ft.Row(
+                    chips,
+                    wrap=True,
+                    spacing=8,
+                    run_spacing=8,
+                ),
+            ],
+            spacing=14,
+            scroll="auto",
+            expand=True,
         )
-
-        if scroll_body:
-            body_wrapped = ft.Column([body], scroll="auto", expand=True)
-        else:
-            body_wrapped = body
 
         card = ft.Container(
             bgcolor=ft.Colors.WHITE,
-            border_radius=18,
-            padding=ft.Padding.symmetric(horizontal=16, vertical=14),
-            border=ft.Border.all(1, ft.Colors.BLACK_12),
+            border_radius=20,
+            border=ft.Border.all(1, "#D8E2E8"),
+            padding=ft.Padding.symmetric(horizontal=18, vertical=16),
             shadow=normal_shadow,
-            animate=ft.Animation(220, ft.AnimationCurve.EASE_OUT),
-            animate_scale=ft.Animation(120, ft.AnimationCurve.EASE_OUT),
-            animate_offset=ft.Animation(220, ft.AnimationCurve.EASE_OUT),
-            offset=ft.Offset(0, 0),
-            scale=1.0,
-            ink=True,
             height=fixed_h,
             content=ft.Column(
-                [header_row, body_wrapped],
-                spacing=10,
-                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                expand=True if scroll_body else False,
+                [
+                    ft.Container(height=4, bgcolor=HEADER_COLOR, border_radius=999),
+                    ft.Row(
+                        [
+                            ft.Container(
+                                width=42,
+                                height=42,
+                                border_radius=14,
+                                bgcolor=SOFT_BG,
+                                alignment=ft.alignment.center,
+                                content=ft.Icon(icon_name, size=24, color=HEADER_COLOR),
+                            ),
+                            ft.Column(
+                                [
+                                    ft.Text(title, size=TITLE_SIZE, weight=ft.FontWeight.BOLD, color=HEADER_COLOR),
+                                    ft.Text(summary, size=13, color=MUTED, text_align=ft.TextAlign.LEFT),
+                                ],
+                                spacing=2,
+                                expand=True,
+                            ),
+                        ],
+                        spacing=12,
+                        vertical_alignment=ft.CrossAxisAlignment.START,
+                    ),
+                    detail_body,
+                ],
+                spacing=14,
+                expand=True,
             ),
         )
-
-        def on_hover(e: ft.HoverEvent):
-            hovering = e.data == "true"
-            card.offset = ft.Offset(0, -0.04) if hovering else ft.Offset(0, 0)
-            card.shadow = hover_shadow if hovering else normal_shadow
-            card.update()
-
-        async def on_click(e):
-            card.scale = 1.03
-            card.update()
-            await asyncio.sleep(0.08)
-            card.scale = 1.0
-            card.update()
-
-        card.on_hover = on_hover
-        card.on_click = on_click
+        card.data = {"detail_body": detail_body}
         return card
 
-    titulo_mision = ft.Text(
-        "Misión",
-        key="titulo_mision",
-        size=TITULO_SIZE,
-        weight=ft.FontWeight.BOLD,
-        color=COLOR_TITULO,
-    )
-    texto_mision = ft.Text(
-        "Brindar soluciones integrales, efectivas y sostenibles para el control de plagas, "
-        "protegiendo hogares, empresas y comunidades con responsabilidad, compromiso y tecnología "
-        "de vanguardia. Nos guiamos por los valores familiares que nos impulsan a ofrecer un servicio "
-        "cercano, confiable y duradero.",
-        key="texto_mision",
-        size=TEXTO_SIZE,
-        color=ft.Colors.BLACK_87,
-        text_align=ft.TextAlign.JUSTIFY,
-    )
-
-    titulo_vision = ft.Text(
-        "Visión",
-        key="titulo_vision",
-        size=TITULO_SIZE,
-        weight=ft.FontWeight.BOLD,
-        color=COLOR_TITULO,
-    )
-    texto_vision = ft.Text(
-        "Ser reconocidos como una de las empresas líderes en control de plagas en Chile y Latinoamérica, "
-        "destacando por nuestra excelencia operativa, innovación constante y atención personalizada, "
-        "con una gestión basada en la ética, el respeto al medio ambiente y el trabajo en equipo.",
-        key="texto_vision",
-        size=TEXTO_SIZE,
-        color=ft.Colors.BLACK_87,
-        text_align=ft.TextAlign.JUSTIFY,
-    )
-
-    titulo_valores = ft.Text(
-        "Valores Corporativos",
-        key="titulo_valores",
-        size=TITULO_SIZE,
-        weight=ft.FontWeight.BOLD,
-        color=COLOR_TITULO,
-    )
-
-    texto_valores = ft.Text(
-        key="texto_valores",
-        spans=[
-            ft.TextSpan("1. Compromiso Familiar: ", style=ft.TextStyle(weight=ft.FontWeight.BOLD)),
-            ft.TextSpan("Nos mueve el vínculo de hermanos: trabajamos con dedicación y confianza, cuidando cada cliente como parte de nuestra propia casa.\n\n"),
-            ft.TextSpan("2. Responsabilidad: ", style=ft.TextStyle(weight=ft.FontWeight.BOLD)),
-            ft.TextSpan("Cumplimos con lo que prometemos. Protegemos la salud, los espacios y el entorno con protocolos seguros y eficientes.\n\n"),
-            ft.TextSpan("3. Innovación: ", style=ft.TextStyle(weight=ft.FontWeight.BOLD)),
-            ft.TextSpan("Aplicamos métodos modernos y tecnologías efectivas para prevenir y erradicar plagas con mínimo impacto ambiental.\n\n"),
-            ft.TextSpan("4. Transparencia: ", style=ft.TextStyle(weight=ft.FontWeight.BOLD)),
-            ft.TextSpan("Informamos con claridad y actuamos con honestidad en cada paso del servicio.\n\n"),
-            ft.TextSpan("5. Cercanía con el Cliente: ", style=ft.TextStyle(weight=ft.FontWeight.BOLD)),
-            ft.TextSpan("Ofrecemos atención personalizada, directa y humana. Escuchamos, entendemos y resolvemos.\n\n"),
-            ft.TextSpan("6. Sostenibilidad: ", style=ft.TextStyle(weight=ft.FontWeight.BOLD)),
-            ft.TextSpan("Utilizamos productos y técnicas que cuidan la salud y respetan el medio ambiente."),
-        ],
-        size=TEXTO_SIZE,
-        text_align=ft.TextAlign.JUSTIFY,
-        color=ft.Colors.BLACK_87,
-    )
-
-    header_mision = ft.Row(
-        [ft.Icon(ft.Icons.FLAG, size=ICON_SIZE, color=COLOR_TITULO), titulo_mision],
-        alignment=ft.MainAxisAlignment.CENTER,
-        spacing=10,
-    )
-    header_vision = ft.Row(
-        [ft.Icon(ft.Icons.VISIBILITY, size=ICON_SIZE, color=COLOR_TITULO), titulo_vision],
-        alignment=ft.MainAxisAlignment.CENTER,
-        spacing=10,
-    )
-    header_valores = ft.Row(
-        [ft.Icon(ft.Icons.VERIFIED, size=ICON_SIZE, color=COLOR_TITULO), titulo_valores],
-        alignment=ft.MainAxisAlignment.CENTER,
-        spacing=10,
-    )
-
-    layout_mobile = ft.Column(
+    mission_card = make_card(
+        ft.Icons.FLAG,
+        "Mision",
+        "Direccion operativa clara, cercana y responsable.",
         [
-            header_mision,
-            texto_mision,
-            ft.Divider(height=10, color="transparent"),
-            header_vision,
-            texto_vision,
-            ft.Divider(height=10, color="transparent"),
-            header_valores,
-            texto_valores,
+            bullet(ft.Icons.HOME_WORK, "Cobertura integral", "Protegemos hogares, empresas y comunidades con soluciones adaptadas a cada contexto."),
+            bullet(ft.Icons.SHIELD, "Servicio confiable", "Trabajamos con protocolos seguros, seguimiento tecnico y enfoque preventivo."),
+            bullet(ft.Icons.SETTINGS_SUGGEST, "Tecnologia aplicada", "Integramos metodologias modernas para lograr resultados estables y sostenibles."),
+        ],
+        [
+            info_chip(ft.Icons.GROUP, "Enfoque", "Cliente y equipo"),
+            info_chip(ft.Icons.HEALTH_AND_SAFETY, "Prioridad", "Salud y seguridad"),
+        ],
+        CARD_H,
+    )
+
+    vision_card = make_card(
+        ft.Icons.VISIBILITY,
+        "Vision",
+        "Proyeccion empresarial con excelencia y sostenibilidad.",
+        [
+            bullet(ft.Icons.EMOJI_EVENTS, "Liderazgo regional", "Buscamos ser una referencia en control de plagas en Chile y Latinoamerica."),
+            bullet(ft.Icons.AUTO_GRAPH, "Mejora continua", "Promovemos innovacion constante, capacitacion y evolucion de procesos."),
+            bullet(ft.Icons.SPA, "Gestion responsable", "Equilibramos rendimiento operativo con respeto por las personas y el entorno."),
+        ],
+        [
+            info_chip(ft.Icons.TRENDING_UP, "Meta", "Crecimiento sostenible"),
+            info_chip(ft.Icons.PSYCHOLOGY, "Motor", "Innovacion continua"),
+        ],
+        CARD_H,
+    )
+
+    difference_card = make_card(
+        ft.Icons.AUTO_AWESOME,
+        "Lo que nos diferencia",
+        "Una propuesta de servicio clara, moderna y confiable.",
+        [
+            bullet(ft.Icons.SCHOOL, "Actualizacion constante", "Nos mantenemos al dia en tecnicas, procesos y buenas practicas."),
+            bullet(ft.Icons.VERIFIED_USER, "Confianza en el servicio", "Cada cliente es atendido con cercania, respeto y sentido de responsabilidad."),
+            bullet(ft.Icons.SCHEDULE, "Cumplimiento real", "Actuamos con transparencia, eficacia y puntualidad en cada visita."),
+        ],
+        [
+            info_chip(ft.Icons.PUBLIC, "Enfoque", "Prevencion y control"),
+            info_chip(ft.Icons.DONE_ALL, "Promesa", "Claridad y seguimiento"),
+        ],
+        CARD_H,
+    )
+
+    values_items = ft.Column(
+        [
+            valor_item(ft.Icons.FAMILY_RESTROOM, "Compromiso familiar", "Tratamos cada cliente con dedicacion, confianza y sentido de pertenencia."),
+            valor_item(ft.Icons.TASK_ALT, "Responsabilidad", "Cumplimos lo prometido con procesos seguros y alto estandar tecnico."),
+            valor_item(ft.Icons.LIGHTBULB, "Innovacion", "Aplicamos metodos modernos para prevenir y resolver con eficiencia."),
+            valor_item(ft.Icons.HANDSHAKE, "Transparencia y cercania", "Comunicamos con claridad, escuchamos y acompanamos todo el proceso."),
         ],
         spacing=10,
+        scroll="auto",
+        expand=True,
+    )
+
+    values_header_row = ft.Row(
+        [
+            ft.Container(
+                width=42,
+                height=42,
+                border_radius=14,
+                bgcolor=SOFT_BG,
+                alignment=ft.alignment.center,
+                content=ft.Icon(ft.Icons.VERIFIED, size=24, color=HEADER_COLOR),
+            ),
+            ft.Column(
+                [
+                    ft.Text("Valores", size=TITLE_SIZE, weight=ft.FontWeight.BOLD, color=HEADER_COLOR),
+                    ft.Text("Cultura de trabajo orientada a confianza, claridad y resultados.", size=13, color=MUTED),
+                ],
+                spacing=2,
+                expand=True,
+            ),
+        ],
+        spacing=12,
+        vertical_alignment=ft.CrossAxisAlignment.START,
+    )
+
+    values_header_holder = ft.Container(content=values_header_row)
+    values_body_holder = ft.Container(content=values_items, expand=True)
+
+    values_card = ft.Container(
+        bgcolor=ft.Colors.WHITE,
+        border_radius=20,
+        border=ft.Border.all(1, "#D8E2E8"),
+        padding=ft.Padding.symmetric(horizontal=18, vertical=16),
+        shadow=ft.BoxShadow(
+            blur_radius=16,
+            spread_radius=1,
+            color=ft.Colors.BLACK_26,
+            offset=ft.Offset(3, 4),
+        ),
+        height=CARD_H,
+        content=ft.Column(
+            [
+                ft.Container(height=4, bgcolor=HEADER_COLOR, border_radius=999),
+                values_header_holder,
+                values_body_holder,
+            ],
+            spacing=14,
+            expand=True,
+        ),
+    )
+
+    mobile_layout = ft.Column(
+        [
+            mission_card,
+            vision_card,
+            values_card,
+        ],
+        spacing=14,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
     )
 
-    card_mision = card_3d_anim(
-        header_mision,
-        texto_mision,
-        fixed_h=CARD_H_MATCH,
-        scroll_body=True,
-    )
-    card_vision = card_3d_anim(
-        header_vision,
-        texto_vision,
-        fixed_h=CARD_H_MATCH,
-        scroll_body=True,
-    )
-    card_valores = card_3d_anim(
-        header_valores,
-        texto_valores,
-        fixed_h=CARD_H_MATCH,
-        scroll_body=True,
-    )
+    wrap_m = ft.Container(content=mission_card, width=420)
+    wrap_v = ft.Container(content=vision_card, width=420)
+    wrap_val = ft.Container(content=values_card, width=420)
+    wrap_diff = ft.Container(content=difference_card, width=420)
 
-    wrap_m = ft.Container(content=card_mision, width=420)
-    wrap_v = ft.Container(content=card_vision, width=420)
-    wrap_va = ft.Container(content=card_valores, width=640)
-
-    row_cards = ft.Row(
-        controls=[wrap_m, wrap_v, wrap_va],
-        spacing=16,
-        run_spacing=16,
+    desktop_layout = ft.Row(
+        controls=[wrap_m, wrap_v, wrap_val],
+        spacing=18,
         wrap=False,
         alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
         vertical_alignment=ft.CrossAxisAlignment.START,
     )
 
-    top_row_tablet = ft.Row(
+    tablet_top = ft.Row(
         controls=[wrap_m, wrap_v],
         spacing=14,
         wrap=False,
@@ -207,13 +284,20 @@ def create_valores(page: ft.Page):
         vertical_alignment=ft.CrossAxisAlignment.START,
     )
 
-    layout_tablet = ft.Column(
+    tablet_top_holder = ft.Container(content=tablet_top, alignment=ft.alignment.center)
+    tablet_values_row = ft.Row(
+        controls=[wrap_val, wrap_diff],
+        spacing=14,
+        wrap=False,
+        alignment=ft.MainAxisAlignment.CENTER,
+        vertical_alignment=ft.CrossAxisAlignment.START,
+    )
+    tablet_values_holder = ft.Container(content=tablet_values_row, alignment=ft.alignment.center)
+
+    tablet_layout = ft.Column(
         controls=[
-            top_row_tablet,
-            ft.Container(
-                content=wrap_va,
-                alignment=ft.alignment.center,
-            ),
+            tablet_top_holder,
+            tablet_values_holder,
         ],
         spacing=16,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
@@ -222,45 +306,86 @@ def create_valores(page: ft.Page):
     root = ft.Container(
         width=float("inf"),
         padding=ft.Padding.symmetric(horizontal=8, vertical=12),
-        content=layout_mobile,
+        content=mobile_layout,
     )
 
     def apply_layout():
         w = page.width or 0
 
         if w <= 600:
-            root.content = layout_mobile
-            wrap_m.expand = None
-            wrap_v.expand = None
-            wrap_va.expand = None
-            wrap_m.width = None
-            wrap_v.width = None
-            wrap_va.width = None
+            mode = "mobile"
+            root.content = mobile_layout
+            root.padding = ft.Padding.symmetric(horizontal=8, vertical=12)
+            for wrap in (wrap_m, wrap_v, wrap_val):
+                wrap.expand = None
+                wrap.width = None
+            mission_card.data["detail_body"].scroll = None
+            mission_card.data["detail_body"].expand = False
+            vision_card.data["detail_body"].scroll = None
+            vision_card.data["detail_body"].expand = False
+            values_items.scroll = None
+            values_items.expand = False
+            mission_card.height = None
+            vision_card.height = None
+            values_card.height = None
         elif w < 1100:
-            root.content = layout_tablet
+            mode = "tablet"
+            root.content = tablet_layout
+            root.padding = ft.Padding.symmetric(horizontal=0, vertical=14)
+            section_w = max(760, min(int(w * 0.94), 1040))
+            small_w = int((section_w - 14) / 2)
             wrap_m.expand = None
             wrap_v.expand = None
-            wrap_va.expand = None
-            small_w = int(w * 0.43)
-            wrap_m.width = max(250, min(small_w, 360))
-            wrap_v.width = max(250, min(small_w, 360))
-            wrap_va.width = max(520, min(int(w * 0.88), 860))
+            wrap_val.expand = None
+            wrap_diff.expand = None
+            wrap_m.width = small_w
+            wrap_v.width = small_w
+            wrap_val.width = small_w
+            wrap_diff.width = small_w
+            tablet_top_holder.width = section_w
+            tablet_values_holder.width = section_w
+            mission_card.height = 360
+            vision_card.height = 360
+            values_card.height = 360
+            difference_card.height = 360
+            mission_card.data["detail_body"].scroll = "auto"
+            mission_card.data["detail_body"].expand = True
+            vision_card.data["detail_body"].scroll = "auto"
+            vision_card.data["detail_body"].expand = True
+            values_items.scroll = "auto"
+            values_items.expand = True
+            values_header_holder.content = values_header_row
+            values_body_holder.content = values_items
         else:
-            root.content = row_cards
-            wrap_m.width = None
-            wrap_v.width = None
-            wrap_va.width = None
-            wrap_m.expand = 1
-            wrap_v.expand = 1
-            wrap_va.expand = 1
+            mode = "desktop"
+            root.content = desktop_layout
+            root.padding = ft.Padding.symmetric(horizontal=14, vertical=16)
+            for wrap in (wrap_m, wrap_v, wrap_val):
+                wrap.width = None
+                wrap.expand = 1
+            mission_card.height = CARD_H
+            vision_card.height = CARD_H
+            values_card.height = CARD_H
+            mission_card.data["detail_body"].scroll = "auto"
+            mission_card.data["detail_body"].expand = True
+            vision_card.data["detail_body"].scroll = "auto"
+            vision_card.data["detail_body"].expand = True
+            values_items.scroll = "auto"
+            values_items.expand = True
+            difference_card.height = CARD_H
+            values_header_holder.content = values_header_row
+            values_body_holder.content = values_items
+
+        if mode == "mobile":
+            difference_card.height = None
+            values_header_holder.content = values_header_row
+            values_body_holder.content = values_items
 
         if getattr(root, "page", None) is not None:
             root.update()
 
     root.data = {
         "apply_layout": apply_layout,
-        "titulos": [titulo_mision, titulo_vision, titulo_valores],
-        "textos": [texto_mision, texto_vision, texto_valores],
     }
 
     return root

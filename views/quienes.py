@@ -1,189 +1,263 @@
-import asyncio
-
 import flet as ft
 
 
 def create_quienes(page: ft.Page):
-    COLOR_TITULO = "#0D2943"
-    TEXTO_SIZE = 14
-    SUBTITULO_SIZE = 18
-    CARD_H_MATCH = 210
+    HEADER_COLOR = "#0D2943"
+    TEXT_COLOR = "#23313B"
+    MUTED = "#5F6E79"
+    SOFT_BG = "#F4F8FB"
+    CHIP_BG = "#E6F0F5"
+    TITLE_SIZE = 20
+    CARD_H = 330
 
-    titulo1 = ft.Text(
-        "Evermount Solutions - Pest Defense",
-        key="quienes_subtitulo",
-        size=SUBTITULO_SIZE,
-        weight=ft.FontWeight.BOLD,
-        color=COLOR_TITULO,
-        text_align=ft.TextAlign.CENTER,
-    )
+    def bullet(icon_name: str, title: str, text: str):
+        return ft.Row(
+            [
+                ft.Container(
+                    width=28,
+                    height=28,
+                    border_radius=14,
+                    bgcolor=CHIP_BG,
+                    alignment=ft.alignment.center,
+                    content=ft.Icon(icon_name, size=15, color=HEADER_COLOR),
+                ),
+                ft.Column(
+                    [
+                        ft.Text(title, size=13, weight=ft.FontWeight.BOLD, color=HEADER_COLOR),
+                        ft.Text(text, size=12, color=TEXT_COLOR, text_align=ft.TextAlign.LEFT),
+                    ],
+                    spacing=2,
+                    expand=True,
+                ),
+            ],
+            spacing=10,
+            vertical_alignment=ft.CrossAxisAlignment.START,
+        )
 
-    texto1 = ft.Text(
-        "Somos una empresa familiar dedicada con pasión al control y manejo integral de plagas. Fundada "
-        "por dos hermanos, nuestra misión es proteger hogares, empresas y comunidades con soluciones "
-        "efectivas, responsables y personalizadas.\n\n"
-        "Confía en nosotros para mantener tus espacios seguros, limpios y libres de plagas, con tecnología "
-        "avanzada y atención profesional.\n\n"
-        "Confianza familiar, protección garantizada.",
-        key="quienes_texto",
-        size=TEXTO_SIZE,
-        color=ft.Colors.BLACK_87,
-        text_align=ft.TextAlign.JUSTIFY,
-    )
+    def info_chip(icon_name: str, label: str, value: str):
+        return ft.Container(
+            bgcolor=CHIP_BG,
+            border_radius=14,
+            padding=ft.Padding.symmetric(horizontal=12, vertical=10),
+            content=ft.Row(
+                [
+                    ft.Icon(icon_name, size=16, color=HEADER_COLOR),
+                    ft.Column(
+                        [
+                            ft.Text(value, size=13, weight=ft.FontWeight.BOLD, color=HEADER_COLOR),
+                            ft.Text(label, size=11, color=MUTED),
+                        ],
+                        spacing=1,
+                        tight=True,
+                    ),
+                ],
+                spacing=8,
+                tight=True,
+            ),
+        )
 
-    titulo2 = ft.Text(
-        "Compromiso y Trabajo en Equipo",
-        size=SUBTITULO_SIZE,
-        weight=ft.FontWeight.BOLD,
-        color=COLOR_TITULO,
-        text_align=ft.TextAlign.CENTER,
-    )
-
-    texto2 = ft.Text(
-        "Evermount Solutions nació de la visión de dos hermanos con una meta común: "
-        "brindar un servicio de excelencia en el control de plagas, con ética, responsabilidad ambiental "
-        "y atención cercana.\n\n"
-        "Contamos con formación técnica, experiencia en terreno y una vocación clara por el servicio. "
-        "Nuestra empresa combina el profesionalismo de una gran compañía con la calidez de una atención "
-        "personalizada.",
-        size=TEXTO_SIZE,
-        color=ft.Colors.BLACK_87,
-        text_align=ft.TextAlign.JUSTIFY,
-    )
-
-    titulo3 = ft.Text(
-        "¿Qué nos diferencia?",
-        size=SUBTITULO_SIZE,
-        weight=ft.FontWeight.BOLD,
-        color=COLOR_TITULO,
-        text_align=ft.TextAlign.CENTER,
-    )
-
-    bullet1 = ft.Text("- Somos una empresa certificada y en constante actualización.", size=TEXTO_SIZE, color=ft.Colors.BLACK_87)
-    bullet2 = ft.Text("- Cada cliente es tratado como si fuera parte de nuestra familia.", size=TEXTO_SIZE, color=ft.Colors.BLACK_87)
-    bullet3 = ft.Text("- Actuamos con transparencia, eficacia y puntualidad.", size=TEXTO_SIZE, color=ft.Colors.BLACK_87)
-
-    lista = ft.Column([bullet1, bullet2, bullet3], spacing=6)
-
-    layout_movil = ft.Column(
-        [
-            titulo1, texto1,
-            ft.Divider(height=8, color="transparent"),
-            titulo2, texto2,
-            ft.Divider(height=8, color="transparent"),
-            titulo3, lista,
-        ],
-        spacing=12,
-        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-    )
-
-    def card_3d_anim(title_ctrl: ft.Control, body_ctrl: ft.Control, fixed_h: int):
+    def make_card(icon_name: str, title: str, summary: str, bullets: list[ft.Control], chips: list[ft.Control]):
         normal_shadow = ft.BoxShadow(
             blur_radius=16,
             spread_radius=1,
             color=ft.Colors.BLACK_26,
             offset=ft.Offset(3, 4),
         )
-        hover_shadow = ft.BoxShadow(
-            blur_radius=26,
-            spread_radius=2,
-            color=ft.Colors.BLACK_38,
-            offset=ft.Offset(6, 10),
-        )
 
-        body_scroll = ft.Column([body_ctrl], scroll="auto", expand=True)
+        body = ft.Column(
+            [
+                ft.Column(bullets, spacing=10),
+                ft.Row(chips, wrap=True, spacing=8, run_spacing=8),
+            ],
+            spacing=14,
+            scroll="auto",
+            expand=True,
+        )
 
         card = ft.Container(
             bgcolor=ft.Colors.WHITE,
-            border_radius=16,
-            padding=ft.Padding.symmetric(horizontal=16, vertical=14),
-            border=ft.Border.all(1, ft.Colors.BLACK_12),
+            border_radius=20,
+            border=ft.Border.all(1, "#D8E2E8"),
+            padding=ft.Padding.symmetric(horizontal=18, vertical=16),
             shadow=normal_shadow,
-            animate=ft.Animation(220, ft.AnimationCurve.EASE_OUT),
-            animate_scale=ft.Animation(120, ft.AnimationCurve.EASE_OUT),
-            animate_offset=ft.Animation(220, ft.AnimationCurve.EASE_OUT),
-            offset=ft.Offset(0, 0),
-            scale=1.0,
-            ink=True,
-            height=fixed_h,
+            height=CARD_H,
             content=ft.Column(
-                [title_ctrl, body_scroll],
-                spacing=10,
-                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                [
+                    ft.Container(height=4, bgcolor=HEADER_COLOR, border_radius=999),
+                    ft.Row(
+                        [
+                            ft.Container(
+                                width=42,
+                                height=42,
+                                border_radius=14,
+                                bgcolor=SOFT_BG,
+                                alignment=ft.alignment.center,
+                                content=ft.Icon(icon_name, size=24, color=HEADER_COLOR),
+                            ),
+                            ft.Column(
+                                [
+                                    ft.Text(title, size=TITLE_SIZE, weight=ft.FontWeight.BOLD, color=HEADER_COLOR),
+                                    ft.Text(summary, size=13, color=MUTED, text_align=ft.TextAlign.LEFT),
+                                ],
+                                spacing=2,
+                                expand=True,
+                            ),
+                        ],
+                        spacing=12,
+                        vertical_alignment=ft.CrossAxisAlignment.START,
+                    ),
+                    body,
+                ],
+                spacing=14,
                 expand=True,
             ),
         )
-
-        def on_hover(e: ft.HoverEvent):
-            hovering = e.data == "true"
-            card.offset = ft.Offset(0, -0.04) if hovering else ft.Offset(0, 0)
-            card.shadow = hover_shadow if hovering else normal_shadow
-            card.update()
-
-        async def on_click(e):
-            card.scale = 1.03
-            card.update()
-            await asyncio.sleep(0.08)
-            card.scale = 1.0
-            card.update()
-
-        card.on_hover = on_hover
-        card.on_click = on_click
+        card.data = {"body": body}
         return card
 
-    title_style_size = 16
-
-    card1 = card_3d_anim(
-        ft.Text(titulo1.value, size=title_style_size, weight=ft.FontWeight.BOLD, color=COLOR_TITULO, text_align=ft.TextAlign.CENTER),
-        ft.Text(texto1.value, size=TEXTO_SIZE, color=ft.Colors.BLACK_87, text_align=ft.TextAlign.JUSTIFY),
-        fixed_h=CARD_H_MATCH,
-    )
-    card2 = card_3d_anim(
-        ft.Text(titulo2.value, size=title_style_size, weight=ft.FontWeight.BOLD, color=COLOR_TITULO, text_align=ft.TextAlign.CENTER),
-        ft.Text(texto2.value, size=TEXTO_SIZE, color=ft.Colors.BLACK_87, text_align=ft.TextAlign.JUSTIFY),
-        fixed_h=CARD_H_MATCH,
-    )
-    card3 = card_3d_anim(
-        ft.Text(titulo3.value, size=title_style_size, weight=ft.FontWeight.BOLD, color=COLOR_TITULO, text_align=ft.TextAlign.CENTER),
-        ft.Column(
-            [
-                ft.Text(bullet1.value, size=TEXTO_SIZE, color=ft.Colors.BLACK_87),
-                ft.Text(bullet2.value, size=TEXTO_SIZE, color=ft.Colors.BLACK_87),
-                ft.Text(bullet3.value, size=TEXTO_SIZE, color=ft.Colors.BLACK_87),
-            ],
-            spacing=6,
+    mobile_intro = ft.Container(
+        bgcolor=ft.Colors.WHITE,
+        border_radius=18,
+        border=ft.Border.all(1, "#D8E2E8"),
+        padding=ft.Padding.symmetric(horizontal=18, vertical=16),
+        shadow=ft.BoxShadow(
+            blur_radius=12,
+            spread_radius=1,
+            color=ft.Colors.BLACK_26,
+            offset=ft.Offset(2, 4),
         ),
-        fixed_h=CARD_H_MATCH,
+        content=ft.Column(
+            [
+                ft.Row(
+                    [
+                        ft.Container(
+                            width=42,
+                            height=42,
+                            border_radius=14,
+                            bgcolor=SOFT_BG,
+                            alignment=ft.alignment.center,
+                            content=ft.Icon(ft.Icons.BUSINESS_CENTER, size=24, color=HEADER_COLOR),
+                        ),
+                        ft.Column(
+                            [
+                                ft.Text("Quienes Somos", size=TITLE_SIZE, weight=ft.FontWeight.BOLD, color=HEADER_COLOR),
+                                ft.Text("Empresa familiar con enfoque tecnico, cercano y confiable.", size=13, color=MUTED),
+                            ],
+                            spacing=2,
+                            expand=True,
+                        ),
+                    ],
+                    spacing=12,
+                ),
+                ft.Text(
+                    "Somos una empresa familiar dedicada al control y manejo integral de plagas. "
+                    "Protegemos hogares, empresas y comunidades con soluciones efectivas, responsables y personalizadas.",
+                    size=13,
+                    color=TEXT_COLOR,
+                    text_align=ft.TextAlign.LEFT,
+                ),
+                bullet(ft.Icons.SHIELD, "Proteccion integral", "Cuidamos espacios con protocolos modernos y seguimiento cercano."),
+                bullet(ft.Icons.SUPPORT_AGENT, "Atencion profesional", "Combinamos experiencia tecnica con trato humano y acompanamiento real."),
+                ft.Row(
+                    [
+                        info_chip(ft.Icons.GROUP, "Origen", "Empresa familiar"),
+                        info_chip(ft.Icons.VERIFIED, "Estilo", "Servicio confiable"),
+                    ],
+                    wrap=True,
+                    spacing=8,
+                    run_spacing=8,
+                ),
+            ],
+            spacing=14,
+        ),
     )
 
-    wrap1 = ft.Container(content=card1, expand=True, padding=ft.Padding.symmetric(horizontal=10, vertical=8))
-    wrap2 = ft.Container(content=card2, expand=True, padding=ft.Padding.symmetric(horizontal=10, vertical=8))
-    wrap3 = ft.Container(content=card3, expand=True, padding=ft.Padding.symmetric(horizontal=10, vertical=8))
+    card_empresa = make_card(
+        ft.Icons.BUSINESS_CENTER,
+        "Evermount Solutions",
+        "Base empresarial solida, cercana y orientada a resultados.",
+        [
+            bullet(ft.Icons.FAMILY_RESTROOM, "Origen familiar", "Nacimos con una cultura de trabajo cercana, responsable y comprometida."),
+            bullet(ft.Icons.SHIELD, "Proteccion real", "Diseñamos soluciones integrales para hogares, empresas y comunidades."),
+            bullet(ft.Icons.SETTINGS_SUGGEST, "Operacion profesional", "Combinamos tecnologia, criterio tecnico y seguimiento constante."),
+        ],
+        [
+            info_chip(ft.Icons.HOME_WORK, "Cobertura", "Hogar y empresa"),
+            info_chip(ft.Icons.STARS, "Sello", "Confianza y continuidad"),
+        ],
+    )
 
-    row_cards = ft.Row(
+    card_compromiso = make_card(
+        ft.Icons.HANDSHAKE,
+        "Nuestro compromiso",
+        "Atencion cercana con ejecucion tecnica de alto nivel.",
+        [
+            bullet(ft.Icons.ENGINEERING, "Experiencia en terreno", "Actuamos con conocimiento tecnico y lectura correcta de cada escenario."),
+            bullet(ft.Icons.TASK_ALT, "Respuesta responsable", "Mantenemos orden, puntualidad y claridad durante todo el servicio."),
+            bullet(ft.Icons.PSYCHOLOGY, "Soluciones a medida", "Evaluamos cada caso para aplicar medidas acordes al riesgo y al entorno."),
+        ],
+        [
+            info_chip(ft.Icons.SUPPORT_AGENT, "Atencion", "Directa y humana"),
+            info_chip(ft.Icons.GPP_GOOD, "Estandar", "Seguro y profesional"),
+        ],
+    )
+
+    card_diferencia = make_card(
+        ft.Icons.AUTO_AWESOME,
+        "Lo que nos diferencia",
+        "Una propuesta de servicio clara, moderna y confiable.",
+        [
+            bullet(ft.Icons.SCHOOL, "Actualizacion constante", "Nos mantenemos al dia en tecnicas, procesos y buenas practicas."),
+            bullet(ft.Icons.VERIFIED_USER, "Confianza en el servicio", "Cada cliente es atendido con cercania, respeto y sentido de responsabilidad."),
+            bullet(ft.Icons.SCHEDULE, "Cumplimiento real", "Actuamos con transparencia, eficacia y puntualidad en cada visita."),
+        ],
+        [
+            info_chip(ft.Icons.PUBLIC, "Enfoque", "Prevencion y control"),
+            info_chip(ft.Icons.DONE_ALL, "Promesa", "Claridad y seguimiento"),
+        ],
+    )
+
+    cards = [card_empresa, card_compromiso, card_diferencia]
+
+    mobile_layout = ft.Column(
+        [mobile_intro],
+        spacing=14,
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+    )
+
+    wrap1 = ft.Container(content=card_empresa, width=420)
+    wrap2 = ft.Container(content=card_compromiso, width=420)
+    wrap3 = ft.Container(content=card_diferencia, width=420)
+
+    desktop_layout = ft.Row(
         controls=[wrap1, wrap2, wrap3],
-        spacing=16,
+        spacing=18,
+        wrap=False,
         alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
         vertical_alignment=ft.CrossAxisAlignment.START,
-        wrap=False,
     )
 
-    layout_3cols = ft.Column(
-        [row_cards],
-        spacing=12,
+    tablet_top_holder = ft.Container(
+        content=ft.Row(
+            [wrap1, wrap2],
+            spacing=14,
+            alignment=ft.MainAxisAlignment.CENTER,
+            vertical_alignment=ft.CrossAxisAlignment.START,
+        ),
+        alignment=ft.alignment.center,
+    )
+    tablet_layout = ft.Column(
+        [
+            tablet_top_holder,
+        ],
+        spacing=10,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
     )
 
-    layout_tablet = ft.Column(
-        [wrap1, wrap2, wrap3],
-        spacing=4,
-        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-    )
-
-    contenedor = ft.Container(
+    root = ft.Container(
         bgcolor=ft.Colors.WHITE,
-        padding=20,
-        content=layout_movil,
+        padding=ft.Padding.symmetric(horizontal=12, vertical=12),
+        content=mobile_layout,
         width=float("inf"),
     )
 
@@ -191,37 +265,48 @@ def create_quienes(page: ft.Page):
         w = page.width or 0
 
         if w <= 600:
-            contenedor.content = layout_movil
-            wrap1.expand = None
-            wrap2.expand = None
-            wrap3.expand = None
-            wrap1.width = None
-            wrap2.width = None
-            wrap3.width = None
+            mode = "mobile"
+            root.content = mobile_layout
+            root.padding = ft.Padding.symmetric(horizontal=10, vertical=12)
+            for wrap in (wrap1, wrap2, wrap3):
+                wrap.expand = None
+                wrap.width = None
+            for card in cards:
+                card.height = None
+                card.data["body"].scroll = None
+                card.data["body"].expand = False
         elif w < 1100:
-            contenedor.content = layout_tablet
-            wrap1.expand = None
-            wrap2.expand = None
-            wrap3.expand = None
-            card_w = max(320, min(int(w * 0.82), 720))
-            wrap1.width = card_w
-            wrap2.width = card_w
-            wrap3.width = card_w
+            mode = "tablet"
+            root.content = tablet_layout
+            root.padding = ft.Padding.symmetric(horizontal=0, vertical=14)
+            section_w = max(760, min(int(w * 0.94), 1040))
+            card_w = int((section_w - 14) / 2)
+            for wrap in (wrap1, wrap2):
+                wrap.expand = None
+                wrap.width = card_w
+            tablet_top_holder.width = section_w
+            for card in cards:
+                card.height = None
+                card.data["body"].scroll = None
+                card.data["body"].expand = False
         else:
-            contenedor.content = layout_3cols
-            wrap1.width = None
-            wrap2.width = None
-            wrap3.width = None
-            wrap1.expand = 1
-            wrap2.expand = 1
-            wrap3.expand = 1
+            mode = "desktop"
+            root.content = desktop_layout
+            root.padding = ft.Padding.symmetric(horizontal=14, vertical=16)
+            for wrap in (wrap1, wrap2, wrap3):
+                wrap.width = None
+                wrap.expand = 1
+            for card in cards:
+                card.height = CARD_H
+                card.data["body"].scroll = "auto"
+                card.data["body"].expand = True
 
-        if getattr(contenedor, "page", None) is not None:
-            contenedor.update()
+        if getattr(root, "page", None) is not None:
+            root.update()
 
-    contenedor.data = {
+    root.data = {
         "apply_layout": apply_layout,
-        "texts": [titulo1, texto1, titulo2, texto2, titulo3, bullet1, bullet2, bullet3],
+        "cards": cards,
     }
 
-    return contenedor
+    return root

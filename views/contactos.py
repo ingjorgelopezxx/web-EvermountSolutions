@@ -7,7 +7,7 @@ def create_contactos_row(page: ft.Page) -> ft.Container:
     numero_telefono = "+56967578823"
     enlace_llamada = f"tel:{numero_telefono}"
     enlace_correo = "mailto:operaciones@evermountsolutions.cl?subject=Consulta&body=Hola, quisiera más información"
-    enlace_ubicacion = "https://maps.google.com/?q=EvermountSolutions+Chile"
+    enlace_ubicacion = "https://maps.app.goo.gl/Effx6vuUSUo11B1J6"
 
     def abrir_llamada(e):
         launch_url(page, enlace_llamada)
