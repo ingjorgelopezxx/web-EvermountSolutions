@@ -9,7 +9,7 @@ from email.header import Header
 # =========================
 #  ENV (Render)
 # =========================
-SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY")
+SENDGRID_API_KEY = os.getenv("backend-evermount")
 EMAIL_DESTINO = os.getenv("EMAIL_DESTINO")
 EMAIL_FROM = os.getenv("EMAIL_FROM")  # puede ser tu gmail mientras completas verificación/dominio
 
@@ -19,6 +19,21 @@ SENDGRID_ENDPOINT = "https://api.sendgrid.com/v3/mail/send"
 def validar_correo(email: str) -> bool:
     patron = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
     return re.match(patron, email) is not None
+
+
+def correo_parece_valido(email: str) -> bool:
+    if " " in email or "@" not in email:
+        return False
+    partes = email.split("@")
+    if len(partes) != 2:
+        return False
+    local, dominio = partes
+    if not local or not dominio or "." not in dominio:
+        return False
+    if dominio.startswith(".") or dominio.endswith("."):
+        return False
+    secciones = [s for s in dominio.split(".") if s]
+    return len(secciones) >= 2
 
 
 def create_formulario(page: ft.Page):
@@ -240,9 +255,19 @@ def create_formulario(page: ft.Page):
         if nuevo != v:
             e.control.value = nuevo
 
-        warning_icon.visible = (nuevo != "" and not validar_correo(nuevo))
         safe_update(e.control)
-        safe_update(warning_icon)
+        actualizar_estado_boton()
+
+    def on_correo_blur(e):
+        nuevo = (e.control.value or "").strip()
+        mostrar_alerta = False
+        if nuevo != "":
+            mostrar_alerta = not validar_correo(nuevo)
+
+        if warning_icon.visible != mostrar_alerta:
+            warning_icon.visible = mostrar_alerta
+            safe_update(warning_icon)
+
         actualizar_estado_boton()
 
     BREAKPOINT_TABLET = 700
@@ -290,7 +315,8 @@ def create_formulario(page: ft.Page):
         height=altura_campos_actual(),
 
         suffix=warning_icon,
-        on_change=on_correo_change
+        on_change=on_correo_change,
+        on_blur=on_correo_blur
     )
 
     nombre_real = ft.TextField(
