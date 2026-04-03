@@ -1,8 +1,9 @@
-import flet as ft
+﻿import flet as ft
 import re
 import asyncio
 import os
 import requests
+import inspect
 # =========================
 #  ENV (Render)
 # =========================
@@ -33,12 +34,44 @@ def correo_parece_valido(email: str) -> bool:
     return len(secciones) >= 2
 
 
+def validar_telefono(telefono: str) -> bool:
+    limpio = re.sub(r"[^\d]", "", telefono)
+    return 8 <= len(limpio) <= 15
+
+
 def create_formulario(page: ft.Page):
-    estado_boton = {"habilitado": False}
+    estado_boton = {"habilitado": True}
 
     def safe_update(ctrl: ft.Control):
-        if getattr(ctrl, "page", None) is not None:
-            ctrl.update()
+        try:
+            if getattr(ctrl, "page", None) is not None:
+                ctrl.update()
+        except Exception:
+            pass
+
+    def safe_page_update():
+        try:
+            if getattr(page, "session_id", None) is not None:
+                page.update()
+        except Exception:
+            pass
+
+    def focus_control(ctrl: ft.Control):
+        try:
+            result = ctrl.focus()
+            if inspect.isawaitable(result):
+                async def _focus():
+                    await result
+                page.run_task(_focus)
+        except Exception:
+            pass
+
+    estado_envio_text = ft.Text(
+        "Validando información...",
+        color=ft.Colors.WHITE,
+        size=16,
+        text_align=ft.TextAlign.CENTER,
+    )
 
     # --- Overlay enviando ---
     enviando_overlay = ft.Container(
@@ -55,7 +88,7 @@ def create_formulario(page: ft.Page):
             content=ft.Column(
                 [
                     ft.ProgressRing(width=50, height=50, color=ft.Colors.WHITE),
-                    ft.Text("Enviando información...", color=ft.Colors.WHITE, size=16)
+                    estado_envio_text
                 ],
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                 spacing=10
@@ -106,19 +139,31 @@ def create_formulario(page: ft.Page):
         titulo_modal.color = color_titulo
         mensaje_modal.value = mensaje
         modal_info.visible = True
-        page.update()
+        safe_page_update()
+
+    def set_loading(loading: bool, texto: str | None = None):
+        if texto is not None:
+            estado_envio_text.value = texto
+        boton_enviar.disabled = loading
+        boton_enviar_text.value = "Enviando..." if loading else "Enviar"
+        boton_con_gradiente.opacity = 0.85 if loading else 1.0
+        enviando_overlay.visible = loading
+        safe_page_update()
 
     def cerrar_modal():
         modal_info.visible = False
-        if getattr(correo_tf, "page", None) is not None:
-            try:
-                correo_tf.focus()
-            except Exception:
-                pass
-        if getattr(page, "session_id", None) is not None:
-            page.update()
+        focus_control(correo_tf)
+        safe_page_update()
+
+    def limpiar_alertas():
+        if warning_icon.visible:
+            warning_icon.visible = False
+            safe_update(warning_icon)
+        if warning_icon_telefono.visible:
+            warning_icon_telefono.visible = False
+            safe_update(warning_icon_telefono)
     
-    # âœ… Compacto solo cuando ancho < 700
+    # Ã¢Å“â€¦ Compacto solo cuando ancho < 700
     BREAKPOINT_COMPACT = 800
 
     def es_compacto():
@@ -170,12 +215,12 @@ def create_formulario(page: ft.Page):
 
     def on_warning_click(e):
         correo_tf.disabled = True
-        page.update()
+        safe_page_update()
 
         async def _restore():
             await asyncio.sleep(0.05)
             correo_tf.disabled = False
-            page.update()
+            safe_page_update()
 
         page.run_task(_restore)
 
@@ -199,6 +244,37 @@ def create_formulario(page: ft.Page):
         on_click=on_warning_click,
     )
 
+    def on_warning_phone_click(e):
+        telefono_real.disabled = True
+        safe_page_update()
+
+        async def _restore_phone():
+            await asyncio.sleep(0.05)
+            telefono_real.disabled = False
+            safe_page_update()
+
+        page.run_task(_restore_phone)
+
+        mostrar_modal(
+            "Teléfono inválido",
+            "Ingresa un teléfono con formato correcto (ejemplo: +56912345678).",
+            ft.Colors.RED_400
+        )
+
+    warning_icon_telefono = ft.IconButton(
+        icon=ft.Icons.WARNING_AMBER_ROUNDED,
+        icon_color=ft.Colors.RED,
+        icon_size=20,
+        visible=False,
+        tooltip="Teléfono inválido",
+        style=ft.ButtonStyle(
+            padding=ft.Padding.all(0),
+            shape=ft.RoundedRectangleBorder(radius=0)
+        ),
+        width=40, height=altura_campos_actual(),
+        on_click=on_warning_phone_click,
+    )
+
     MAX_FORM_WIDTH = 560   # en PC que no pase esto
     MIN_FORM_WIDTH = 280
 
@@ -213,43 +289,20 @@ def create_formulario(page: ft.Page):
 
 
     def actualizar_estado_boton():
-        campos_llenos = (
-            (nombre_real.value or "").strip() != "" and
-            (correo_tf_real.value or "").strip() != "" and
-            (telefono_real.value or "").strip() != "" and
-            (mensaje_real.value or "").strip() != ""
-        )
-        sin_alerta = not warning_icon.visible
-        habilitar = campos_llenos and sin_alerta
-
-        if estado_boton["habilitado"] == habilitar:
-            return
-
-        estado_boton["habilitado"] = habilitar
-        boton_enviar.disabled = not habilitar
-        boton_con_gradiente.opacity = 1.0 if habilitar else 0.4
-
-        safe_update(boton_con_gradiente)
-        safe_update(boton_enviar)
+        if not estado_boton["habilitado"]:
+            estado_boton["habilitado"] = True
+            boton_enviar.disabled = False
+            boton_con_gradiente.opacity = 1.0
+            safe_update(boton_con_gradiente)
+            safe_update(boton_enviar)
 
     # --- Validaciones en vivo ---
     def on_mensaje_nombre_change(e):
-        v = e.control.value or ""
-        if v.startswith(" "):
-            v = v.lstrip()
-        while "  " in v:
-            v = v.replace("  ", " ")
-        if v != e.control.value:
-            e.control.value = v
-            safe_update(e.control)
+        limpiar_alertas()
         actualizar_estado_boton()
 
     def solo_numeros_y_mas(e):
-        v = (e.control.value or "")
-        nuevo = re.sub(r"[^0-9+]", "", v)
-        if nuevo != v:
-            e.control.value = nuevo
-            safe_update(e.control)
+        limpiar_alertas()
         actualizar_estado_boton()
 
     def on_correo_change(e):
@@ -259,22 +312,10 @@ def create_formulario(page: ft.Page):
             e.control.value = nuevo
             safe_update(e.control)
 
-        if warning_icon.visible and (nuevo == "" or correo_parece_valido(nuevo)):
-            warning_icon.visible = False
-            safe_update(warning_icon)
-
+        limpiar_alertas()
         actualizar_estado_boton()
 
     def on_correo_blur(e):
-        nuevo = (e.control.value or "").strip()
-        mostrar_alerta = False
-        if nuevo != "":
-            mostrar_alerta = not validar_correo(nuevo)
-
-        if warning_icon.visible != mostrar_alerta:
-            warning_icon.visible = mostrar_alerta
-            safe_update(warning_icon)
-
         actualizar_estado_boton()
 
     BREAKPOINT_TABLET = 700
@@ -289,8 +330,49 @@ def create_formulario(page: ft.Page):
         return 0 if es_pc_o_tablet() else 0
 
     def enviar_formulario(e):
-        enviando_overlay.visible = True
-        page.update()
+        nombre_val = (nombre_real.value or "").strip()
+        correo_val = (correo_tf_real.value or "").strip()
+        telefono_val = (telefono_real.value or "").strip()
+        mensaje_val = (mensaje_real.value or "").strip()
+
+        set_loading(True, "Validando información...")
+
+        if not nombre_val or not correo_val or not telefono_val or not mensaje_val:
+            set_loading(False)
+            warning_icon.visible = True
+            safe_update(warning_icon)
+            mostrar_modal(
+                "Por favor completar todos los campos!",
+                "Así se enviará la información correctamente.",
+                ft.Colors.RED_400
+            )
+            return
+
+        if not validar_correo(correo_val):
+            set_loading(False)
+            warning_icon.visible = True
+            safe_update(warning_icon)
+            focus_control(correo_tf_real)
+            mostrar_modal(
+                "Correo inválido",
+                "Ingresa un correo con formato correcto (ejemplo: usuario@dominio.com).",
+                ft.Colors.RED_400
+            )
+            return
+
+        if not validar_telefono(telefono_val):
+            set_loading(False)
+            warning_icon_telefono.visible = True
+            safe_update(warning_icon_telefono)
+            focus_control(telefono_real)
+            mostrar_modal(
+                "Teléfono inválido",
+                "Ingresa un teléfono con formato correcto (ejemplo: +56912345678).",
+                ft.Colors.RED_400
+            )
+            return
+
+        set_loading(True, "Enviando información...")
         page.run_task(proceso_envio)
 
     boton_enviar_text = ft.Text(
@@ -302,7 +384,7 @@ def create_formulario(page: ft.Page):
 
     boton_enviar = ft.Button(
         content=boton_enviar_text,
-        disabled=True,
+        disabled=False,
         color=ft.Colors.WHITE,
         bgcolor="transparent",
         style=ft.ButtonStyle(
@@ -342,6 +424,7 @@ def create_formulario(page: ft.Page):
         width=ancho_responsivo(),
         height=altura_campos_actual(),
         color=ft.Colors.BLACK,
+        suffix=warning_icon_telefono,
         on_change=solo_numeros_y_mas
     )
 
@@ -382,7 +465,7 @@ def create_formulario(page: ft.Page):
             end=ft.alignment.center_right,
             colors=["#0f2027", "#203a43", "#2c5364"]
         ),
-        opacity=0.4
+        opacity=1.0
     )
 
     boton_wrapper = ft.Container(
@@ -396,7 +479,7 @@ def create_formulario(page: ft.Page):
     def ajustar_responsivo(e=None):
         w = ancho_responsivo()
 
-        # âœ… menos margen arriba del botÃ³n en compacto
+        # menos margen arriba del botón en compacto
         if es_tablet_hero():
             boton_wrapper.margin = ft.Margin.only(top=6)
         elif es_compacto():
@@ -407,17 +490,18 @@ def create_formulario(page: ft.Page):
         for tf in (nombre_real, correo_tf_real, telefono_real, mensaje_real):
             tf.width = w
 
-        # âœ… alturas dinÃ¡micas al redimensionar
+        # alturas dinámicas al redimensionar
         for tf in (nombre_real, correo_tf_real, telefono_real):
             tf.height = altura_campos_actual()
 
         warning_icon.height = altura_campos_actual()
+        warning_icon_telefono.height = altura_campos_actual()
 
-        # âœ… lÃ­neas del mensaje dinÃ¡micas
+        # líneas del mensaje dinámicas
         mensaje_real.min_lines = min_lines_mensaje_actual()
         mensaje_real.max_lines = 2 if es_tablet_hero() else None
 
-        # âœ… tamaÃ±o del texto del botÃ³n dinÃ¡mico
+        # tamaño del texto del botón dinámico
         boton_enviar_text.size = boton_text_size_actual()
 
         boton_enviar.style = ft.ButtonStyle(
@@ -504,27 +588,6 @@ def create_formulario(page: ft.Page):
         telefono_val = (telefono_real.value or "").strip()
         mensaje_val = (mensaje_real.value or "").strip()
 
-        # âœ… requerimos todos, porque tu botÃ³n tambiÃ©n lo exige
-        if not nombre_val or not correo_val or not telefono_val or not mensaje_val:
-            enviando_overlay.visible = False
-            mostrar_modal(
-                "Por favor completar todos los campos!",
-                "Así se enviará la información correctamente.",
-                ft.Colors.RED_400
-            )
-            page.update()
-            return
-
-        if not validar_correo(correo_val):
-            enviando_overlay.visible = False
-            mostrar_modal(
-                "Correo inválido",
-                "Ingresa un correo con formato correcto (ejemplo: usuario@dominio.com).",
-                ft.Colors.RED_400
-            )
-            page.update()
-            return
-
         try:
             subject = f"Nuevo mensaje de {nombre_val}"
             body = (
@@ -535,7 +598,7 @@ def create_formulario(page: ft.Page):
             )
 
             # Logs útiles para Render (aparecen en Logs)
-            print("ðŸ“© Formulario recibido:", {"nombre": nombre_val, "correo": correo_val})
+            print("Formulario recibido:", {"nombre": nombre_val, "correo": correo_val})
             print("Enviando con Resend...")
             await asyncio.to_thread(send_via_resend, subject, body)
 
@@ -546,11 +609,11 @@ def create_formulario(page: ft.Page):
             correo_tf_real.value = ""
             telefono_real.value = ""
             mensaje_real.value = ""
+            warning_icon.visible = False
+            warning_icon_telefono.visible = False
 
-            enviando_overlay.visible = False
+            set_loading(False)
             actualizar_estado_boton()
-            page.update()
-
             mostrar_modal(
                 "¡Información enviada!",
                 "Gracias por preferirnos. Nos pondremos en contacto pronto.",
@@ -558,14 +621,13 @@ def create_formulario(page: ft.Page):
             )
 
         except Exception as ex:
-            print("ðŸ”¥ ERROR al enviar:", str(ex))
-            enviando_overlay.visible = False
+            print("ERROR al enviar:", str(ex))
+            set_loading(False)
             mostrar_modal(
                 "Error al enviar la información",
                 str(ex),
                 ft.Colors.RED_400
             )
-            page.update()
 
     formulario_con_modal = ft.Container(
         alignment=ft.alignment.center,
@@ -595,4 +657,5 @@ def create_formulario(page: ft.Page):
 
 
     return formulario_con_modal
+
 

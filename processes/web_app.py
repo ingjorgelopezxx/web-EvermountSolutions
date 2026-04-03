@@ -1,6 +1,5 @@
 import json
 from flet import Ref
-import time
 import flet as ft
 import asyncio
 from types import SimpleNamespace
@@ -1065,8 +1064,8 @@ def main(page: ft.Page):
     # Contenedor flotante que se va a mover horizontalmente
     promo_flotante = ft.Container(
         content=promo_text,
-        top=5,
-        left=0,
+        alignment=ft.alignment.center,
+        padding=ft.Padding.only(left=10, right=10),
     )
 
     promo_items = [
@@ -1105,7 +1104,7 @@ def main(page: ft.Page):
         spacing=10,
         tight=True,
         wrap=False,
-        alignment=ft.MainAxisAlignment.START,
+        alignment=ft.MainAxisAlignment.CENTER,
         vertical_alignment=ft.CrossAxisAlignment.CENTER,
     )
     promo_flotante.content = promo_text
@@ -1113,15 +1112,15 @@ def main(page: ft.Page):
     # Stack con fondo + texto en movimiento (ocupará toda la zona izquierda)
     promo_stack = ft.Stack(
         controls=[
-            ft.Container(  # fondo fijo
+            ft.Container(
                 bgcolor="rgba(255,255,255,0.90)",
                 expand=True,
             ),
-            promo_flotante,  # texto que se desplaza encima
+            promo_flotante,
         ],
         height=40,
         expand=True,
-        visible=False,  # solo visible en tablet/PC (se maneja en ajustar_tamanos)
+        visible=False,
     )
 
     # Barra inferior: promo a la izquierda, redes a la derecha
@@ -1151,7 +1150,7 @@ def main(page: ft.Page):
     horizontal_alignment=ft.CrossAxisAlignment.CENTER,)
 
     async def marquee_loop():
-        await asyncio.sleep(1)
+        return
 
         VELOCIDAD = 90   # píxeles por segundo (ajústalo)
         PAUSA_FIN = 0.8  # pausa antes de reiniciar
