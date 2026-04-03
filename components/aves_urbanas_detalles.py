@@ -1,11 +1,12 @@
 from components.service_detail_template import render_service_detail
+from functions.asset_sources import SERVICE_DETAIL_IMAGES
 
 
 def render_servicio_aves_urbanas(
     page,
     contenedor,
     *,
-    aves_img_url: str = "https://i.postimg.cc/MGBy5SXS/avesurbanas.png",
+    aves_img_url: str = SERVICE_DETAIL_IMAGES["aves"],
     whatsapp_num: str = "+56999724454",
 ):
     render_service_detail(
@@ -19,25 +20,25 @@ def render_servicio_aves_urbanas(
             "Aplicamos metodos seguros para alejar sin danar."
         ),
         benefits=[
-            "Instalacion de sistemas anti-posamiento como pinchos, redes o tensores.",
-            "Prevencion de anidacion y acumulacion de excrementos.",
-            "Inspeccion tecnica y asesoria personalizada.",
-            "Soluciones eticas y respetuosas con la fauna.",
+            "Instalación de sistemas anti-posamiento como pinchos, redes o tensores.",
+            "Prevención de anidación y acumulación de excrementos.",
+            "Inspección técnica y asesoría personalizada.",
+            "Soluciones éticas y respetuosas con la fauna.",
         ],
         image_url=aves_img_url,
         whatsapp_num=whatsapp_num,
         chips_textos=[
-            "Metodos eticos de exclusion",
-            "Reduccion de focos sanitarios",
+            "Métodos éticos de exclusión",
+            "Reducción de focos sanitarios",
         ],
         metricas=[
             ("SAFE", "Control no letal"),
-            ("TECH", "Inspeccion tecnica"),
-            ("CLEAN", "Prevencion sanitaria"),
+            ("TECH", "Inspección técnica"),
+            ("CLEAN", "Prevención sanitaria"),
         ],
         proceso=[
             ("1", "Levantamiento de zonas criticas"),
-            ("2", "Instalacion de exclusion y proteccion"),
+            ("2", "Instalación de exclusión y protección"),
             ("3", "Seguimiento y recomendaciones"),
         ],
         usos=[
@@ -46,6 +47,6 @@ def render_servicio_aves_urbanas(
             "Iglesias",
             "Edificios",
         ],
-        highlight_text="Alejamos aves invasoras con soluciones tecnicas, seguras y respetuosas.",
+        highlight_text="Alejamos aves invasoras con soluciones técnicas, seguras y respetuosas.",
         title_sizes=(22, 30, 44),
     )

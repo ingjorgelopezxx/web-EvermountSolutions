@@ -2,6 +2,7 @@
 import asyncio
 
 import flet as ft
+from functions.asset_sources import INSECT_ICON_IMAGES
 
 
 INFO_INSECTOS = {
@@ -71,24 +72,7 @@ INFO_INSECTOS = {
     },
 }
 
-ICONOS_INSECTOS = {
-    "cucarachas": "https://cdn-icons-png.flaticon.com/512/8005/8005026.png",
-    "hormigas": "https://static.vecteezy.com/system/resources/previews/015/211/725/non_2x/ant-icon-cartoon-style-vector.jpg",
-    "chinches": "https://cdn-icons-png.flaticon.com/512/1850/1850155.png",
-    "pulgas": "https://cdn-icons-png.flaticon.com/512/2295/2295144.png",
-    "moscas": "https://cdn-icons-png.flaticon.com/512/1357/1357476.png",
-    "zancudos": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR29MlAGMA1uNdMVEQtGxDEuh_gLjc_vf1H4w&s",
-    "avispas": "https://static.vecteezy.com/system/resources/previews/014/285/415/non_2x/agression-wasp-icon-outline-style-vector.jpg",
-    "raton": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_KKIyhsZpTWOzWNYwJLRLKheBjk4EAPefqw&s",
-    "rata": "https://static.vecteezy.com/system/resources/previews/014/986/360/non_2x/rat-icon-cartoon-style-vector.jpg",
-    "termita_subterranea": "https://cdn-icons-png.freepik.com/512/4982/4982504.png",
-    "termita_madera_seca": "https://thumbs.dreamstime.com/b/icono-vectorial-de-color-plano-%C3%BAnico-la-madera-los-insectos-termite-157353067.jpg",
-    "termita_otros": "https://i.postimg.cc/85r8Fs7m/trt.png",
-    "palomas": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTM-8j_vQCe1wXK-otbgAAlnYQIynlY9rampQ&s",
-    "tortolas": "https://png.pngtree.com/png-vector/20230315/ourmid/pngtree-vector-turtledove-png-image_6650452.png",
-    "gorriones": "https://st3.depositphotos.com/4233957/34474/v/450/depositphotos_344748232-stock-illustration-sparrow-small-city-bird-illustration.jpg",
-    "aves_otros": "https://i.postimg.cc/KYBwFww0/aves-urbanas.png",
-}
+ICONOS_INSECTOS = INSECT_ICON_IMAGES.copy()
 
 
 def construir_contenido_slide_insectos(slide: dict, mostrar_info_insecto, size_parrafo: int = 16):

@@ -4,6 +4,7 @@ import asyncio
 import os
 import requests
 import inspect
+from functions.resize_coordinator import register_resize_handler
 # =========================
 #  ENV (Render)
 # =========================
@@ -41,6 +42,8 @@ def validar_telefono(telefono: str) -> bool:
 
 def create_formulario(page: ft.Page):
     estado_boton = {"habilitado": True}
+    form_root_ref = {"control": None}
+    status_modal_ref = {"control": None}
 
     def safe_update(ctrl: ft.Control):
         try:
@@ -51,7 +54,21 @@ def create_formulario(page: ft.Page):
 
     def safe_page_update():
         try:
-            page.update()
+            form_root = form_root_ref["control"]
+            if getattr(form_root, "page", None) is not None:
+                form_root.update()
+            else:
+                page.update()
+        except Exception:
+            pass
+
+    def safe_status_update():
+        try:
+            status_modal_ctrl = status_modal_ref["control"]
+            if getattr(status_modal_ctrl, "page", None) is not None:
+                status_modal_ctrl.update()
+            else:
+                safe_page_update()
         except Exception:
             pass
 
@@ -65,104 +82,87 @@ def create_formulario(page: ft.Page):
         except Exception:
             pass
 
-    estado_envio_text = ft.Text(
-        "Validando información...",
-        color=ft.Colors.WHITE,
-        size=16,
-        text_align=ft.TextAlign.CENTER,
-    )
-
-    # --- Overlay enviando ---
-    enviando_overlay = ft.Container(
+    # --- Textos dinámicos del modal de estado ---
+    titulo_modal = ft.Text("", size=18, weight=ft.FontWeight.BOLD, color=ft.Colors.WHITE, text_align=ft.TextAlign.CENTER)
+    mensaje_modal = ft.Text("", size=14, color=ft.Colors.WHITE, text_align=ft.TextAlign.CENTER)
+    status_ring = ft.ProgressRing(width=46, height=46, color=ft.Colors.WHITE, visible=False)
+    close_status_btn = ft.IconButton(
+        icon=ft.Icons.CLOSE,
+        icon_color=ft.Colors.WHITE,
         visible=False,
-        left=0, top=0, right=0, bottom=0,
-        bgcolor="rgba(0,0,0,0.8)",
-        alignment=ft.alignment.center,
-        content=ft.Container(
-            width=300,
-            height=200,
-            border_radius=8,
-            bgcolor=ft.Colors.BLACK_87,
-            padding=20,
-            content=ft.Column(
-                [
-                    ft.ProgressRing(width=50, height=50, color=ft.Colors.WHITE),
-                    estado_envio_text
-                ],
-                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                spacing=10
-            )
-        )
+        on_click=lambda e: cerrar_modal(),
     )
 
-    # --- Textos dinámicos del modal ---
-    titulo_modal = ft.Text("", size=18, weight=ft.FontWeight.BOLD, color=ft.Colors.WHITE)
-    mensaje_modal = ft.Text("", size=14, color=ft.Colors.WHITE)
-
-    # --- Modal info ---
-    modal_info = ft.Container(
+    # --- Modal único de estado ---
+    status_modal = ft.Container(
         visible=False,
         bgcolor="rgba(0,0,0,0.8)",
         left=0, top=0, right=0, bottom=0,
         alignment=ft.alignment.center,
         content=ft.Container(
-            width=300,
-            height=200,
-            border_radius=8,
+            width=320,
+            border_radius=12,
             bgcolor=ft.Colors.BLACK_87,
-            padding=20,
+            padding=22,
             content=ft.Column(
                 [
                     ft.Row(
                         [
-                            ft.Container(),
-                            ft.IconButton(
-                                icon=ft.Icons.CLOSE,
-                                icon_color=ft.Colors.WHITE,
-                                on_click=lambda e: cerrar_modal()
-                            )
+                            ft.Container(expand=True),
+                            close_status_btn,
                         ],
                         alignment=ft.MainAxisAlignment.END
                     ),
+                    status_ring,
                     titulo_modal,
                     mensaje_modal,
                 ],
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                spacing=10
+                spacing=12,
+                tight=True,
             )
         )
     )
 
-    def mostrar_modal(titulo: str, mensaje: str, color_titulo=ft.Colors.WHITE):
+    def mostrar_estado(
+        titulo: str,
+        mensaje: str,
+        *,
+        color_titulo=ft.Colors.WHITE,
+        loading: bool = False,
+        closable: bool = True,
+    ):
         titulo_modal.value = titulo
         titulo_modal.color = color_titulo
         mensaje_modal.value = mensaje
-        modal_info.visible = True
-        safe_page_update()
+        status_ring.visible = loading
+        close_status_btn.visible = closable and not loading
+        status_modal.visible = True
+        safe_status_update()
+
+    def ocultar_estado():
+        status_modal.visible = False
+        safe_status_update()
 
     def set_loading(loading: bool, texto: str | None = None):
-        if texto is not None:
-            estado_envio_text.value = texto
-        if loading:
-            modal_info.visible = False
+        estado_boton["habilitado"] = not loading
         boton_enviar.disabled = loading
-        boton_enviar_text.value = "Enviando..." if loading else "Enviar"
-        boton_con_gradiente.opacity = 0.85 if loading else 1.0
-        enviando_overlay.visible = loading
-        safe_page_update()
+        safe_update(boton_enviar)
+        safe_update(boton_con_gradiente)
+        if loading:
+            mostrar_estado(
+                "Validando información",
+                texto or "Espera un momento mientras revisamos y preparamos tu solicitud.",
+                loading=True,
+                closable=False,
+            )
 
     def cerrar_modal():
-        modal_info.visible = False
+        ocultar_estado()
         focus_control(correo_tf)
-        safe_page_update()
 
     def limpiar_alertas():
-        if warning_icon.visible:
-            warning_icon.visible = False
-            safe_update(warning_icon)
-        if warning_icon_telefono.visible:
-            warning_icon_telefono.visible = False
-            safe_update(warning_icon_telefono)
+        return
     
     # Ã¢Å“â€¦ Compacto solo cuando ancho < 700
     BREAKPOINT_COMPACT = 800
@@ -176,8 +176,8 @@ def create_formulario(page: ft.Page):
 
     def altura_campos_actual():
         if es_tablet_hero():
-            return 40
-        return 44 if es_compacto() else 56
+            return 48
+        return 52 if es_compacto() else 68
 
     def titulo_size_actual():
         if es_tablet_hero():
@@ -204,98 +204,40 @@ def create_formulario(page: ft.Page):
             return 13
         return 14 if es_compacto() else 16
 
+    def label_size_actual():
+        if es_tablet_hero():
+            return 11
+        return 11 if es_compacto() else 12
+
     def textfield_content_padding_actual():
         if es_tablet_hero():
-            return ft.Padding.only(left=12, right=10, top=10, bottom=6)
+            return ft.Padding.only(left=12, right=10, top=14, bottom=10)
         if es_compacto():
-            return ft.Padding.only(left=12, right=10, top=10, bottom=8)
-        return ft.Padding.only(left=14, right=12, top=14, bottom=10)
+            return ft.Padding.only(left=12, right=10, top=15, bottom=11)
+        return ft.Padding.only(left=14, right=12, top=18, bottom=14)
 
 
     ALTURA_CAMPOS = altura_campos_actual()
 
-    def on_warning_click(e):
-        correo_tf.disabled = True
-        safe_page_update()
-
-        async def _restore():
-            await asyncio.sleep(0.05)
-            correo_tf.disabled = False
-            safe_page_update()
-
-        page.run_task(_restore)
-
-        mostrar_modal(
-            "Correo inválido",
-            "Ingresa un correo con formato correcto (ejemplo: usuario@dominio.com).",
-            ft.Colors.RED_400
-        )
-
-    warning_icon = ft.IconButton(
-        icon=ft.Icons.WARNING_AMBER_ROUNDED,
-        icon_color=ft.Colors.RED,
-        icon_size=20,
-        visible=False,
-        tooltip="Correo electrónico inválido",
-        style=ft.ButtonStyle(
-            padding=ft.Padding.all(0),
-            shape=ft.RoundedRectangleBorder(radius=0)
-        ),
-        width=40, height=altura_campos_actual(),
-        on_click=on_warning_click,
-    )
-
-    def on_warning_phone_click(e):
-        telefono_real.disabled = True
-        safe_page_update()
-
-        async def _restore_phone():
-            await asyncio.sleep(0.05)
-            telefono_real.disabled = False
-            safe_page_update()
-
-        page.run_task(_restore_phone)
-
-        mostrar_modal(
-            "Teléfono inválido",
-            "Ingresa un teléfono con formato correcto (ejemplo: +56912345678).",
-            ft.Colors.RED_400
-        )
-
-    warning_icon_telefono = ft.IconButton(
-        icon=ft.Icons.WARNING_AMBER_ROUNDED,
-        icon_color=ft.Colors.RED,
-        icon_size=20,
-        visible=False,
-        tooltip="Teléfono inválido",
-        style=ft.ButtonStyle(
-            padding=ft.Padding.all(0),
-            shape=ft.RoundedRectangleBorder(radius=0)
-        ),
-        width=40, height=altura_campos_actual(),
-        on_click=on_warning_phone_click,
-    )
-
-    MAX_FORM_WIDTH = 560   # en PC que no pase esto
-    MIN_FORM_WIDTH = 280
+    MAX_FORM_WIDTH = 320
+    MIN_FORM_WIDTH = 220
 
     def ancho_responsivo():
         w = page.width or 360  # fallback seguro si aún no existe
-        # en móvil casi todo el ancho, en PC limita y evita overflow
+        # En desktop el formulario vive dentro de una tarjeta lateral,
+        # así que no podemos dimensionarlo contra todo el viewport.
         if es_tablet_hero():
-            return max(210, min(250, w * 0.28))
+            return max(220, min(255, w * 0.23))
         if es_pc_o_tablet():
-            return max(MIN_FORM_WIDTH, min(MAX_FORM_WIDTH, w * 0.60))
+            return max(240, min(340, w * 0.24))
         return max(MIN_FORM_WIDTH, min(w * 0.92, MAX_FORM_WIDTH))
 
 
     def actualizar_estado_boton():
-        if not estado_boton["habilitado"]:
-            estado_boton["habilitado"] = True
-            boton_enviar.disabled = False
-            boton_con_gradiente.opacity = 1.0
-            safe_update(boton_con_gradiente)
-            safe_update(boton_enviar)
+        estado_boton["habilitado"] = True
+        boton_enviar.disabled = False
+        safe_update(boton_enviar)
+        safe_update(boton_con_gradiente)
 
     # --- Validaciones en vivo ---
     def on_mensaje_nombre_change(e):
@@ -325,17 +267,29 @@ def create_formulario(page: ft.Page):
         return (page.width or 0) >= BREAKPOINT_TABLET
 
     def label_color_actual():
-        return ft.Colors.BLACK if es_pc_o_tablet() else ft.Colors.BLACK_54
+        return ft.Colors.WHITE if es_pc_o_tablet() else "#E5EEF1"
 
     def padding_horizontal_actual():
         return 0 if es_pc_o_tablet() else 0
 
-    def enviar_formulario(e):
+    async def _start_submit_flow():
         set_loading(True, "Validando información...")
+        # Devolvemos el control al loop para que el modal se pinte
+        # y recién luego arrancamos la validación/envío.
+        await asyncio.sleep(0.03)
         page.run_task(proceso_envio)
 
+    def enviar_formulario(e):
+        if not estado_boton["habilitado"]:
+            return
+        boton_enviar.disabled = True
+        estado_boton["habilitado"] = False
+        safe_update(boton_enviar)
+        safe_update(boton_con_gradiente)
+        page.run_task(_start_submit_flow)
+
     boton_enviar_text = ft.Text(
-        "Enviar",
+        "Solicitar contacto",
         size=20,
         weight=ft.FontWeight.BOLD,
         color=ft.Colors.WHITE,
@@ -356,44 +310,59 @@ def create_formulario(page: ft.Page):
     )
 
     correo_tf_real = ft.TextField(
-        label="Correo electrónico",
-        label_style=ft.TextStyle(color=label_color_actual()),
+        hint_text="Correo electrónico",
+        hint_style=ft.TextStyle(color="#6B7F88", size=label_size_actual()),
         color=ft.Colors.BLACK,
         width=ancho_responsivo(),
-        height=altura_campos_actual(),
-
-        suffix=warning_icon,
+        height=None,
+        bgcolor=ft.Colors.WHITE,
+        border_color="#D7E3E8",
+        focused_border_color="#123F49",
+        border_radius=14,
+        text_vertical_align=ft.VerticalAlignment.CENTER,
         on_change=on_correo_change,
         on_blur=on_correo_blur
     )
 
     nombre_real = ft.TextField(
-        label="Nombre",
-        label_style=ft.TextStyle(color=label_color_actual()),
+        hint_text="Nombre",
+        hint_style=ft.TextStyle(color="#6B7F88", size=label_size_actual()),
         width=ancho_responsivo(),
-        height=altura_campos_actual(),
-
+        height=None,
         color=ft.Colors.BLACK,
+        bgcolor=ft.Colors.WHITE,
+        border_color="#D7E3E8",
+        focused_border_color="#123F49",
+        border_radius=14,
+        text_vertical_align=ft.VerticalAlignment.CENTER,
         on_change=on_mensaje_nombre_change
     )
 
     telefono_real = ft.TextField(
-        label="Teléfono",
-        label_style=ft.TextStyle(color=label_color_actual()),
+        hint_text="Teléfono",
+        hint_style=ft.TextStyle(color="#6B7F88", size=label_size_actual()),
         width=ancho_responsivo(),
-        height=altura_campos_actual(),
+        height=None,
         color=ft.Colors.BLACK,
-        suffix=warning_icon_telefono,
+        bgcolor=ft.Colors.WHITE,
+        border_color="#D7E3E8",
+        focused_border_color="#123F49",
+        border_radius=14,
+        text_vertical_align=ft.VerticalAlignment.CENTER,
         on_change=solo_numeros_y_mas
     )
 
     mensaje_real = ft.TextField(
-        label="Mensaje",
-        label_style=ft.TextStyle(color=label_color_actual()),
+        hint_text="Mensaje",
+        hint_style=ft.TextStyle(color="#6B7F88", size=label_size_actual()),
         multiline=True,
         min_lines=min_lines_mensaje_actual(),
         width=ancho_responsivo(),
         color=ft.Colors.BLACK,
+        bgcolor=ft.Colors.WHITE,
+        border_color="#D7E3E8",
+        focused_border_color="#123F49",
+        border_radius=16,
         on_change=on_mensaje_nombre_change
     )
 
@@ -403,17 +372,18 @@ def create_formulario(page: ft.Page):
 
     correo_tf = correo_tf_real
 
-    def wrap_con_padding(tf):
+    def wrap_con_padding(tf, label_text: str):
         return ft.Container(
             content=tf,
             padding=ft.Padding.symmetric(horizontal=padding_horizontal_actual()),
             alignment=ft.alignment.center,
+            data={},
         )
 
-    nombre = wrap_con_padding(nombre_real)
-    correo_w = wrap_con_padding(correo_tf_real)
-    telefono = wrap_con_padding(telefono_real)
-    mensaje = wrap_con_padding(mensaje_real)
+    nombre = wrap_con_padding(nombre_real, "Nombre")
+    correo_w = wrap_con_padding(correo_tf_real, "Correo electrónico")
+    telefono = wrap_con_padding(telefono_real, "Teléfono")
+    mensaje = wrap_con_padding(mensaje_real, "Mensaje")
 
     boton_con_gradiente = ft.Container(
         content=boton_enviar,
@@ -422,7 +392,7 @@ def create_formulario(page: ft.Page):
         gradient=ft.LinearGradient(
             begin=ft.alignment.center_left,
             end=ft.alignment.center_right,
-            colors=["#0f2027", "#203a43", "#2c5364"]
+            colors=["#0B222A", "#144857", "#1E6B7B"]
         ),
         opacity=1.0
     )
@@ -449,12 +419,9 @@ def create_formulario(page: ft.Page):
         for tf in (nombre_real, correo_tf_real, telefono_real, mensaje_real):
             tf.width = w
 
-        # alturas dinámicas al redimensionar
+        # En campos simples dejamos que Flet calcule la altura real del label flotante.
         for tf in (nombre_real, correo_tf_real, telefono_real):
-            tf.height = altura_campos_actual()
-
-        warning_icon.height = altura_campos_actual()
-        warning_icon_telefono.height = altura_campos_actual()
+            tf.height = None
 
         # líneas del mensaje dinámicas
         mensaje_real.min_lines = min_lines_mensaje_actual()
@@ -474,7 +441,7 @@ def create_formulario(page: ft.Page):
         ph = padding_horizontal_actual()
 
         for tf in (nombre_real, correo_tf_real, telefono_real, mensaje_real):
-            tf.label_style = ft.TextStyle(color=lc)
+            tf.hint_style = ft.TextStyle(color="#6B7F88", size=label_size_actual())
             tf.text_size = textfield_text_size_actual()
             tf.content_padding = textfield_content_padding_actual()
 
@@ -485,20 +452,13 @@ def create_formulario(page: ft.Page):
         boton_con_gradiente.height = 34 if es_tablet_hero() else None
         boton_wrapper.padding = ft.Padding.symmetric(horizontal=ph)
 
-        if getattr(page, "session_id", None) is not None:
+        form_root = form_root_ref["control"]
+        if getattr(form_root, "page", None) is not None:
+            form_root.update()
+        elif getattr(page, "session_id", None) is not None:
             page.update()
 
-    prev_on_resized = page.on_resized
-
-    def _chain_resized(e):
-        try:
-            if prev_on_resized:
-                prev_on_resized(e)
-        except Exception:
-            pass
-        ajustar_responsivo(e)
-
-    page.on_resized = _chain_resized
+    register_resize_handler(page, "contact_form", ajustar_responsivo)
 
     # =========================
     #  SENDGRID - envío (API)
@@ -542,8 +502,6 @@ def create_formulario(page: ft.Page):
             raise RuntimeError(f"Resend error: {e}")
 
     async def proceso_envio():
-        await asyncio.sleep(0.05)
-
         nombre_val = (nombre_real.value or "").strip()
         correo_val = (correo_tf_real.value or "").strip()
         telefono_val = (telefono_real.value or "").strip()
@@ -551,42 +509,46 @@ def create_formulario(page: ft.Page):
 
         if not nombre_val or not correo_val or not telefono_val or not mensaje_val:
             set_loading(False)
-            warning_icon.visible = True
-            safe_update(warning_icon)
-            mostrar_modal(
+            mostrar_estado(
                 "Por favor completar todos los campos!",
                 "Así se enviará la información correctamente.",
-                ft.Colors.RED_400
+                color_titulo=ft.Colors.RED_400,
+                loading=False,
+                closable=True,
             )
             return
 
         if not validar_correo(correo_val):
             set_loading(False)
-            warning_icon.visible = True
-            safe_update(warning_icon)
             focus_control(correo_tf_real)
-            mostrar_modal(
+            mostrar_estado(
                 "Correo inválido",
                 "Ingresa un correo con formato correcto (ejemplo: usuario@dominio.com).",
-                ft.Colors.RED_400
+                color_titulo=ft.Colors.RED_400,
+                loading=False,
+                closable=True,
             )
             return
 
         if not validar_telefono(telefono_val):
             set_loading(False)
-            warning_icon_telefono.visible = True
-            safe_update(warning_icon_telefono)
             focus_control(telefono_real)
-            mostrar_modal(
+            mostrar_estado(
                 "Teléfono inválido",
                 "Ingresa un teléfono con formato correcto (ejemplo: +56912345678).",
-                ft.Colors.RED_400
+                color_titulo=ft.Colors.RED_400,
+                loading=False,
+                closable=True,
             )
             return
 
         try:
-            estado_envio_text.value = "Enviando información..."
-            safe_page_update()
+            mostrar_estado(
+                "Enviando información",
+                "Estamos enviando tu solicitud. Esto puede tardar unos segundos.",
+                loading=True,
+                closable=False,
+            )
 
             subject = f"Nuevo mensaje de {nombre_val}"
             body = (
@@ -608,52 +570,61 @@ def create_formulario(page: ft.Page):
             correo_tf_real.value = ""
             telefono_real.value = ""
             mensaje_real.value = ""
-            warning_icon.visible = False
-            warning_icon_telefono.visible = False
 
             set_loading(False)
             actualizar_estado_boton()
-            mostrar_modal(
+            mostrar_estado(
                 "¡Información enviada!",
                 "Gracias por preferirnos. Nos pondremos en contacto pronto.",
-                ft.Colors.BLUE
+                color_titulo=ft.Colors.BLUE,
+                loading=False,
+                closable=True,
             )
 
         except Exception as ex:
             print("ERROR al enviar:", str(ex))
             set_loading(False)
-            mostrar_modal(
+            mostrar_estado(
                 "Error al enviar la información",
                 str(ex),
-                ft.Colors.RED_400
+                color_titulo=ft.Colors.RED_400,
+                loading=False,
+                closable=True,
             )
 
     formulario_con_modal = ft.Container(
         alignment=ft.alignment.center,
-        content=ft.Stack(
-            [
-                ft.Column(
-                    tight=True,
-                    controls=[
-                        ft.Text("Contáctanos", size=titulo_size_actual(), weight=ft.FontWeight.BOLD, color="#090229"),
-                        nombre,
-                        correo_w,
-                        telefono,
-                        mensaje,
-                        boton_wrapper
-                    ],
-                    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                    spacing=spacing_actual()
+        bgcolor="rgba(245,250,252,0.92)",
+        border_radius=24,
+        border=ft.Border.all(1, "#DCE7EB"),
+        padding=ft.Padding.symmetric(horizontal=18, vertical=18),
+        shadow=ft.BoxShadow(blur_radius=24, spread_radius=0, color="rgba(14,38,46,0.14)", offset=ft.Offset(0, 12)),
+        content=ft.Column(
+            tight=True,
+            controls=[
+                ft.Text(
+                    "Cuéntanos tu necesidad y te responderemos con orientación técnica y una propuesta clara.",
+                    size=13,
+                    color=ft.Colors.WHITE,
+                    text_align=ft.TextAlign.CENTER,
                 ),
-
-                modal_info,
-                enviando_overlay
+                nombre,
+                correo_w,
+                telefono,
+                mensaje,
+                boton_wrapper
             ],
-            alignment=ft.alignment.center
-        )
-
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+            spacing=spacing_actual()
+        ),
     )
 
+    form_root_ref["control"] = formulario_con_modal
+    formulario_con_modal.data = {
+        "status_modal": status_modal,
+        "status_modal_ref": status_modal_ref,
+    }
+    status_modal_ref["control"] = status_modal
 
     return formulario_con_modal
 

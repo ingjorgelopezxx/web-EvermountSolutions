@@ -1,14 +1,10 @@
 import asyncio
 import flet as ft
+from functions.asset_sources import CARRUSEL_HOME_IMAGES
+from functions.resize_coordinator import register_resize_handler
 
 IMAGENES = [
-    "https://i.postimg.cc/nzZ8YggY/Chat-GPT-Image-16-sept-2025-11-00-13-p-m.png",
-    "https://i.postimg.cc/D0XY9c9y/roedores.png",
-    "https://i.postimg.cc/QdbnZCy5/voladores-insectos.png",
-    "https://i.postimg.cc/bJ2Trw3m/termitas.png",
-    "https://i.postimg.cc/hGQxb3Tj/voladores-aves.png",
-    "https://i.postimg.cc/C13hWvW5/insectos-rastreros.png",
-    "https://i.postimg.cc/g0bcQM1r/programas-mensuales.png",
+    *CARRUSEL_HOME_IMAGES,
 ]
 
 def create_carrusel(page: ft.Page, intervalo: int = 3):
@@ -92,15 +88,7 @@ def create_carrusel(page: ft.Page, intervalo: int = 3):
                 tarea_resize[0] = None
         tarea_resize[0] = page.run_task(_resize_debounced)
 
-    # ✅ encadenar con on_resized (no on_resize)
-    prev_on_resized = getattr(page, "on_resized", None)
-
-    def _on_resized_chain(e):
-        _on_resize_local(e)
-        if callable(prev_on_resized):
-            prev_on_resized(e)
-
-    page.on_resized = _on_resized_chain
+    register_resize_handler(page, "home_carrusel", _on_resize_local)
 
     # --- Rotación automática ---
     async def _rotar():

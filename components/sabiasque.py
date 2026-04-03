@@ -1,12 +1,13 @@
 # components/sabiasque.py
 import flet as ft
+from functions.asset_sources import SABIASQUE_IMAGES
 
 # --------- Datos ----------
 SABIASQUE_ITEMS = [
     {
         "especie": "Cucarachas",
         "titulo": "¿Sabías que las cucarachas pueden vivir hasta una semana sin su cabeza?",
-        "imagen": "https://www.gardentech.com/-/media/project/oneweb/gardentech/images/pest-id/bug-pest/cockroach.png",
+        "imagen": SABIASQUE_IMAGES["cucarachas"],
         "texto": (
             "Las cucarachas son plagas muy resistentes y adaptables, con diversas curiosidades que las hacen fascinantes y problemáticas. "
             "Son capaces de sobrevivir sin cabeza por un tiempo, soportan altos niveles de radiación y pueden sobrevivir sin comida por semanas o sin agua por días. "
@@ -27,7 +28,7 @@ SABIASQUE_ITEMS = [
     {
         "especie": "Ratas",
         "titulo": "¿Sabías que una sola rata puede producir hasta 2,000 descendientes en un año si no se controla su población?",
-        "imagen": "https://i.postimg.cc/yNKpkNv3/istockphoto-1413873422-612x612-Photoroom.png",
+        "imagen": SABIASQUE_IMAGES["ratas"],
         "texto": (
             "Las ratas tienen gran capacidad reproductiva y, sin control, se convierten rápidamente en una infestación. "
             "Además de daños materiales, son portadoras de enfermedades peligrosas."
@@ -48,7 +49,7 @@ SABIASQUE_ITEMS = [
     {
         "especie": "Ratones",
         "titulo": "¿Sabías que los ratones pueden vivir hasta tres años en condiciones favorables?",
-        "imagen": "https://i.postimg.cc/Xqgd1VwZ/raton-campo-mus-musculus-768x576-Photoroom.png",
+        "imagen": SABIASQUE_IMAGES["ratones"],
         "texto": (
             "Excelentes trepadores y nadadores; saltan hasta 30 cm. Pueden roer cemento y vidrio. "
             "Reproducción prolífica desde las 6 semanas. Transmiten enfermedades y contaminan alimentos y superficies."
@@ -69,7 +70,7 @@ SABIASQUE_ITEMS = [
     {
         "especie": "Termitas",
         "titulo": "¿Sabías que las termitas nunca duermen?",
-        "imagen": "https://i.postimg.cc/wjVRQRQ1/termitas-1.png",
+        "imagen": SABIASQUE_IMAGES["termitas"],
         "texto": (
             "Descomponedores clave en la naturaleza, pero destructivas en estructuras de madera. "
             "Se reproducen rápido, prefieren la celulosa y pueden causar daños significativos."
@@ -90,7 +91,7 @@ SABIASQUE_ITEMS = [
     {
         "especie": "Hormigas",
         "titulo": "¿Sabías que un nido de hormigas puede contener cientos de miles de individuos?",
-        "imagen": "https://i.postimg.cc/Yq95H8Sg/hormiga-eliminar-plaga-Photoroom.png",
+        "imagen": SABIASQUE_IMAGES["hormigas"],
         "texto": (
             "Plagas comunes en hogares y jardines. Encuentran comida/agua con facilidad, construyen nidos en lugares inesperados y pueden dañar madera (carpinteras)."
         ),
@@ -110,7 +111,7 @@ SABIASQUE_ITEMS = [
     {
         "especie": "Palomas",
         "titulo": "¿Sabías que las palomas pueden reconocer rostros humanos?",
-        "imagen": "https://i.postimg.cc/qBZm8rkj/151120130815-paloma2-624x351-thinkstock-nocredit-Photoroom.png",
+        "imagen": SABIASQUE_IMAGES["palomas"],
         "texto": (
             "Comunes en ciudades; pueden ser plaga por daños y enfermedades. Nidos y excrementos afectan estructuras y atraen parásitos."
         ),
@@ -130,7 +131,7 @@ SABIASQUE_ITEMS = [
     {
         "especie": "Chinches",
         "titulo": "¿Sabías que las chinches pueden sobrevivir meses sin alimentarse?",
-        "imagen": "https://i.postimg.cc/MHcmscWv/chinche-cimex-lectularius-Photoroom.png",
+        "imagen": SABIASQUE_IMAGES["chinches"],
         "texto": (
             "Parásitos de sangre; causan picor e irritación. Se esconden en grietas, colchones y muebles. Su control requiere tratamiento especializado."
         ),
@@ -150,7 +151,7 @@ SABIASQUE_ITEMS = [
     {
         "especie": "Pulgas",
         "titulo": "¿Sabías que el 50% de las picaduras de pulgas pueden causar reacciones alérgicas?",
-        "imagen": "https://i.postimg.cc/C12jfFjF/flea-Photoroom.png",
+        "imagen": SABIASQUE_IMAGES["pulgas"],
         "texto": (
             "Pequeños parásitos de mamíferos y aves. Picaduras con picor intenso. Pueden transmitir enfermedades y parásitos; se reproducen rápido."
         ),
@@ -170,7 +171,7 @@ SABIASQUE_ITEMS = [
     {
         "especie": "Moscas",
         "titulo": "¿Sabías que las moscas domésticas pueden transmitir más de 60 enfermedades?",
-        "imagen": "https://i.postimg.cc/3wZN2kmt/white-Photoroom-1.png",
+        "imagen": SABIASQUE_IMAGES["moscas"],
         "texto": (
             "Comunes pero riesgosas para la salud pública. Se alimentan de materia en descomposición y contaminan alimentos al posarse."
         ),
@@ -279,13 +280,13 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
     def _grid_metrics(page: ft.Page) -> tuple[int, float, int, int]:
         w = page.width
         if w < 480:            # Celular
-            return (120, 0.86, 6, 8)
+            return (160, 0.68, 8, 10)
         elif w < 768:          # Tablet
-            return (160, 0.86, 8, 10)
+            return (220, 0.90, 10, 12)
         elif w < 1200:         # Laptop
-            return (200, 0.86, 10, 12)
+            return (200, 0.96, 10, 12)
         else:                  # Desktop
-            return (240, 0.9, 12, 14)
+            return (240, 1.00, 12, 14)
 
     mx, ar, sp, rsp = _grid_metrics(page)
 
@@ -306,12 +307,20 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
     def _tile(idx: int, item: dict, page: ft.Page) -> ft.Container:
         nombre = item.get("especie") or item.get("titulo", f"Item {idx+1}")
         img = item.get("imagen", "")
-        is_big = (page.width or 0) >= 600  # tablet / PC
+        w = page.width or 0
+        is_big = w >= 600  # tablet / PC
+        title_size = 16 if w < 900 else (12 if w < 1600 else 14)
         return ft.Container(
-            bgcolor=ft.Colors.WHITE,
-            border_radius=12,
+            bgcolor="#FCFEFF",
+            border_radius=22,
+            border=ft.Border.all(1, "#DBE7EC"),
             clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
-            shadow=ft.BoxShadow(1, 8, ft.Colors.BLACK_12, offset=ft.Offset(2, 2)),
+            shadow=ft.BoxShadow(
+                blur_radius=18,
+                spread_radius=0,
+                color="rgba(17,56,66,0.14)",
+                offset=ft.Offset(0, 8),
+            ),
             ink=True,
             on_click=lambda e, i=idx: push_route(f"/sabiasque/{i}"),
             padding=0,
@@ -320,24 +329,29 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
                 spacing=0,
                 horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
                 controls=[
-                    ft.Container(  # imagen 75%
-                        expand=75,
+                    ft.Container(height=4, bgcolor="#123F49"),
+                    ft.Container(
+                        expand=80,
                         alignment=ft.alignment.center,
-                        padding=6,
-                        content=ft.Image(src=img, fit=ft.BoxFit.CONTAIN),
+                        padding=ft.Padding.only(top=12, left=12, right=12),
+                        content=ft.Container(
+                            border_radius=18,
+                            clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
+                            content=ft.Image(src=img, fit=ft.BoxFit.COVER),
+                        ),
                     ),
-                    ft.Container(  # texto 25%
-                        expand=25,
+                    ft.Container(
+                        expand=20,
                         alignment=ft.alignment.center,
-                        padding=ft.Padding.symmetric(horizontal=6, vertical=4),
+                        padding=ft.Padding.only(left=14, right=14, top=8, bottom=10),
                         content=ft.Text(
-                        nombre,
-                        size=18 if is_big else 14,
-                        weight=ft.FontWeight.BOLD,
-                        text_align=ft.TextAlign.CENTER,
-                        max_lines=2,
-                        overflow=ft.TextOverflow.ELLIPSIS,
-                        color=ft.Colors.BLACK,
+                            nombre,
+                            size=title_size if is_big else 13,
+                            weight=ft.FontWeight.BOLD,
+                            text_align=ft.TextAlign.CENTER,
+                            max_lines=1 if w >= 1020 else 2,
+                            overflow=ft.TextOverflow.ELLIPSIS,
+                            color="#123640",
                         ),
                     ),
                 ],
@@ -353,27 +367,23 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
             except Exception:
                 break
 
-            is_big = (page.width or 0) >= 600  # tablet y PC
-            header = ft.Container(
-                alignment=ft.alignment.center,
-                padding=ft.Padding.symmetric(vertical=4),
-                content=ft.Column(
-                    alignment=ft.MainAxisAlignment.CENTER,
-                    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                    spacing=2,
-                    controls=[
-                        ft.Text(
-                            "Seleccionar Especie",
-                            size=24 if is_big else 20,
-                            weight=ft.FontWeight.BOLD,
-                            color=ft.Colors.BLACK,
-                            text_align=ft.TextAlign.CENTER,
-                            font_family="Comic Sans MS",
-                        ),
-                        ft.Divider(color=ft.Colors.BLACK_26, thickness=1),
-                    ],
-                ),
-            )
+        is_big = (page.width or 0) >= 600  # tablet y PC
+        header = ft.Container(
+            alignment=ft.alignment.center,
+            content=ft.Column(
+                spacing=0,
+                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                controls=[
+                    ft.Text(
+                        "Selecciona la especie",
+                        size=28 if is_big else 24,
+                        weight=ft.FontWeight.BOLD,
+                        color="#0F3D47",
+                        text_align=ft.TextAlign.CENTER,
+                    ),
+                ],
+            ),
+        )
 
 
         grid.controls.clear()
@@ -387,13 +397,15 @@ def render_sabiasque(page: ft.Page, contenedor: ft.Column, items: list | None = 
 
         sabiasque_column = ft.Column(
             controls=[header, grid],
-            spacing=2,
+            spacing=18,
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         )
 
         contenedor.controls.append(
             ft.Container(
                 content=sabiasque_column,
                 padding=ft.Padding.only(top=4, bottom=8),
+                alignment=ft.alignment.center,
             )
         )
         # ðŸ‘ˆ NO llamamos page.update aquÃ­; se hace en el router

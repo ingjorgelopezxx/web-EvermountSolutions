@@ -3,6 +3,7 @@ import asyncio
 
 import flet as ft
 
+from functions.asset_sources import SOCIAL_FACEBOOK, SOCIAL_INSTAGRAM, SOCIAL_SABIAS, SOCIAL_WHATSAPP
 from functions.flet_actions import launch_url
 
 
@@ -74,21 +75,21 @@ def create_botones_redes(
       boton_facebook, boton_instagram, boton_whatsapp, boton_sabiasque, start_bounce, stop_bounce
     """
     img_whatsapp = ft.Image(
-        src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg",
+        src=SOCIAL_WHATSAPP,
         fit=ft.BoxFit.COVER,
         scale=1.0,
         animate_scale=200,
         tooltip="Contáctanos por WhatsApp",
     )
     img_instagram = ft.Image(
-        src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg",
+        src=SOCIAL_INSTAGRAM,
         fit=ft.BoxFit.CONTAIN,
         scale=1.0,
         animate_scale=200,
         tooltip="Síguenos en Instagram",
     )
     img_facebook = ft.Image(
-        src="https://upload.wikimedia.org/wikipedia/commons/b/b9/2023_Facebook_icon.svg",
+        src=SOCIAL_FACEBOOK,
         width=60,
         height=60,
         fit=ft.BoxFit.CONTAIN,
@@ -97,7 +98,7 @@ def create_botones_redes(
         tooltip="Síguenos en Facebook",
     )
     img_sabiasque = ft.Image(
-        src="https://i.postimg.cc/hj0qRQwn/white-Photoroom-1.jpg",
+        src=SOCIAL_SABIAS,
         fit=ft.BoxFit.CONTAIN,
         scale=1.0,
         animate_scale=200,

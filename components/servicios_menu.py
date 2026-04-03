@@ -1,13 +1,14 @@
-import flet as ft
+﻿import flet as ft
+from functions.asset_sources import SERVICE_MENU_IMAGES
 
 
 SERVICIOS = [
-    {"titulo": "Roedores", "imagen": "https://i.postimg.cc/cLvXDbLz/Chat-GPT-Image-26-ago-2025-03-08-53-p-m-Photoroom.png", "ruta": "/servicios/roedores"},
-    {"titulo": "Desinfección y Sanitización", "imagen": "https://i.postimg.cc/zGfdKtvL/desinfeccion-Photoroom-Photoroom.png", "ruta": "/servicios/sanitizacion"},
-    {"titulo": "Insectos Voladores", "imagen": "https://i.postimg.cc/V6hZkjmS/white-Photoroom-Photoroom.png", "ruta": "/servicios/voladores"},
-    {"titulo": "Insectos Rastreros", "imagen": "https://i.postimg.cc/Kzx7yqmM/Chat-GPT-Image-26-ago-2025-03-18-37-p-m-Photoroom.png", "ruta": "/servicios/rastreros"},
-    {"titulo": "Tratamiento Termitas", "imagen": "https://i.postimg.cc/rpLxSn0R/Chat-GPT-Image-26-ago-2025-03-13-04-p-m-Photoroom.png", "ruta": "/servicios/termitas"},
-    {"titulo": "Aves Urbanas", "imagen": "https://i.postimg.cc/wjzDN4sJ/Chat-GPT-Image-26-ago-2025-03-09-31-p-m-Photoroom.png", "ruta": "/servicios/aves"},
+    {"titulo": "Roedores", "imagen": SERVICE_MENU_IMAGES["roedores"], "ruta": "/servicios/roedores"},
+    {"titulo": "Desinfección y Sanitización", "imagen": SERVICE_MENU_IMAGES["sanitizacion"], "ruta": "/servicios/sanitizacion"},
+    {"titulo": "Insectos Voladores", "imagen": SERVICE_MENU_IMAGES["voladores"], "ruta": "/servicios/voladores"},
+    {"titulo": "Insectos Rastreros", "imagen": SERVICE_MENU_IMAGES["rastreros"], "ruta": "/servicios/rastreros"},
+    {"titulo": "Tratamiento Termitas", "imagen": SERVICE_MENU_IMAGES["termitas"], "ruta": "/servicios/termitas"},
+    {"titulo": "Aves Urbanas", "imagen": SERVICE_MENU_IMAGES["aves"], "ruta": "/servicios/aves"},
 ]
 
 
@@ -23,34 +24,60 @@ def render_menu_servicios(page: ft.Page, contenedor: ft.Column):
 
         if w < 480:
             return dict(
-                max_extent=160, aspect=0.60, spacing=8, run=10,
-                title_sz=13, heading_sz=24,
-                img_pct=60, txt_pct=40
+                max_extent=160,
+                aspect=0.68,
+                spacing=8,
+                run=10,
+                title_sz=13,
+                heading_sz=24,
+                img_pct=68,
+                txt_pct=32,
             )
         if w < 900:
             return dict(
-                max_extent=240, aspect=0.78, spacing=10, run=12,
-                title_sz=16, heading_sz=28,
-                img_pct=70, txt_pct=30
+                max_extent=240,
+                aspect=0.92,
+                spacing=10,
+                run=12,
+                title_sz=16,
+                heading_sz=28,
+                img_pct=78,
+                txt_pct=22,
             )
         if w < 1600:
             return dict(
-                max_extent=200, aspect=0.82, spacing=10, run=12,
-                title_sz=14, heading_sz=28,
-                img_pct=72, txt_pct=28
+                max_extent=200,
+                aspect=0.96,
+                spacing=10,
+                run=12,
+                title_sz=12,
+                heading_sz=28,
+                img_pct=80,
+                txt_pct=20,
             )
         return dict(
-            max_extent=280, aspect=0.88, spacing=12, run=14,
-            title_sz=18, heading_sz=34,
-            img_pct=75, txt_pct=25
+            max_extent=280,
+            aspect=1.00,
+            spacing=12,
+            run=14,
+            title_sz=14,
+            heading_sz=34,
+            img_pct=82,
+            txt_pct=18,
         )
 
     def _card(item: dict, sz: dict) -> ft.Container:
         return ft.Container(
-            bgcolor=ft.Colors.WHITE,
-            border_radius=12,
+            bgcolor="#FCFEFF",
+            border_radius=22,
+            border=ft.Border.all(1, "#DBE7EC"),
             clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
-            shadow=ft.BoxShadow(1, 4, ft.Colors.BLACK_26, offset=ft.Offset(2, 2)),
+            shadow=ft.BoxShadow(
+                blur_radius=18,
+                spread_radius=0,
+                color="rgba(17,56,66,0.14)",
+                offset=ft.Offset(0, 8),
+            ),
             ink=True,
             on_click=lambda e: push_route(item["ruta"]),
             content=ft.Column(
@@ -58,23 +85,35 @@ def render_menu_servicios(page: ft.Page, contenedor: ft.Column):
                 spacing=0,
                 horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
                 controls=[
+                    ft.Container(height=4, bgcolor="#123F49"),
                     ft.Container(
                         expand=sz["img_pct"],
                         alignment=ft.alignment.center,
-                        content=ft.Image(src=item["imagen"], fit=ft.BoxFit.COVER),
+                        padding=ft.Padding.only(top=12, left=12, right=12),
+                        content=ft.Container(
+                            border_radius=18,
+                            clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
+                            content=ft.Image(src=item["imagen"], fit=ft.BoxFit.COVER),
+                        ),
                     ),
                     ft.Container(
                         expand=sz["txt_pct"],
                         alignment=ft.alignment.center,
-                        padding=ft.Padding.symmetric(horizontal=8, vertical=8),
-                        content=ft.Text(
-                            item["titulo"],
-                            size=sz["title_sz"],
-                            weight=ft.FontWeight.BOLD,
-                            text_align=ft.TextAlign.CENTER,
-                            max_lines=2,
-                            overflow=ft.TextOverflow.ELLIPSIS,
-                            color=ft.Colors.BLACK,
+                        padding=ft.Padding.only(left=14, right=14, top=8, bottom=10),
+                        content=ft.Column(
+                            [
+                                ft.Text(
+                                    item["titulo"],
+                                    size=sz["title_sz"],
+                                    weight=ft.FontWeight.BOLD,
+                                    text_align=ft.TextAlign.CENTER,
+                                    max_lines=1 if (page.width or 0) >= 1020 else 2,
+                                    overflow=ft.TextOverflow.ELLIPSIS,
+                                    color="#123640",
+                                ),
+                            ],
+                            spacing=0,
+                            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                         ),
                     ),
                 ],
@@ -83,12 +122,18 @@ def render_menu_servicios(page: ft.Page, contenedor: ft.Column):
 
     heading = ft.Container(
         alignment=ft.alignment.center,
-        content=ft.Text(
-            "Seleccionar Servicio",
-            weight=ft.FontWeight.BOLD,
-            text_align=ft.TextAlign.CENTER,
-            color="#0F3D47",
-            size=24,
+        content=ft.Column(
+            [
+                ft.Text(
+                    "Selecciona el tipo de servicio",
+                    weight=ft.FontWeight.BOLD,
+                    text_align=ft.TextAlign.CENTER,
+                    color="#0F3D47",
+                    size=24,
+                ),
+            ],
+            spacing=0,
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         ),
     )
 
@@ -102,7 +147,7 @@ def render_menu_servicios(page: ft.Page, contenedor: ft.Column):
 
     inner_column = ft.Column(
         controls=[heading, grid_holder],
-        spacing=10,
+        spacing=18,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
     )
 
@@ -122,8 +167,8 @@ def render_menu_servicios(page: ft.Page, contenedor: ft.Column):
         sz = _sizes()
         w = page.width or 800
 
-        heading.content.size = sz["heading_sz"]
-
+        heading_title = heading.content.controls[0]
+        heading_title.size = sz["heading_sz"]
         if w < 480:
             wrapper.width = None
         else:
@@ -153,11 +198,8 @@ def render_menu_servicios(page: ft.Page, contenedor: ft.Column):
         for it in SERVICIOS:
             grid.controls.append(_card(it, sz))
 
-        wrapper.update()
-        grid.update()
-        heading.update()
-        contenedor.update()
-        page.update()
+        if getattr(contenedor, "page", None) is not None:
+            contenedor.update()
 
     _build_grid()
     contenedor.data = contenedor.data or {}

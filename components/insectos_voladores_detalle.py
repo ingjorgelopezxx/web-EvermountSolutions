@@ -1,11 +1,12 @@
 from components.service_detail_template import render_service_detail
+from functions.asset_sources import SERVICE_DETAIL_IMAGES
 
 
 def render_servicio_voladores(
     page,
     contenedor,
     *,
-    voladores_img_url: str = "https://i.postimg.cc/fLk0j6KP/voladores-Photoroom-Photoroom.png",
+    voladores_img_url: str = SERVICE_DETAIL_IMAGES["voladores"],
     whatsapp_num: str = "+56999724454",
 ):
     render_service_detail(
@@ -16,10 +17,10 @@ def render_servicio_voladores(
         lead_text=(
             "Los insectos voladores afectan la comodidad y pueden transmitir enfermedades en espacios "
             "interiores y exteriores. Aplicamos soluciones adaptadas para moscas, zancudos, avispas y "
-            "otras especies segun el entorno."
+            "otras especies según el entorno."
         ),
         benefits=[
-            "Aplicacion con equipos nebulizadores.",
+            "Aplicación con equipos nebulizadores.",
             "Productos biodegradables y de bajo impacto ambiental.",
             "Tratamientos preventivos y de emergencia.",
             "Ideal para casas, patios, restaurantes, jardines y centros de eventos.",
@@ -31,14 +32,14 @@ def render_servicio_voladores(
             "Cobertura interior y exterior",
         ],
         metricas=[
-            ("ULV", "Nebulizacion tecnica"),
-            ("FAST", "Accion rapida"),
+            ("ULV", "Nebulización técnica"),
+            ("FAST", "Acción rápida"),
             ("ECO", "Bajo impacto"),
         ],
         proceso=[
-            ("1", "Evaluacion del foco y nivel de actividad"),
-            ("2", "Aplicacion segun zona y especie"),
-            ("3", "Recomendaciones de mantencion"),
+            ("1", "Evaluación del foco y nivel de actividad"),
+            ("2", "Aplicación según zona y especie"),
+            ("3", "Recomendaciones de mantención"),
         ],
         usos=[
             "Patios",

@@ -3,7 +3,9 @@ from urllib.parse import quote
 
 import flet as ft
 
+from functions.asset_sources import SOCIAL_WHATSAPP
 from functions.flet_actions import launch_url
+from functions.resize_coordinator import register_resize_handler
 
 
 def render_service_detail(
@@ -36,7 +38,6 @@ def render_service_detail(
         contenedor.controls.clear()
         contenedor.controls.append(cached["view"])
         contenedor.update()
-        page.on_resized = cached["route_resize_handler"]
         return
 
     def _sizes_for(p: ft.Page):
@@ -93,7 +94,7 @@ def render_service_detail(
             url += f"?text={quote(msg)}"
         launch_url(page, url)
 
-    WHATSAPP_ICON = "https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
+    WHATSAPP_ICON = SOCIAL_WHATSAPP
 
     icono_whatsapp = ft.Image(
         src=WHATSAPP_ICON,
@@ -463,6 +464,9 @@ def render_service_detail(
 
     def _on_resize(e):
         nonlocal SZ
+        if getattr(card, "page", None) is None:
+            return
+
         SZ = _sizes_for(page)
 
         titulo_text.size = SZ["title_sz"]
@@ -496,22 +500,11 @@ def render_service_detail(
         card.content = desktop_layout if SZ["desktop"] else mobile_layout
         card.update()
 
-    prev_on_resized = getattr(page, "_service_detail_base_on_resized", page.on_resized)
-    page._service_detail_base_on_resized = prev_on_resized
-
-    def _chain_on_resized(e):
-        try:
-            if prev_on_resized:
-                prev_on_resized(e)
-        except Exception:
-            pass
-        _on_resize(e)
-
-    page.on_resized = _chain_on_resized
+    resize_key = f"service_detail:{cache_key or title}"
+    register_resize_handler(page, resize_key, _on_resize)
 
     if cache_key:
         cache_store[cache_key] = {
             "view": list_view,
             "resize_fn": _on_resize,
-            "route_resize_handler": _chain_on_resized,
         }

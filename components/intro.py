@@ -1,21 +1,23 @@
 import flet as ft
 
+from functions.asset_sources import INTRO_LOGO
+
 
 def create_intro_overlay(page: ft.Page):
     def texto_info_actual() -> str:
         if (page.width or 0) >= 600:
             return (
-                "Si deseas obtener mas informacion referente a la empresa, "
-                "has clic en las pestañas ubicadas en la parte superior izquierda."
+                "Si deseas obtener más información referente a la empresa, "
+                "haz clic en las pestañas ubicadas en la parte superior izquierda."
             )
         return (
-            "Si deseas obtener mas informacion referente a la empresa, "
-            "haz clic sobre el menu ubicado en la esquina superior derecha."
+            "Si deseas obtener más información referente a la empresa, "
+            "haz clic sobre el menú ubicado en la esquina superior derecha."
         )
 
     imagen_logo = ft.Container(
         content=ft.Image(
-            src="https://i.postimg.cc/8PvSgg5x/logo-mobile-dark.png",
+            src=INTRO_LOGO,
             fit=ft.BoxFit.COVER,
         ),
         width=256,
@@ -53,14 +55,14 @@ def create_intro_overlay(page: ft.Page):
                 ),
                 imagen_logo,
                 ft.Text(
-                    "Bienvenidos!",
+                    "¡Bienvenidos!",
                     size=20,
                     weight=ft.FontWeight.BOLD,
                     color=ft.Colors.BLACK,
                 ),
                 ft.Text(
-                    "Aqui encontraras todo lo referente al control de plagas profesional. "
-                    "Navega por la pagina y usa los botones para contactarte.",
+                    "Aquí encontrarás todo lo referente al control profesional de plagas. "
+                    "Navega por la página y usa los botones para contactarte.",
                     color=ft.Colors.BLACK,
                     text_align=ft.TextAlign.CENTER,
                 ),

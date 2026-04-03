@@ -1,14 +1,10 @@
-import asyncio
+﻿import asyncio
 
 import flet as ft
+from functions.asset_sources import PROGRAM_IMAGES
 
 IMAGENES = [
-    "https://i.postimg.cc/15nLZNp7/imagen1.jpg",
-    "https://i.postimg.cc/RZwyW5pc/imagen2.jpg",
-    "https://i.postimg.cc/BvgzC50b/imagen3.jpg",
-    "https://i.postimg.cc/FRCnM91Q/imagen4.jpg",
-    "https://i.postimg.cc/9FN0WFkY/Whats-App-Image-2025-11-17-at-5-58-09-PM.jpg",
-    "https://i.postimg.cc/Xq5W44BD/Whats-App-Image-2025-11-17-at-5-58-10-PM.jpg",
+    *PROGRAM_IMAGES,
 ]
 
 
@@ -36,10 +32,17 @@ def create_vertical_carousel(page: ft.Page, intervalo=3):
         content=imagen,
         width=card_w,
         height=card_h,
-        bgcolor=ft.Colors.BLACK_12,
-        border_radius=12,
+        bgcolor="#FDFEFE",
+        border_radius=24,
+        border=ft.Border.all(1, "#D9E5EA"),
         clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
         alignment=ft.alignment.center,
+        shadow=ft.BoxShadow(
+            blur_radius=18,
+            spread_radius=0,
+            color="rgba(12,38,46,0.15)",
+            offset=ft.Offset(0, 10),
+        ),
     )
 
     carrusel_control = ft.Container(
@@ -52,9 +55,15 @@ def create_vertical_carousel(page: ft.Page, intervalo=3):
     async def _rotar():
         try:
             while activo[0]:
-                imagen.src = IMAGENES[idx[0] % len(IMAGENES)]
-                page.update()
-                idx[0] = (idx[0] + 1) % len(IMAGENES)
+                if getattr(imagen, "page", None) is not None:
+                    imagen.src = IMAGENES[idx[0] % len(IMAGENES)]
+                    try:
+                        imagen.update()
+                    except AssertionError:
+                        return
+                    except Exception:
+                        return
+                    idx[0] = (idx[0] + 1) % len(IMAGENES)
                 await asyncio.sleep(intervalo)
         except asyncio.CancelledError:
             pass
@@ -83,8 +92,8 @@ def create_vertical_carousel(page: ft.Page, intervalo=3):
                 ),
                 ft.Column(
                     [
-                        ft.Text(title, size=13 if es_pc_tablet else 14, weight=ft.FontWeight.BOLD, color="#0D2943"),
-                        ft.Text(text, size=body_size, color=ft.Colors.BLACK_87, text_align=ft.TextAlign.LEFT),
+                        ft.Text(title, size=13 if es_pc_tablet else 14, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
+                        ft.Text(text, size=body_size, color=ft.Colors.BLACK, text_align=ft.TextAlign.LEFT),
                     ],
                     spacing=2,
                     expand=True,
@@ -121,97 +130,129 @@ def create_vertical_carousel(page: ft.Page, intervalo=3):
         ("Empresas", ft.Icons.VERIFIED),
     ]
 
-    header_programa = ft.Row(
+    header_programa = ft.Column(
         [
             ft.Container(
-                width=42,
-                height=42,
-                border_radius=14,
-                bgcolor="#F4F8FB",
-                alignment=ft.alignment.center,
-                content=ft.Icon(ft.Icons.DATE_RANGE, size=24, color="#0D2943"),
+                bgcolor="#E6F1F4",
+                border_radius=999,
+                padding=ft.Padding.symmetric(horizontal=12, vertical=6),
+                content=ft.Text(
+                    "Programas preventivos",
+                    size=12,
+                    weight=ft.FontWeight.BOLD,
+                    color=ft.Colors.BLACK,
+                ),
             ),
-            ft.Column(
+            ft.Row(
                 [
-                    ft.Text(
-                        "Control Mensual y Anual",
-                        size=title_size,
-                        weight=ft.FontWeight.BOLD,
-                        color="#0D2943",
-                        text_align=ft.TextAlign.LEFT,
+                    ft.Container(
+                        width=42,
+                        height=42,
+                        border_radius=14,
+                        bgcolor="#F4F8FB",
+                        alignment=ft.alignment.center,
+                        content=ft.Icon(ft.Icons.DATE_RANGE, size=24, color="#0D2943"),
                     ),
-                    ft.Text(
-                        "Planes de mantenimiento pensados para continuidad operativa y proteccion constante.",
-                        size=13 if es_pc_tablet else 14,
-                        color="#5F6E79",
-                        text_align=ft.TextAlign.LEFT,
+                    ft.Column(
+                        [
+                            ft.Text(
+                                "Control Mensual y Anual",
+                                size=title_size,
+                                weight=ft.FontWeight.BOLD,
+                                color="#0D2943",
+                                text_align=ft.TextAlign.LEFT,
+                            ),
+                            ft.Text(
+                                "Planes preventivos pensados para continuidad operativa, control constante y menor improvisación.",
+                                size=13 if es_pc_tablet else 14,
+                                color=ft.Colors.BLACK,
+                                text_align=ft.TextAlign.LEFT,
+                            ),
+                        ],
+                        spacing=2,
+                        expand=True,
                     ),
                 ],
-                spacing=2,
-                expand=True,
+                spacing=12,
+                vertical_alignment=ft.CrossAxisAlignment.START,
             ),
         ],
-        spacing=12,
-        vertical_alignment=ft.CrossAxisAlignment.START,
+        spacing=10,
     )
 
     texto_presentacion = ft.Container(
         bgcolor=ft.Colors.WHITE,
         border_radius=20,
         border=ft.Border.all(1, "#D8E2E8"),
-        height=340 if es_pc_tablet else None,
+        height=388 if es_pc_tablet else None,
         padding=ft.Padding.symmetric(horizontal=18, vertical=18),
         shadow=ft.BoxShadow(
-            blur_radius=12,
-            spread_radius=1,
-            color=ft.Colors.BLACK_26,
-            offset=ft.Offset(2, 4),
+            blur_radius=20,
+            spread_radius=0,
+            color="rgba(13,38,46,0.14)",
+            offset=ft.Offset(0, 10),
         ),
         content=ft.Column(
             [
                 ft.Container(height=4, bgcolor="#0D2943", border_radius=999),
                 header_programa,
-                benefit(ft.Icons.EVENT_AVAILABLE, "Visitas programadas", "Seguimiento tecnico y control preventivo durante todo el ano."),
-                benefit(ft.Icons.DESCRIPTION, "Informes y certificados", "Documentacion de aplicacion y respaldo de cada servicio."),
+                benefit(ft.Icons.EVENT_AVAILABLE, "Visitas programadas", "Seguimiento técnico y control preventivo durante todo el año."),
+                benefit(ft.Icons.DESCRIPTION, "Informes y certificados", "Documentación de aplicación y respaldo de cada servicio."),
                 benefit(ft.Icons.SHIELD, "Cobertura integral", "Adaptado a espacios residenciales, comerciales e industriales."),
-                ft.Container(height=6),
             ],
-            spacing=14,
+            spacing=12,
+            scroll=ft.ScrollMode.AUTO if es_pc_tablet else ft.ScrollMode.HIDDEN,
         ),
     )
 
-    planes_header = ft.Row(
+    planes_header = ft.Column(
         [
             ft.Container(
-                width=38,
-                height=38,
-                border_radius=12,
-                bgcolor="#F4F8FB",
-                alignment=ft.alignment.center,
-                content=ft.Icon(ft.Icons.BUSINESS, size=22, color="#0D2943"),
+                bgcolor="#EEF5F7",
+                border_radius=999,
+                padding=ft.Padding.symmetric(horizontal=12, vertical=6),
+                content=ft.Text(
+                    "Cobertura por rubro",
+                    size=12,
+                    weight=ft.FontWeight.BOLD,
+                    color="#4D6771",
+                ),
             ),
-            ft.Column(
+            ft.Row(
                 [
-                    ft.Text(
-                        "Planes ideales para",
-                        size=title_size,
-                        weight=ft.FontWeight.BOLD,
-                        color="#0D2943",
-                        text_align=ft.TextAlign.LEFT,
+                    ft.Container(
+                        width=38,
+                        height=38,
+                        border_radius=12,
+                        bgcolor="#F4F8FB",
+                        alignment=ft.alignment.center,
+                        content=ft.Icon(ft.Icons.BUSINESS, size=22, color="#0D2943"),
                     ),
-                    ft.Text(
-                        "Cobertura flexible para distintos tipos de actividad.",
-                        size=13 if es_pc_tablet else 14,
-                        color="#5F6E79",
-                        text_align=ft.TextAlign.LEFT,
+                    ft.Column(
+                        [
+                            ft.Text(
+                                "Planes ideales para",
+                                size=title_size,
+                                weight=ft.FontWeight.BOLD,
+                                color="#0D2943",
+                                text_align=ft.TextAlign.LEFT,
+                            ),
+                            ft.Text(
+                                "Cobertura flexible para distintos tipos de actividad.",
+                                size=13 if es_pc_tablet else 14,
+                                color="#5F6E79",
+                                text_align=ft.TextAlign.LEFT,
+                            ),
+                        ],
+                        spacing=2,
+                        expand=True,
                     ),
                 ],
-                spacing=2,
-                expand=True,
+                spacing=10,
+                vertical_alignment=ft.CrossAxisAlignment.START,
             ),
         ],
         spacing=10,
-        vertical_alignment=ft.CrossAxisAlignment.START,
     )
 
     lista_planes = ft.Container(
@@ -221,10 +262,10 @@ def create_vertical_carousel(page: ft.Page, intervalo=3):
         height=240 if es_pc_tablet else None,
         padding=ft.Padding.symmetric(horizontal=18, vertical=16),
         shadow=ft.BoxShadow(
-            blur_radius=12,
-            spread_radius=1,
-            color=ft.Colors.BLACK_26,
-            offset=ft.Offset(2, 4),
+            blur_radius=20,
+            spread_radius=0,
+            color="rgba(13,38,46,0.14)",
+            offset=ft.Offset(0, 10),
         ),
         content=ft.Column(
             [
@@ -257,6 +298,7 @@ def create_vertical_carousel(page: ft.Page, intervalo=3):
             spacing=14,
         ),
         width=420,
+        padding=ft.Padding.only(top=4, bottom=4),
     )
     bloque_texto.data = {
         "top_card": texto_presentacion,
@@ -268,3 +310,5 @@ def create_vertical_carousel(page: ft.Page, intervalo=3):
     bloque_carrusel = carrusel_control
 
     return bloque_texto, bloque_carrusel, start, stop
+
+
