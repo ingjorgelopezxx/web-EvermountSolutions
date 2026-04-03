@@ -51,8 +51,7 @@ def create_formulario(page: ft.Page):
 
     def safe_page_update():
         try:
-            if getattr(page, "session_id", None) is not None:
-                page.update()
+            page.update()
         except Exception:
             pass
 
@@ -144,6 +143,8 @@ def create_formulario(page: ft.Page):
     def set_loading(loading: bool, texto: str | None = None):
         if texto is not None:
             estado_envio_text.value = texto
+        if loading:
+            modal_info.visible = False
         boton_enviar.disabled = loading
         boton_enviar_text.value = "Enviando..." if loading else "Enviar"
         boton_con_gradiente.opacity = 0.85 if loading else 1.0
