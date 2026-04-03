@@ -330,49 +330,7 @@ def create_formulario(page: ft.Page):
         return 0 if es_pc_o_tablet() else 0
 
     def enviar_formulario(e):
-        nombre_val = (nombre_real.value or "").strip()
-        correo_val = (correo_tf_real.value or "").strip()
-        telefono_val = (telefono_real.value or "").strip()
-        mensaje_val = (mensaje_real.value or "").strip()
-
         set_loading(True, "Validando información...")
-
-        if not nombre_val or not correo_val or not telefono_val or not mensaje_val:
-            set_loading(False)
-            warning_icon.visible = True
-            safe_update(warning_icon)
-            mostrar_modal(
-                "Por favor completar todos los campos!",
-                "Así se enviará la información correctamente.",
-                ft.Colors.RED_400
-            )
-            return
-
-        if not validar_correo(correo_val):
-            set_loading(False)
-            warning_icon.visible = True
-            safe_update(warning_icon)
-            focus_control(correo_tf_real)
-            mostrar_modal(
-                "Correo inválido",
-                "Ingresa un correo con formato correcto (ejemplo: usuario@dominio.com).",
-                ft.Colors.RED_400
-            )
-            return
-
-        if not validar_telefono(telefono_val):
-            set_loading(False)
-            warning_icon_telefono.visible = True
-            safe_update(warning_icon_telefono)
-            focus_control(telefono_real)
-            mostrar_modal(
-                "Teléfono inválido",
-                "Ingresa un teléfono con formato correcto (ejemplo: +56912345678).",
-                ft.Colors.RED_400
-            )
-            return
-
-        set_loading(True, "Enviando información...")
         page.run_task(proceso_envio)
 
     boton_enviar_text = ft.Text(
@@ -583,12 +541,52 @@ def create_formulario(page: ft.Page):
             raise RuntimeError(f"Resend error: {e}")
 
     async def proceso_envio():
+        await asyncio.sleep(0.05)
+
         nombre_val = (nombre_real.value or "").strip()
         correo_val = (correo_tf_real.value or "").strip()
         telefono_val = (telefono_real.value or "").strip()
         mensaje_val = (mensaje_real.value or "").strip()
 
+        if not nombre_val or not correo_val or not telefono_val or not mensaje_val:
+            set_loading(False)
+            warning_icon.visible = True
+            safe_update(warning_icon)
+            mostrar_modal(
+                "Por favor completar todos los campos!",
+                "Así se enviará la información correctamente.",
+                ft.Colors.RED_400
+            )
+            return
+
+        if not validar_correo(correo_val):
+            set_loading(False)
+            warning_icon.visible = True
+            safe_update(warning_icon)
+            focus_control(correo_tf_real)
+            mostrar_modal(
+                "Correo inválido",
+                "Ingresa un correo con formato correcto (ejemplo: usuario@dominio.com).",
+                ft.Colors.RED_400
+            )
+            return
+
+        if not validar_telefono(telefono_val):
+            set_loading(False)
+            warning_icon_telefono.visible = True
+            safe_update(warning_icon_telefono)
+            focus_control(telefono_real)
+            mostrar_modal(
+                "Teléfono inválido",
+                "Ingresa un teléfono con formato correcto (ejemplo: +56912345678).",
+                ft.Colors.RED_400
+            )
+            return
+
         try:
+            estado_envio_text.value = "Enviando información..."
+            safe_page_update()
+
             subject = f"Nuevo mensaje de {nombre_val}"
             body = (
                 f"Nombre: {nombre_val}\n"
